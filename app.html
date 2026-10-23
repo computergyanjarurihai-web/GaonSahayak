@@ -317,7 +317,8 @@ function firebaseBackend(){
     onAuth(cb){ auth.onAuthStateChanged(u => cb(u ? {uid:u.uid, phone:u.phoneNumber} : null)); },
     async sendOtp(phone10){
       if (!verifier) verifier = new firebase.auth.RecaptchaVerifier("recaptcha", {size:"invisible"});
-      confirmation = await auth.signInWithPhoneNumber("+91"+phone10, verifier);
+      try { confirmation = await auth.signInWithPhoneNumber("+91"+phone10, verifier); }
+      catch(e){ try { verifier.clear(); } catch(_){} verifier = null; const box = document.getElementById("recaptcha"); if (box) box.innerHTML = ""; throw e; }
     },
     async verifyOtp(code){ await confirmation.confirm(code); },
     signOut(){ return auth.signOut(); },
@@ -478,11 +479,31 @@ function loginHtml(){
   <form id="loginForm" class="panel" style="display:flex;flex-direction:column;gap:12px">
     <label>${t("mobile")}<div class="phone"><span>+91</span><input id="l-phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="98XXXXXXXX" required></div></label>
     <button class="btn" id="l-send" type="submit">${t("sendOtp")}</button>
+    <div id="l-err" class="notice warn" hidden></div>
     <div id="l-otpBox" hidden style="display:flex;flex-direction:column;gap:12px">
       <label>${t("otp")}<input id="l-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
       <button class="btn" id="l-verify" type="button">${t("verify")}</button>
     </div>
   </form>`;
+}
+const AUTH_ERR = {
+  "auth/invalid-phone-number":["मोबाइल नंबर सही नहीं है।","The mobile number is not valid."],
+  "auth/too-many-requests":["बहुत बार कोशिश हुई। 1 घंटे बाद फिर कोशिश करें।","Too many attempts. Try again in an hour."],
+  "auth/quota-exceeded":["आज के OTP की सीमा पूरी हो गई। कल कोशिश करें।","Today's OTP limit is used up. Try tomorrow."],
+  "auth/operation-not-allowed":["Firebase में Phone login या SMS region (India) चालू नहीं है।","Phone login or the SMS region (India) is not enabled in Firebase."],
+  "auth/unauthorized-domain":["यह वेबसाइट Firebase के Authorized domains में नहीं जुड़ी है।","This website is not in Firebase Authorized domains."],
+  "auth/invalid-app-credential":["reCAPTCHA जाँच पूरी नहीं हुई। पेज रीफ़्रेश करके फिर कोशिश करें।","The reCAPTCHA check failed. Refresh the page and try again."],
+  "auth/captcha-check-failed":["reCAPTCHA जाँच पूरी नहीं हुई। पेज रीफ़्रेश करके फिर कोशिश करें।","The reCAPTCHA check failed. Refresh the page and try again."],
+  "auth/billing-not-enabled":["Firebase में Blaze (billing) चालू नहीं है।","Billing (Blaze) is not enabled in Firebase."],
+  "auth/network-request-failed":["इंटरनेट से जुड़ नहीं पाया।","Could not connect to the internet."],
+  "auth/code-expired":["OTP की समय सीमा खत्म। नया OTP मँगाएँ।","The OTP expired. Request a new one."]
+};
+function showLoginError(err){
+  const box = $("#l-err"); if (!box) return;
+  if (!err) { box.hidden = true; return; }
+  const c = err.code || "", m = AUTH_ERR[c];
+  box.hidden = false;
+  box.textContent = (m ? m[L()] : t("failed")) + (c ? "  [" + c + "]" : (err.message ? "  [" + err.message + "]" : ""));
 }
 function bindLogin(){
   $("#loginForm").addEventListener("submit", async e => {
@@ -490,13 +511,13 @@ function bindLogin(){
     const p = $("#l-phone").value.replace(/\D/g,"");
     if (!/^[6-9]\d{9}$/.test(p)) { toast(t("badPhone")); return; }
     $("#l-send").disabled = true;
-    try { await B.sendOtp(p); $("#l-otpBox").hidden = false; $("#l-otp").focus(); toast(t("otpSent")); }
-    catch(err){ console.error(err); toast(t("failed")); }
+    try { await B.sendOtp(p); $("#l-otpBox").hidden = false; $("#l-otp").focus(); toast(t("otpSent")); showLoginError(""); }
+    catch(err){ console.error(err); showLoginError(err); }
     finally { $("#l-send").disabled = false; }
   });
   $("#l-verify").addEventListener("click", async () => {
     $("#l-verify").disabled = true;
-    try { await B.verifyOtp($("#l-otp").value.trim()); } catch(err){ toast(t("badOtp")); }
+    try { await B.verifyOtp($("#l-otp").value.trim()); } catch(err){ console.error(err); if (err && err.code && err.code !== "auth/invalid-verification-code") showLoginError(err); else toast(t("badOtp")); }
     finally { const b = $("#l-verify"); if (b) b.disabled = false; }
   });
 }
