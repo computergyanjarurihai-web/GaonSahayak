@@ -28,11 +28,11 @@ Until a Firebase config is pasted into `CONFIG` at the top of `app.html`, the ap
 
 ## How a case works
 
-1. Family posts the problem with village, block and khata/khesra number.
-2. A verified Sahayak from that block accepts it; the family signs a one-case authorisation letter and pays 50% of the fee.
+1. Family posts the problem with district, block, panchayat, village and khata/khesra number, and pays the full fee by UPI.
+2. A verified Sahayak from that block accepts it; the family signs a one-case authorisation letter.
 3. The Sahayak files applications in the family's name and follows up at the circle or block office.
 4. If the office does not act, the Sahayak escalates through a Lok Shikayat complaint (hearing and decision within 60 working days), an RTI, or a partner advocate.
-5. When it's done, the family confirms and rates the Sahayak, and the remaining 50% is released.
+5. When it's done, the family confirms and rates the Sahayak. If the work cannot be done, the full fee is refunded.
 
 ## Pilot fees
 

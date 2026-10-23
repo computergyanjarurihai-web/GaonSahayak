@@ -177,13 +177,13 @@ const TXT = {
   desc:["क्या हुआ?","What happened?"], descHelp:["हिंदी या अंग्रेज़ी में। दफ़्तर का नाम, तारीख, कौन शामिल है।","Hindi or English. Office name, dates, who is involved."],
   land:["खाता / खेसरा नंबर","Khata / Khesra no."], landHelp:["ज़मीन के केस के लिए","for land cases"],
   files:["काग़ज़ और फ़ोटो","Papers and photos"], filesHelp:["खतियान, रसीद, आवेदन, फ़ोटो। PDF या फ़ोटो, हर फ़ाइल 10 MB तक।","Khatiyan, receipts, applications, photos. PDF or image, up to 10 MB each."],
-  feeL:["सेवा शुल्क","Service fee"], feeHelp:["सहायक के केस लेने पर 50%, काम पूरा होने पर 50%","50% when a Sahayak accepts, 50% when the work is done"],
+  feeL:["सेवा शुल्क","Service fee"], feeHelp:["पूरा शुल्क केस भेजते समय। काम न होने पर पैसा वापस।","Full fee when you post the case. Refunded if the work is not done."],
   postBtn:["समस्या भेजें","Post problem"], posting:["भेजा जा रहा है…","Posting…"], posted:["समस्या भेज दी गई। सहायक जल्द केस लेगा।","Problem posted. A Sahayak will take it up soon."],
   mineT:["आपके केस","Your cases"], mineS:["हर दौरा, रसीद और अगली तारीख यहाँ दिखेगी।","Every visit, receipt and next date shows here."],
   noCases:["अभी कोई केस नहीं है। ऊपर अपनी पहली समस्या भेजें।","No cases yet. Post your first problem above."],
   timeline:["कार्यवाही","Timeline"], filesL:["फ़ाइलें","Files"], addFiles:["फ़ाइल जोड़ें","Add files"],
   sahayakL:["सहायक","Sahayak"], from:["से","From"], postedOn:["भेजा","Posted"], nextDate:["अगली तारीख","Next date"], fee:["शुल्क","Fee"], ref:["रसीद/आवेदन नं.","Ref"],
-  payAdv:["अग्रिम 50%","Advance 50%"], payFin:["बाकी 50%","Final 50%"], payNow:["भुगतान करें","Pay now"], paidWait:["भुगतान दर्ज, जाँच बाकी","Paid, being verified"], paidOk:["भुगतान पक्का","Payment confirmed"],
+  payAdv:["अग्रिम 50%","Advance 50%"], payFin:["बाकी 50%","Final 50%"], payFull:["सेवा शुल्क","Service fee"], payDue:["बाकी","Due"], refundNote:["काम न होने पर पूरा पैसा वापस","Full refund if the work is not done"], payNow:["भुगतान करें","Pay now"], paidWait:["भुगतान दर्ज, जाँच बाकी","Paid, being verified"], paidOk:["भुगतान पक्का","Payment confirmed"],
   confirm:["पुष्टि करें और रेटिंग दें","Confirm and rate"], notYet:["अभी हल नहीं हुआ","Not solved yet"],
   applyT:["सहायक बनना चाहते हैं?","Want to become a Sahayak?"], applyBtn:["सहायक के लिए आवेदन करें","Apply as a Sahayak"], applied:["आपका सहायक आवेदन जाँच में है।","Your Sahayak application is under review."],
   occ:["काम / पृष्ठभूमि","Occupation / background"], occPh:["सेवानिवृत्त शिक्षक, जीविका दीदी, लॉ ग्रेजुएट…","Retired teacher, SHG member, law graduate…"], submit:["आवेदन भेजें","Submit application"], cancel:["रद्द करें","Cancel"],
@@ -365,7 +365,7 @@ function demoBackend(){
     },
     cases:{
       "demo-c1mut":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"land_records",title:"8 महीने से दाखिल-खारिज लंबित",description:"पिताजी के निधन के बाद ऑनलाइन दाखिल-खारिज का आवेदन किया था। अंचल कार्यालय ने अब तक फ़ैसला नहीं किया।",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",land:"खाता 112, खेसरा 845",fee:1499,status:"in_progress",sahayakUid:"demo-ramesh",sahayakName:"रमेश झा",createdAt:d(20),
-        files:[], payments:[{part:"advance",amount:750,method:"upi",ref:"412345678901",at:d(19),verified:true}],
+        files:[], payments:[{part:"full",amount:1499,method:"upi",ref:"412345678901",at:d(19),verified:true}],
         updates:[{at:d(20),by:"system",kind:"posted",text:"दिल्ली से केस भेजा गया।"},{at:d(19),by:"रमेश झा",kind:"visit",text:"रमेश झा ने केस लिया।"},{at:d(15),by:"रमेश झा",kind:"filed",text:"अंचल कार्यालय में राजस्व कर्मचारी से मिले। फ़ाइल सीओ को भेजी गई।",ref:"Mutation receipt",next:d(-5)}]},
       "demo-c2res":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"certificate",title:"बेटे के दाख़िले के लिए निवास प्रमाण पत्र",description:"कॉलेज दाख़िले के लिए जल्दी निवास प्रमाण पत्र चाहिए।",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",land:"",fee:499,status:"posted",createdAt:d(1),files:[],payments:[],
         updates:[{at:d(1),by:"system",kind:"posted",text:"दिल्ली से केस भेजा गया।"}]}
@@ -606,16 +606,14 @@ function sahayakActions(c){
   if (c.status === "resolved") return `<span class="fee">${t("waitConfirm")}</span><button class="btn wa small" data-act="wa" data-id="${esc(c.id)}">${t("waFamily")}</button>`;
   return `<button class="btn small" data-act="update" data-id="${esc(c.id)}">${t("addUpdate")}</button><button class="btn wa small" data-act="wa" data-id="${esc(c.id)}">${t("waFamily")}</button>`;
 }
+const paidSum = c => (c.payments || []).reduce((x, p) => x + (Number(p.amount) || 0), 0);
+const dueAmount = c => Math.max((c.fee || 0) - paidSum(c), 0);
+const partLabel = part => part === "advance" ? t("payAdv") : part === "final" ? t("payFin") : t("payFull");
 function payBox(c){
-  if (c.status === "posted") return "";
-  const pays = c.payments || [];
-  const row = (part, label, due) => {
-    const p = pays.find(x => x.part === part);
-    if (p) return `<div class="line"><span>${label} · ${rupee(p.amount)}</span><span class="${p.verified?"ok":"wait"}">${p.verified?t("paidOk"):t("paidWait")}</span></div>`;
-    if (!due) return `<div class="line"><span>${label} · ${rupee(half(c))}</span><span>–</span></div>`;
-    return `<div class="line"><span>${label} · <b>${rupee(half(c))}</b></span><button class="btn warm small" data-act="pay" data-part="${part}" data-id="${esc(c.id)}">${t("payNow")}</button></div>`;
-  };
-  return `<div class="pay">${row("advance", t("payAdv"), true)}${row("final", t("payFin"), c.status === "resolved" || c.status === "closed")}</div>`;
+  const pays = c.payments || [], due = dueAmount(c);
+  const rows = pays.map(p => `<div class="line"><span>${partLabel(p.part)} · ${rupee(p.amount)}</span><span class="${p.verified?"ok":"wait"}">${p.verified?t("paidOk"):t("paidWait")}</span></div>`).join("");
+  const dueRow = due > 0 ? `<div class="line"><span>${pays.length ? t("payDue") : t("payFull")} · <b>${rupee(due)}</b></span><button class="btn warm small" data-act="pay" data-part="full" data-id="${esc(c.id)}">${t("payNow")}</button></div><div class="line" style="font-size:13px;color:var(--muted)">${t("refundNote")}</div>` : "";
+  return `<div class="pay">${rows}${dueRow}</div>`;
 }
 function caseCard(c, actions, opts={}){
   const ups = (c.updates || []).slice().reverse();
@@ -639,7 +637,7 @@ function renderAdmin(){
   const closed = all.filter(c => c.status === "closed");
   const pending = []; all.forEach(c => (c.payments||[]).forEach((p,i) => { if (!p.verified) pending.push({c,p,i}); }));
   const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
-  const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${p.part==="advance"?t("payAdv"):t("payFin")} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
+  const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${partLabel(p.part)} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
   const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${esc(u.phone||"")}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
   const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
   const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
@@ -672,6 +670,7 @@ async function postCase(e){
     if (files.length) { toast(t("uploading")); const up = await uploadAll(id, files); if (up.length) await B.updateCase(id, {}, null, null, up); }
     $("#caseForm").reset(); bindLoc("f", {district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}); $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
     toast(t("posted"));
+    openPay({...data, id}, "full");
   } catch(err){ console.error(err); toast(t("failed")); }
   finally { btn.disabled = false; btn.textContent = t("postBtn"); }
 }
@@ -747,8 +746,9 @@ function openAddFiles(c){
   });
 }
 function openPay(c, part){
-  const amount = half(c);
-  const note = `${code(c.id)} ${part === "advance" ? "advance" : "final"}`;
+  const amount = dueAmount(c);
+  if (amount <= 0) { toast(t("paidOk")); return; }
+  const note = `${code(c.id)} fee`;
   if (!CONFIG.upiId && !CONFIG.razorpayKey && B.mode !== "demo") { openSheet(t("payTitle"), `<p class="desc">${t("noPayMethod")}</p><button class="btn ghost" id="pp-x">${t("cancel")}</button>`, () => $("#pp-x").onclick = closeSheet); return; }
   const upi = CONFIG.upiId || (B.mode === "demo" ? "gramsahayak@upi" : "");
   const upiLink = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(CONFIG.upiName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
@@ -762,7 +762,7 @@ function openPay(c, part){
     $("#pp-x").onclick = closeSheet;
     const cp = $("#pp-copy"); if (cp) cp.onclick = () => { navigator.clipboard.writeText(upi).then(() => toast(t("copied"))).catch(() => { const r = document.createRange(); r.selectNodeContents($("#pp-upi")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }); };
     const record = async (method, ref) => {
-      try { await B.updateCase(c.id, {}, {at:nowIso(), by:S.me.name, kind:"payment", text:`${part==="advance"?TXT.payAdv[0]:TXT.payFin[0]} ${rupee(amount)} (${method.toUpperCase()})`, ref}, {part, amount, method, ref, at:nowIso(), verified:false}); closeSheet(); toast(t("payRec")); }
+      try { await B.updateCase(c.id, {}, {at:nowIso(), by:S.me.name, kind:"payment", text:`${TXT.payFull[0]} ${rupee(amount)} (${method.toUpperCase()})`, ref}, {part, amount, method, ref, at:nowIso(), verified:false}); closeSheet(); toast(t("payRec")); }
       catch(e){ console.error(e); toast(t("failed")); }
     };
     const f = $("#ppForm"); if (f) f.onsubmit = ev => { ev.preventDefault(); record("upi", $("#pp-utr").value.trim()); };
