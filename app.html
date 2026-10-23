@@ -270,6 +270,9 @@ function bindLoc(px, cur = {}){
     const inList = want.panchayat && list.includes(want.panchayat);
     pS.innerHTML = opt("", t("chooseP"), !want.panchayat, false) + list.map(v => opt(v, v, v === want.panchayat, false)).join("") + opt("__other", t("otherP"), !!want.panchayat && !inList, false);
     po.value = want.panchayat && !inList ? want.panchayat : "";
+    const noList = list.length === 0;
+    pS.closest("label").hidden = noList;
+    if (noList) pS.value = "__other";
     pow.hidden = pS.value !== "__other";
     vL.innerHTML = (f ? f.b.villages : []).map(v => `<option value="${esc(v)}"></option>`).join("");
     if (want.village !== undefined) vI.value = want.village || "";
