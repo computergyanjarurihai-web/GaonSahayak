@@ -12,7 +12,7 @@ The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block)
 | --- | --- |
 | `index.html` | Public website. Hindi by default, with a हिंदी / English switch. Add `#en` to the URL to open it in English. |
 | `app.html` | The app, Hindi first with an English switch. Mobile OTP login; families post cases with photos/PDFs, pay by UPI and see only their own cases; Sahayaks accept cases, log visits with receipts and send WhatsApp updates; Admin approves Sahayaks, assigns cases and confirms payments. |
-| `locations.js` | Location data for the dropdowns: all 38 Bihar districts; subdivision → block → gram panchayat (309 panchayats, plus 1,144 village-name suggestions) for Darbhanga. Add more districts in the same shape. |
+| `locations.js` | Location data for the dropdowns: all 38 Bihar districts listed. Darbhanga: subdivision → block → panchayat (309) with village suggestions. Madhubani, Sitamarhi, Muzaffarpur, Samastipur, Saharsa, Begusarai, Purnia, Katihar: block → panchayat (132 blocks, 2,132 panchayats). |
 | `firestore.rules`, `storage.rules` | Firebase security rules: each family sees only its own cases, files and phone number. |
 | `SETUP.md` | Step-by-step setup guide in Hindi: Firebase, UPI, Razorpay, WhatsApp. |
 
