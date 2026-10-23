@@ -1,0 +1,342 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<title>Gaon Sahayak</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: bilingual landing page (Hindi default, English toggle) — hero with a "case slip" styled like a circle-office receipt, then full-width bands, each with a centered 1080px inner column */
+:root{
+  --bg:#f2f5f0; --paper:#fbfcf8; --ink:#14221a; --muted:#56655b; --line:#d3dccf;
+  --green:#1e5a3d; --green-deep:#143f2b; --green-soft:#e1ede4; --turmeric:#b97d06; --turmeric-soft:#fbefd2; --stamp:#a8321f;
+  --on-green:#f2f5f0;
+  --display:"Rozha One", "Mukta", Georgia, serif;
+  --body:"Mukta", "Noto Sans Devanagari", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1511; --paper:#16201a; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
+  --green:#79c79a; --green-deep:#0a2417; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10; --stamp:#f08a73;
+  --on-green:#e5ede7; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1511; --paper:#16201a; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
+  --green:#79c79a; --green-deep:#0a2417; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10; --stamp:#f08a73;
+  --on-green:#e5ede7; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65}
+
+/* language switching: Hindi shows by default */
+.l-en{display:none}
+:root[data-lang="en"] .l-hi{display:none}
+:root[data-lang="en"] .l-en{display:revert}
+
+.in{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--green)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--turmeric);outline-offset:2px}
+nav .in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px;flex-wrap:wrap}
+.logo{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--ink)}
+.logo b{font-family:var(--display);font-weight:400;font-size:28px;color:var(--green);line-height:1}
+.logo small{font-size:14px;color:var(--muted)}
+.navr{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:18px;flex-wrap:wrap;font-size:15.5px}
+nav ul a{text-decoration:none;color:var(--muted);font-weight:500}
+nav ul a:hover{color:var(--green)}
+.lang{display:inline-flex;border:1.5px solid var(--green);border-radius:999px;overflow:hidden;background:var(--paper)}
+.lang button{border:0;background:transparent;color:var(--green);font:600 14px/1 var(--body);padding:8px 14px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--green);color:var(--on-green)}
+:root[data-theme="dark"] .lang button[aria-pressed="true"]{color:var(--bg)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .lang button[aria-pressed="true"]{color:var(--bg)}}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:var(--on-green);text-decoration:none;font-weight:600;padding:12px 20px;border-radius:10px;font-size:16.5px}
+.cta.alt{background:transparent;color:var(--green);border:1.5px solid var(--green)}
+.cta:hover{filter:brightness(1.08)}
+
+/* hero */
+.hero .in{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-block:28px 64px}
+@media (max-width:860px){.hero .in{grid-template-columns:1fr;gap:36px}}
+.eyebrow{font-size:14px;font-weight:700;letter-spacing:.06em;color:var(--turmeric)}
+:root[data-lang="en"] .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:13px}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,7vw,68px);line-height:1.1;margin:10px 0 8px;color:var(--green);text-wrap:balance}
+.hero .sub{font-size:clamp(21px,3vw,27px);font-weight:600;margin:0 0 16px;line-height:1.3;text-wrap:balance}
+.hero p.lead{color:var(--muted);max-width:54ch;margin:0 0 26px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.small-note{font-size:14.5px;color:var(--muted);margin-top:14px}
+
+/* case slip */
+.slip{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:22px 22px 18px;position:relative;font-size:15px;box-shadow:0 1px 0 var(--line),0 18px 40px -24px rgba(20,40,28,.35);transform:rotate(-1.2deg);max-width:440px;justify-self:center;width:100%}
+@media (prefers-reduced-motion:no-preference){.slip{animation:settle .7s cubic-bezier(.2,.8,.2,1) both}@keyframes settle{from{transform:rotate(-4deg) translateY(10px)}}}
+.slip header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.slip header b{font-family:var(--display);font-weight:400;font-size:20px}
+.slip .no{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.slip dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0 0 12px}
+.slip dt{color:var(--muted);font-size:13.5px}
+.slip dd{margin:0;font-size:14.5px;border-bottom:1px dotted var(--line);min-width:0;overflow-wrap:anywhere}
+.slip dd.num{font-family:var(--mono);font-size:13.5px}
+.slip ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.slip ol li{display:grid;grid-template-columns:66px 1fr;gap:10px;font-size:14.5px;line-height:1.45}
+.slip ol time{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.slip ol li.next{color:var(--turmeric);font-weight:600}
+.stamp{position:absolute;right:16px;bottom:52px;border:2.5px solid var(--stamp);color:var(--stamp);font-weight:700;font-size:13px;letter-spacing:.06em;padding:6px 10px;border-radius:4px;transform:rotate(-9deg);opacity:.85;text-align:center;line-height:1.3}
+:root[data-lang="en"] .stamp{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.slip footer{margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted)}
+
+/* bands */
+section{padding-block:64px}
+section h2{font-family:var(--display);font-weight:400;font-size:clamp(30px,4.5vw,42px);line-height:1.18;margin:6px 0 10px;text-wrap:balance}
+section .intro{color:var(--muted);max-width:62ch;margin:0 0 34px}
+.band-green{background:var(--green-deep);color:var(--on-green)}
+.band-green .intro,.band-green .muted{color:color-mix(in srgb,var(--on-green) 72%,transparent)}
+.band-paper{background:var(--paper);border-block:1px solid var(--line)}
+
+.pains{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+@media (max-width:760px){.pains{grid-template-columns:1fr}}
+.pains div{border-top:2px solid color-mix(in srgb,var(--on-green) 30%,transparent);padding-top:14px}
+.pains b{display:block;font-size:19px;margin-bottom:4px}
+.pains p{margin:0;font-size:16px}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+.steps li{counter-increment:s;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.steps li::before{content:counter(s,devanagari);display:block;font-family:var(--display);font-size:38px;line-height:1;color:var(--turmeric);margin-bottom:10px}
+:root[data-lang="en"] .steps li::before{content:counter(s)}
+.steps b{display:block;font-size:18px;margin-bottom:4px}
+.steps p{margin:0;color:var(--muted);font-size:15.5px}
+
+.svc-wrap{overflow-x:auto}
+.svc{width:100%;border-collapse:collapse;font-size:16px}
+.svc th{text-align:left;font-size:13.5px;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:0 12px 10px 0;border-bottom:2px solid var(--ink)}
+.svc td{padding:14px 12px 14px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.svc td:first-child{font-weight:600;min-width:190px}
+.svc td small{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.svc td.fee{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;text-align:right;padding-right:0}
+.svc th:last-child{text-align:right;padding-right:0}
+.svc .office{color:var(--muted);font-size:15px}
+.fine{font-size:14.5px;color:var(--muted);margin-top:16px;max-width:72ch}
+
+.promise{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 40px}
+@media (max-width:700px){.promise{grid-template-columns:1fr}}
+.promise > div{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+.promise svg{width:24px;height:24px;margin-top:4px}
+.promise b{display:block;font-size:18px}
+.promise p{margin:0;color:var(--muted);font-size:15.5px}
+
+.join{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+@media (max-width:800px){.join{grid-template-columns:1fr}}
+.join ul{margin:0 0 22px;padding-left:20px}
+.join li{margin-bottom:6px}
+.earn{background:var(--turmeric-soft);border-radius:12px;padding:20px}
+.earn b{font-size:28px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.earn p{margin:4px 0 0;color:var(--muted);font-size:15px}
+
+.faq{max-width:780px}
+.faq details{border-bottom:1px solid var(--line);padding:16px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--turmeric);font-size:24px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;color:var(--muted)}
+
+.final .in{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.final h2{margin:0;color:var(--on-green)}
+.final .cta{background:var(--turmeric);color:#1a1405}
+footer.site .in{padding-block:28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+</style>
+
+<nav>
+  <div class="in">
+    <a class="logo" href="#top"><b><span class="l-hi">गाँव सहायक</span><span class="l-en">Gaon Sahayak</span></b><small><span class="l-hi">Gaon Sahayak</span><span class="l-en">गाँव सहायक</span></small></a>
+    <div class="navr">
+      <ul>
+        <li><a href="#how"><span class="l-hi">कैसे काम करता है</span><span class="l-en">How it works</span></a></li>
+        <li><a href="#services"><span class="l-hi">सेवाएँ और शुल्क</span><span class="l-en">Services & fees</span></a></li>
+        <li><a href="#sahayak"><span class="l-hi">सहायक बनें</span><span class="l-en">Become a Sahayak</span></a></li>
+        <li><a href="#faq"><span class="l-hi">सवाल-जवाब</span><span class="l-en">FAQ</span></a></li>
+      </ul>
+      <div class="lang" role="group" aria-label="भाषा / Language">
+        <button type="button" id="btn-hi" data-lang="hi" aria-pressed="true" lang="hi">हिंदी</button>
+        <button type="button" id="btn-en" data-lang="en" aria-pressed="false" lang="en">English</button>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="in">
+    <div>
+      <div class="eyebrow"><span class="l-hi">बिहार से बाहर रहने वाले बिहारियों के लिए</span><span class="l-en">For Biharis living outside Bihar</span></div>
+      <h1><span class="l-hi">गाँव का काम, अब शहर से।</span><span class="l-en">Village work, now from the city.</span></h1>
+      <p class="sub"><span class="l-hi">नौकरी छोड़े बिना, गाँव की समस्या का समाधान।</span><span class="l-en">Your village problem, solved while you stay at work.</span></p>
+      <p class="lead l-hi">ज़मीन पर कब्ज़ा, अंचल कार्यालय में अटका दाखिल-खारिज, या प्रमाण पत्र और पेंशन जो आगे नहीं बढ़ रहे। दिल्ली, मुंबई, पंजाब या खाड़ी देशों से अपनी समस्या भेजिए। आपके अपने प्रखंड का सत्यापित सहायक आपकी ओर से दफ़्तर जाएगा और हर कदम की जानकारी आपको दिखाएगा।</p>
+      <p class="lead l-en">Land encroachment, a mutation stuck at the circle office, a certificate or pension that never moves. Post it from Delhi, Mumbai, Punjab or the Gulf. A verified Sahayak from your own block goes to the office for you and shows you every step.</p>
+      <div class="btns">
+        <a class="cta" href="app.html"><span class="l-hi">समस्या भेजें</span><span class="l-en">Post your problem</span></a>
+        <a class="cta alt" href="#how"><span class="l-hi">देखें कैसे काम करता है</span><span class="l-en">See how it works</span></a>
+      </div>
+      <p class="small-note"><span class="l-hi">पायलट की शुरुआत दरभंगा ज़िले से · घनश्यामपुर, बिरौल और आसपास के प्रखंड</span><span class="l-en">Pilot starting in Darbhanga district · Ghanshyampur, Biraul and nearby blocks</span></p>
+    </div>
+
+    <article class="slip" aria-label="केस पर्ची / Case slip">
+      <header><b><span class="l-hi">केस पर्ची</span><span class="l-en">Case slip</span></b><span class="no">GS-MUT01 · <span class="l-hi">उदाहरण</span><span class="l-en">Example</span></span></header>
+      <dl>
+        <dt><span class="l-hi">समस्या</span><span class="l-en">Problem</span></dt><dd><span class="l-hi">दाखिल-खारिज लंबित</span><span class="l-en">Mutation (dakhil-kharij) pending</span></dd>
+        <dt><span class="l-hi">गाँव</span><span class="l-en">Village</span></dt><dd><span class="l-hi">कोर्थू, घनश्यामपुर</span><span class="l-en">Korthu, Ghanshyampur</span></dd>
+        <dt><span class="l-hi">खाता / खेसरा</span><span class="l-en">Khata / Khesra</span></dt><dd class="num">112 / 845</dd>
+        <dt><span class="l-hi">परिवार</span><span class="l-en">Family in</span></dt><dd><span class="l-hi">दिल्ली</span><span class="l-en">Delhi</span></dd>
+        <dt><span class="l-hi">सहायक</span><span class="l-en">Sahayak</span></dt><dd><span class="l-hi">रमेश झा (सत्यापित)</span><span class="l-en">Ramesh Jha (verified)</span></dd>
+      </dl>
+      <ol>
+        <li><time><span class="l-hi">03 अक्टू</span><span class="l-en">03 Oct</span></time><span><span class="l-hi">दिल्ली से केस भेजा गया</span><span class="l-en">Case posted from Delhi</span></span></li>
+        <li><time><span class="l-hi">04 अक्टू</span><span class="l-en">04 Oct</span></time><span><span class="l-hi">सहायक ने केस लिया, अधिकार पत्र पर हस्ताक्षर</span><span class="l-en">Sahayak accepted, authorisation letter signed</span></span></li>
+        <li><time><span class="l-hi">08 अक्टू</span><span class="l-en">08 Oct</span></time><span><span class="l-hi">अंचल कार्यालय में राजस्व कर्मचारी से मिले, रसीद अपलोड</span><span class="l-en">Met Revenue Karmachari at Anchal office, receipt uploaded</span></span></li>
+        <li class="next"><time><span class="l-hi">28 अक्टू</span><span class="l-en">28 Oct</span></time><span><span class="l-hi">अगली तारीख: सीओ का आदेश</span><span class="l-en">Next date: CO's order</span></span></li>
+      </ol>
+      <div class="stamp" aria-hidden="true"><span class="l-hi">पैरवी<br>जारी है</span><span class="l-en">Follow-up<br>on track</span></div>
+      <footer><span class="l-hi">हर दौरे का फ़ोटो और रसीद के साथ रिकॉर्ड।</span><span class="l-en">Every visit logged with photo and receipt.</span></footer>
+    </article>
+  </div>
+</header>
+
+<section class="band-green">
+  <div class="in">
+    <div class="eyebrow"><span class="l-hi">यह क्यों ज़रूरी है</span><span class="l-en">Why this exists</span></div>
+    <h2><span class="l-hi">ज़मीन गाँव में है, परिवार शहर में।</span><span class="l-en">The land is in the village. The family is in the city.</span></h2>
+    <p class="intro"><span class="l-hi">सरकारी काम के लिए एक ही दफ़्तर के बार-बार चक्कर लगाने पड़ते हैं। ज़्यादातर लोग सिर्फ़ छठ, होली या शादी-ब्याह में घर आ पाते हैं।</span><span class="l-en">Government work needs repeated visits to the same office. Most of us get home only for Chhath, Holi or a wedding.</span></p>
+    <div class="pains">
+      <div><b><span class="l-hi">कब्ज़े को कोई चुनौती नहीं देता</span><span class="l-en">Encroachment goes unchallenged</span></b><p class="muted"><span class="l-hi">मालिक दूर है और नापी के लिए नहीं आ सकता, यह जानकर कोई ज़मीन पर कब्ज़ा कर लेता है।</span><span class="l-en">Someone occupies the plot knowing the owner is far away and can't come for the measurement.</span></p></div>
+      <div><b><span class="l-hi">फ़ाइलें महीनों पड़ी रहती हैं</span><span class="l-en">Files sit idle for months</span></b><p class="muted"><span class="l-hi">दाखिल-खारिज, एलपीसी और प्रमाण पत्र के आवेदन रुके रहते हैं, क्योंकि काउंटर पर कोई पैरवी नहीं करता।</span><span class="l-en">Mutation, LPC and certificate applications wait because nobody follows up at the counter.</span></p></div>
+      <div><b><span class="l-hi">एक यात्रा बहुत महँगी पड़ती है</span><span class="l-en">One trip costs too much</span></b><p class="muted"><span class="l-hi">रेल किराया, एक-दो हफ़्ते की कमाई का नुकसान, और अक्सर सुनवाई फिर भी टल जाती है।</span><span class="l-en">Train fare, a week or two of lost wages, and often the hearing is postponed anyway.</span></p></div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="in">
+    <div class="eyebrow"><span class="l-hi">कैसे काम करता है</span><span class="l-en">How it works</span></div>
+    <h2><span class="l-hi">एक बार भेजिए। दफ़्तर हम जाएँगे। आप हर कदम देखिए।</span><span class="l-en">Post once. We go to the office. You watch it move.</span></h2>
+    <p class="intro"><span class="l-hi">हर आवेदन आपके अपने नाम से दिया जाता है। सहायक सिर्फ़ आवेदन जमा करता है, पैरवी करता है, काग़ज़ लाता है और हर दौरा ऐप में दर्ज करता है।</span><span class="l-en">Every application is filed in your own name. The Sahayak only submits, follows up and collects, and logs each visit in the app.</span></p>
+    <ol class="steps">
+      <li><b><span class="l-hi">समस्या भेजें</span><span class="l-en">Post the problem</span></b><p><span class="l-hi">समस्या का प्रकार चुनें, गाँव, खाता/खेसरा और काग़ज़ों की फ़ोटो जोड़ें।</span><span class="l-en">Choose the type, add the village, khata/khesra and photos of your papers.</span></p></li>
+      <li><b><span class="l-hi">सहायक केस लेता है</span><span class="l-en">A Sahayak accepts</span></b><p><span class="l-hi">आपके प्रखंड का सत्यापित सहायक केस लेता है। आप सिर्फ़ इस केस के लिए अधिकार पत्र पर हस्ताक्षर करते हैं।</span><span class="l-en">A verified helper from your block takes the case. You sign a one-case authorisation letter.</span></p></li>
+      <li><b><span class="l-hi">दफ़्तर का काम शुरू</span><span class="l-en">Office work begins</span></b><p><span class="l-hi">आवेदन, अंचल या प्रखंड कार्यालय में पैरवी, और काम अटके तो लोक शिकायत या RTI।</span><span class="l-en">Applications, follow-ups at the circle or block office, and Lok Shikayat or RTI if it gets stuck.</span></p></li>
+      <li><b><span class="l-hi">पुष्टि करें, रेटिंग दें</span><span class="l-en">You confirm and rate</span></b><p><span class="l-hi">काम होने पर ऐप में पुष्टि करें। शुल्क की बाकी आधी राशि तभी दी जाती है।</span><span class="l-en">When it's done you confirm in the app. The second half of the fee is released only then.</span></p></li>
+    </ol>
+  </div>
+</section>
+
+<section class="band-paper" id="services">
+  <div class="in">
+    <div class="eyebrow"><span class="l-hi">सेवाएँ और शुल्क</span><span class="l-en">Services and fees</span></div>
+    <h2><span class="l-hi">तय शुल्क, ऐप से भुगतान। न नकद, न रिश्वत।</span><span class="l-en">Fixed fees, paid in the app. No cash, no bribes.</span></h2>
+    <p class="intro"><span class="l-hi">सहायक के केस लेने पर 50% और काम पूरा होने की पुष्टि पर 50% दें। सरकारी शुल्क अलग से, असल लागत पर, रसीद के साथ।</span><span class="l-en">Pay 50% when a Sahayak accepts and 50% when you confirm the work is done. Government fees are extra, at cost, with receipts.</span></p>
+    <div class="svc-wrap">
+      <table class="svc">
+        <thead><tr><th><span class="l-hi">सेवा</span><span class="l-en">Service</span></th><th><span class="l-hi">कहाँ जाते हैं</span><span class="l-en">Where we go</span></th><th><span class="l-hi">शुल्क</span><span class="l-en">Fee</span></th></tr></thead>
+        <tbody>
+          <tr><td><span class="l-hi">दाखिल-खारिज, जमाबंदी सुधार, एलपीसी</span><span class="l-en">Mutation, jamabandi correction, LPC</span><small><span class="l-hi">Mutation, jamabandi correction, LPC</span><span class="l-en">दाखिल-खारिज, जमाबंदी सुधार</span></small></td><td class="office"><span class="l-hi">अंचल कार्यालय, बिहार भूमि पोर्टल</span><span class="l-en">Circle office (Anchal), Bihar Bhumi portal</span></td><td class="fee">₹1,499</td></tr>
+          <tr><td><span class="l-hi">भूमि सर्वे के काग़ज़</span><span class="l-en">Land survey paperwork</span><small><span class="l-hi">स्वघोषणा, वंशावली</span><span class="l-en">Self-declaration, vanshavali</span></small></td><td class="office"><span class="l-hi">सर्वे शिविर, सर्वे पोर्टल</span><span class="l-en">Survey camp, survey portal</span></td><td class="fee">₹999</td></tr>
+          <tr><td><span class="l-hi">अतिक्रमण और नापी</span><span class="l-en">Encroachment and measurement</span><small><span class="l-hi">Encroachment, naapi</span><span class="l-en">अतिक्रमण, नापी</span></small></td><td class="office"><span class="l-hi">अंचल कार्यालय, एसडीओ, डीसीएलआर, लोक शिकायत</span><span class="l-en">Circle office, SDO, DCLR, Lok Shikayat</span></td><td class="fee">₹2,499</td></tr>
+          <tr><td><span class="l-hi">प्रमाण पत्र</span><span class="l-en">Certificates</span><small><span class="l-hi">जाति, आय, निवास</span><span class="l-en">Caste, income, residence</span></small></td><td class="office"><span class="l-hi">प्रखंड RTPS काउंटर</span><span class="l-en">Block RTPS counter</span></td><td class="fee">₹499</td></tr>
+          <tr><td><span class="l-hi">पेंशन और योजना लाभ</span><span class="l-en">Pension and scheme benefits</span><small><span class="l-hi">Pension, scheme benefits</span><span class="l-en">पेंशन, योजना लाभ</span></small></td><td class="office"><span class="l-hi">प्रखंड, पंचायत</span><span class="l-en">Block, panchayat</span></td><td class="fee">₹499</td></tr>
+          <tr><td><span class="l-hi">फ़ाइल की स्थिति या RTI</span><span class="l-en">File status check or RTI</span><small><span class="l-hi">सूचना का अधिकार</span><span class="l-en">Right to Information</span></small></td><td class="office"><span class="l-hi">कोई भी सरकारी दफ़्तर</span><span class="l-en">Any public office</span></td><td class="fee">₹299</td></tr>
+          <tr><td><span class="l-hi">गाँव निगरानी योजना</span><span class="l-en">Village guardian plan</span><small><span class="l-hi">मासिक</span><span class="l-en">Monthly</span></small></td><td class="office"><span class="l-hi">महीने में दो दौरे, ज़मीन की निगरानी</span><span class="l-en">Two visits a month, land watch</span></td><td class="fee">₹999 / <span class="l-hi">माह</span><span class="l-en">month</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="fine"><span class="l-hi">कोर्ट केस हमारे सहयोगी वकीलों को उनकी फ़ीस पर दिए जाते हैं। ये पायलट दरें हैं। विधवा, दिव्यांग और बीपीएल परिवारों के लिए प्रायोजित कोटे से मुफ़्त सेवा।</span><span class="l-en">Court cases go to our partner advocates at their own fees. Pilot prices; free service for widows, disabled and BPL families through a sponsored quota.</span></p>
+  </div>
+</section>
+
+<section>
+  <div class="in">
+    <div class="eyebrow"><span class="l-hi">हमारा वादा</span><span class="l-en">Our promise</span></div>
+    <h2><span class="l-hi">भरोसा ही हमारी पूरी सेवा है।</span><span class="l-en">Trust is the whole service.</span></h2>
+    <p class="intro"><span class="l-hi">सहायक की जाँच डिलीवरी पार्टनर से भी ज़्यादा सख़्ती से होती है। रिश्वत का एक भी साबित मामला, और सहायक हमेशा के लिए बाहर।</span><span class="l-en">A Sahayak is checked more strictly than a delivery partner, and one proven bribe means permanent removal.</span></p>
+    <div class="promise">
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v5c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></svg><div><b><span class="l-hi">पुलिस-सत्यापित सहायक</span><span class="l-en">Police-verified helpers</span></b><p><span class="l-hi">पहले केस से पहले आधार, पुलिस सत्यापन, दो स्थानीय गारंटर और इंटरव्यू।</span><span class="l-en">Aadhaar, police verification, two local references and an interview before the first case.</span></p></div></div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/></svg><div><b><span class="l-hi">कभी नकद नहीं</span><span class="l-en">No cash, ever</span></b><p><span class="l-hi">सारा शुल्क ऐप से जाता है। सहायक आपसे सीधे पैसे कभी नहीं माँगता।</span><span class="l-en">All fees go through the app. A Sahayak never asks you for money directly.</span></p></div></div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><div><b><span class="l-hi">हर दौरे का रिकॉर्ड</span><span class="l-en">Every visit on record</span></b><p><span class="l-hi">हर दफ़्तर दौरे के 24 घंटे के भीतर फ़ोटो, रसीद नंबर और अगली तारीख दर्ज होती है।</span><span class="l-en">Photo, receipt number and next date are logged within 24 hours of each office visit.</span></p></div></div>
+      <div><svg viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 11V7a5 5 0 0110 0v4"/><rect x="5" y="11" width="14" height="10" rx="2"/></svg><div><b><span class="l-hi">आपके काग़ज़ सुरक्षित</span><span class="l-en">Your papers stay private</span></b><p><span class="l-hi">दस्तावेज़ सिर्फ़ आपके केस में दिखते हैं, और अधिकार एक बार में एक ही केस के लिए दिया जाता है।</span><span class="l-en">Documents are visible only inside your case, and authority is given for one case at a time.</span></p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="band-paper" id="sahayak">
+  <div class="in join">
+    <div>
+      <div class="eyebrow"><span class="l-hi">सहायक बनें</span><span class="l-en">Become a Sahayak</span></div>
+      <h2><span class="l-hi">अपने प्रखंड का दफ़्तर जानते हैं? परिवारों की मदद करें और कमाएँ।</span><span class="l-en">Know your block office? Help families and earn.</span></h2>
+      <p class="intro" style="margin-bottom:18px"><span class="l-hi">पायलट के लिए हमें दरभंगा के हर प्रखंड में ईमानदार और सम्मानित लोगों की ज़रूरत है।</span><span class="l-en">We are looking for honest, respected people in each block of Darbhanga for the pilot.</span></p>
+      <ul class="l-hi">
+        <li>जिस प्रखंड में सेवा देंगे, वहीं या उसके पास रहते हों</li>
+        <li>12वीं पास, स्मार्टफ़ोन और ऑनलाइन फ़ॉर्म भरना आता हो</li>
+        <li>सेवानिवृत्त शिक्षक और कर्मचारी, पूर्व सैनिक, जीविका दीदी, लॉ ग्रेजुएट, पढ़े-लिखे युवा</li>
+        <li>बिहार भूमि, RTPS, लोक शिकायत और RTI पर दो दिन की मुफ़्त ट्रेनिंग</li>
+      </ul>
+      <ul class="l-en">
+        <li>Live in or near the block you serve</li>
+        <li>12th pass, comfortable with a smartphone and online forms</li>
+        <li>Retired teachers and staff, ex-servicemen, Jeevika members, law graduates, educated youth</li>
+        <li>Two days of free training on Bihar Bhumi, RTPS, Lok Shikayat and RTI</li>
+      </ul>
+      <a class="cta" href="app.html"><span class="l-hi">ऐप में आवेदन करें</span><span class="l-en">Apply in the app</span></a>
+    </div>
+    <div class="earn">
+      <span class="eyebrow"><span class="l-hi">हर शुल्क का 70% आपका</span><span class="l-en">You keep 70% of every fee</span></span>
+      <div style="margin-top:10px"><b>₹1,049</b><p><span class="l-hi">हर दाखिल-खारिज केस पूरा होने पर</span><span class="l-en">for each mutation case closed</span></p></div>
+      <div style="margin-top:14px"><b>₹1,749</b><p><span class="l-hi">हर अतिक्रमण केस पूरा होने पर</span><span class="l-en">for each encroachment case closed</span></p></div>
+      <p style="margin-top:14px"><span class="l-hi">भुगतान सीधे आपके अपने बैंक खाते में। सत्यापित से वरिष्ठ सहायक बनने पर ज़्यादा कमाई।</span><span class="l-en">Paid to your own bank account. Higher earnings as you move from Verified to Senior Sahayak.</span></p>
+    </div>
+  </div>
+</section>
+
+<section id="faq">
+  <div class="in faq">
+    <div class="eyebrow"><span class="l-hi">सवाल-जवाब</span><span class="l-en">Questions</span></div>
+    <h2><span class="l-hi">समस्या भेजने से पहले</span><span class="l-en">Before you post</span></h2>
+    <details><summary><span class="l-hi">क्या सहायक दलाल है?</span><span class="l-en">Is a Sahayak a dalal (middleman)?</span></summary><p><span class="l-hi">नहीं। हर आवेदन आपके नाम से सरकारी रास्ते से ही दिया जाता है: बिहार भूमि, RTPS, लोक शिकायत या RTI। सहायक भागदौड़ करता है और हर कदम का सबूत दर्ज करता है। रिश्वत देने या लेने पर उसे हमेशा के लिए हटा दिया जाता है।</span><span class="l-en">No. Every application is filed in your name through the official route: Bihar Bhumi, RTPS, Lok Shikayat or RTI. The Sahayak does the running around and logs proof of each step. Paying or taking a bribe means permanent removal.</span></p></details>
+    <details><summary><span class="l-hi">अंचल कार्यालय में कोई और मेरी तरफ़ से कैसे काम कर सकता है?</span><span class="l-en">How can someone else represent me at the circle office?</span></summary><p><span class="l-hi">आप ऐप में सिर्फ़ उस केस के लिए अधिकार पत्र पर हस्ताक्षर करते हैं। जहाँ दफ़्तर ज़ोर दे, वहाँ आप जहाँ रहते हैं वहीं उस केस की पावर ऑफ़ अटॉर्नी बनवाकर कूरियर कर देते हैं। कोर्ट का काम सिर्फ़ पंजीकृत वकील करते हैं।</span><span class="l-en">You sign a one-case authorisation letter in the app. Where an office insists, you make a case-specific power of attorney where you live and courier it. Court work is done only by a registered advocate.</span></p></details>
+    <details><summary><span class="l-hi">अगर दफ़्तर कार्रवाई न करे तो?</span><span class="l-en">What if the office doesn't act?</span></summary><p><span class="l-hi">सहायक बिहार लोक शिकायत निवारण अधिकार अधिनियम के तहत शिकायत दर्ज करता है। इसमें स्वतंत्र अधिकारी के सामने सुनवाई होती है और 60 कार्य दिवसों के भीतर फ़ैसला मिलता है।</span><span class="l-en">The Sahayak files a complaint under the Bihar Right to Public Grievance Redressal Act. It gives you a hearing before an independent officer and a decision within 60 working days.</span></p></details>
+    <details><summary><span class="l-hi">मेरे केस में कितना समय लगेगा?</span><span class="l-en">How long will my case take?</span></summary><p><span class="l-hi">प्रमाण पत्र में आमतौर पर कुछ हफ़्ते लगते हैं। ज़मीन के मामले दफ़्तर पर निर्भर करते हैं, अक्सर एक से तीन महीने। हर तारीख आप ऐप में देखते हैं, और शुल्क की बाकी आधी राशि तभी दी जाती है जब आप काम पूरा होने की पुष्टि करें।</span><span class="l-en">Certificates usually take a few weeks. Land cases depend on the office, often one to three months. You see every date in the app, and the second half of the fee is paid only when you confirm it's done.</span></p></details>
+    <details><summary><span class="l-hi">आप किन इलाक़ों में काम करते हैं?</span><span class="l-en">Which areas do you cover?</span></summary><p><span class="l-hi">पायलट घनश्यामपुर, बिरौल और दरभंगा के एक और प्रखंड से शुरू हो रहा है। पायलट सफल होने के बाद दूसरे ज़िले जोड़े जाएँगे।</span><span class="l-en">The pilot starts in Ghanshyampur, Biraul and one more block of Darbhanga. Other districts follow once the pilot works.</span></p></details>
+  </div>
+</section>
+
+<section class="band-green final">
+  <div class="in">
+    <h2><span class="l-hi">अपनी ज़मीन, अपना हक़ — घर बैठे।</span><span class="l-en">Your land, your right, from wherever you are.</span></h2>
+    <a class="cta" href="app.html"><span class="l-hi">समस्या भेजें</span><span class="l-en">Post your problem</span></a>
+  </div>
+</section>
+
+<footer class="site">
+  <div class="in">
+    <span><span class="l-hi">गाँव सहायक · दरभंगा, बिहार में पायलट</span><span class="l-en">Gaon Sahayak · Pilot in Darbhanga, Bihar</span></span>
+    <span><span class="l-hi">व्हाट्सऐप हेल्पलाइन पायलट शुरू होने पर खुलेगी</span><span class="l-en">WhatsApp helpline opens with the pilot launch</span></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  function setLang(l){
+    root.setAttribute("data-lang", l);
+    root.setAttribute("lang", l === "en" ? "en" : "hi");
+    document.querySelectorAll(".lang button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.lang === l)); });
+    try { localStorage.setItem("gs-lang", l); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem("gs-lang"); } catch(e){}
+  if (location.hash === "#en") saved = "en";
+  setLang(saved === "en" ? "en" : "hi");
+  document.querySelectorAll(".lang button").forEach(function(b){ b.addEventListener("click", function(){ setLang(b.dataset.lang); }); });
+})();
+</script>
+
+</body>
+</html>

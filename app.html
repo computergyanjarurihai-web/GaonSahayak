@@ -1,0 +1,471 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<title>Gaon Sahayak App</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&display=swap">
+<style>
+/* Layout: one narrow app column, role switch on top, cards for cases, slide-up sheets for actions */
+:root{
+  --bg:#f2f5f0; --surface:#ffffff; --sunk:#e9eee7; --ink:#16241b; --muted:#5a695f; --line:#d5ded3;
+  --green:#1e5a3d; --green-soft:#e1ede4; --turmeric:#b97d06; --turmeric-soft:#fbefd2;
+  --ok:#2c7a4c; --ok-soft:#dff0e5; --warn:#a96200; --warn-soft:#fdebd0; --crit:#b3261e; --crit-soft:#fbe1de; --info:#2d5b8a; --info-soft:#e0eaf5;
+  --display:"Rozha One", "Mukta", Georgia, serif;
+  --body:"Mukta", "Noto Sans Devanagari", system-ui, sans-serif;
+  --shadow:0 10px 30px rgba(20,40,28,.18);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1511; --surface:#16201a; --sunk:#1c2820; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
+  --green:#79c79a; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10;
+  --ok:#73d19c; --ok-soft:#173225; --warn:#f2b35e; --warn-soft:#3a2a12; --crit:#f2928a; --crit-soft:#3d1c19; --info:#8eb8f2; --info-soft:#18273a;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1511; --surface:#16201a; --sunk:#1c2820; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
+  --green:#79c79a; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10;
+  --ok:#73d19c; --ok-soft:#173225; --warn:#f2b35e; --warn-soft:#3a2a12; --crit:#f2928a; --crit-soft:#3d1c19; --info:#8eb8f2; --info-soft:#18273a;
+  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px}
+.brand b{font-family:var(--display);font-weight:400;font-size:30px;color:var(--green);line-height:1}
+.brand span{color:var(--muted);font-size:15px}
+.proto{font-size:13px;color:var(--turmeric);background:var(--turmeric-soft);border-radius:999px;padding:2px 10px;font-weight:600}
+.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--sunk);border-radius:12px;padding:4px;margin:18px 0 8px}
+.roles button{border:0;background:transparent;color:var(--muted);font:600 15px/1.2 var(--body);padding:10px 6px;border-radius:9px;cursor:pointer}
+.roles button small{display:block;font-weight:400;font-size:12px}
+.roles button[aria-selected="true"]{background:var(--surface);color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.notice{font-size:14px;color:var(--muted);background:var(--sunk);border-radius:10px;padding:10px 12px;margin:10px 0}
+.notice.warn{background:var(--warn-soft);color:var(--warn)}
+h2{font-family:var(--display);font-weight:400;font-size:24px;margin:26px 0 4px;text-wrap:balance}
+h2 + .sub{color:var(--muted);margin:0 0 14px;font-size:15px}
+h3{font-size:17px;margin:0;font-weight:700}
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
+form .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){form .grid{grid-template-columns:1fr}}
+.full{grid-column:1/-1}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:600;color:var(--ink);min-width:0}
+label small{font-weight:400;color:var(--muted)}
+input,select,textarea{font:16px/1.4 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%}
+textarea{min-height:84px;resize:vertical}
+input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.feeline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+.fee{font-size:15px;color:var(--muted)} .fee b{color:var(--ink);font-size:20px;font-variant-numeric:tabular-nums}
+.btn{border:0;border-radius:10px;background:var(--green);color:var(--surface);font:600 15px/1 var(--body);padding:12px 16px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--green);border:1px solid var(--line)}
+.btn.small{padding:8px 12px;font-size:14px}
+.btn.warm{background:var(--turmeric);color:var(--surface)}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+.list{display:flex;flex-direction:column;gap:12px}
+.case{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
+.case .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+.case .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
+.case .meta span{white-space:nowrap}
+.code{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em}
+.ex{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--turmeric);background:var(--turmeric-soft);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.pill{font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.s-posted{background:var(--info-soft);color:var(--info)}
+.s-assigned,.s-in_progress{background:var(--green-soft);color:var(--green)}
+.s-escalated{background:var(--warn-soft);color:var(--warn)}
+.s-resolved{background:var(--turmeric-soft);color:var(--turmeric)}
+.s-closed{background:var(--ok-soft);color:var(--ok)}
+.desc{margin:0;font-size:15px;min-width:0;overflow-wrap:anywhere}
+.land{display:flex;gap:8px;flex-wrap:wrap}
+.land span{font-size:13px;background:var(--sunk);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+details summary{cursor:pointer;color:var(--green);font-weight:600;font-size:14px}
+.tl{list-style:none;margin:10px 0 0;padding:0 0 0 14px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:10px}
+.tl li{position:relative;font-size:14px}
+.tl li::before{content:"";position:absolute;left:-20px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--green)}
+.tl .when{color:var(--muted);font-size:12.5px}
+.tl .ref{font-size:12.5px;color:var(--muted)}
+.actions{display:flex;gap:8px;flex-wrap:wrap}
+.empty{text-align:center;color:var(--muted);padding:26px 12px;border:1px dashed var(--line);border-radius:14px;font-size:15px}
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+@media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
+.stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
+.stat b{display:block;font-size:26px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat span{font-size:13px;color:var(--muted)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.row .who{min-width:0}
+.row .who small{display:block;color:var(--muted);font-size:13px}
+.iam{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
+.iam label{flex:1 1 220px}
+.stars{display:flex;gap:6px}
+.stars button{font-size:30px;line-height:1;background:none;border:0;cursor:pointer;color:var(--line);padding:2px}
+.stars button.on{color:var(--turmeric)}
+.sheet-bg{position:fixed;inset:0;background:rgba(10,20,14,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--surface);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:20px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;max-height:90%;overflow:auto}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30}
+@media (prefers-reduced-motion:no-preference){.sheet{animation:up .2s ease-out}@keyframes up{from{transform:translateY(30px);opacity:.6}}}
+</style>
+
+<div class="wrap">
+  <header>
+    <div class="brand"><b>Gaon Sahayak</b><span>गाँव का काम, शहर से</span></div>
+    <span class="proto">Prototype</span>
+  </header>
+
+  <div class="roles" role="tablist">
+    <button id="tab-family" role="tab" aria-selected="true" data-role="family">Family<small>परिवार</small></button>
+    <button id="tab-sahayak" role="tab" aria-selected="false" data-role="sahayak">Sahayak<small>सहायक</small></button>
+    <button id="tab-admin" role="tab" aria-selected="false" data-role="admin">Admin<small>प्रबंधन</small></button>
+  </div>
+  <div id="modeNote" class="notice">Connecting…</div>
+
+  <!-- FAMILY -->
+  <section id="view-family">
+    <h2>समस्या भेजें · Post a problem</h2>
+    <p class="sub">Tell us what's stuck in the village. A verified Sahayak from your block will take it up.</p>
+    <form id="caseForm" class="panel">
+      <div class="grid">
+        <label>Problem type
+          <select id="f-cat" required></select>
+        </label>
+        <label>Block (प्रखंड)
+          <select id="f-block" required></select>
+        </label>
+        <label class="full">Short title
+          <input id="f-title" required maxlength="90" placeholder="e.g. Mutation pending for 8 months">
+        </label>
+        <label class="full">What happened? <small>Hindi or English. Office name, dates, who is involved.</small>
+          <textarea id="f-desc" required maxlength="1500" placeholder="Describe the problem…"></textarea>
+        </label>
+        <label>Village (गाँव)
+          <input id="f-village" required maxlength="60" placeholder="e.g. Korthu">
+        </label>
+        <label>Khata / Khesra no. <small>for land cases</small>
+          <input id="f-land" maxlength="40" placeholder="Khata 112, Khesra 845">
+        </label>
+        <label>Your name
+          <input id="f-name" required maxlength="60">
+        </label>
+        <label>City you live in
+          <input id="f-city" required maxlength="40" placeholder="e.g. Delhi">
+        </label>
+      </div>
+      <div class="feeline">
+        <div class="fee">Service fee <b id="f-fee">₹0</b><br><small>50% when a Sahayak accepts, 50% when you confirm it's done</small></div>
+        <button class="btn" id="f-submit" type="submit">Post problem</button>
+      </div>
+    </form>
+
+    <h2>आपके केस · Your cases</h2>
+    <p class="sub">Every visit, receipt and next date shows here.</p>
+    <div id="familyList" class="list"></div>
+  </section>
+
+  <!-- SAHAYAK -->
+  <section id="view-sahayak" hidden>
+    <h2>सहायक डेस्क · Sahayak desk</h2>
+    <p class="sub">Pick your name to see cases in your block.</p>
+    <div class="panel iam">
+      <label>I am
+        <select id="s-me"></select>
+      </label>
+      <button class="btn ghost small" id="s-apply-open" type="button">Apply as a new Sahayak</button>
+    </div>
+    <div id="sahayakBody"></div>
+  </section>
+
+  <!-- ADMIN -->
+  <section id="view-admin" hidden>
+    <h2>Overview</h2>
+    <p class="sub">All cases across the pilot blocks.</p>
+    <div class="stats" id="stats"></div>
+    <h2>Sahayaks</h2>
+    <p class="sub">Verify after police verification, references and interview.</p>
+    <div class="panel" id="sahayakAdmin"></div>
+    <h2>All cases</h2>
+    <p class="sub">Assign open cases to a verified Sahayak in the same block.</p>
+    <div id="adminCases" class="list"></div>
+  </section>
+</div>
+
+<div id="sheet" class="sheet-bg" hidden>
+  <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle">
+    <h3 id="sheetTitle"></h3>
+    <div id="sheetBody"></div>
+  </div>
+</div>
+<div id="toast" class="toast" hidden></div>
+
+<script>
+const CATS = {
+  land_records:{label:"Mutation / jamabandi / LPC", hi:"दाखिल-खारिज", fee:1499},
+  survey:{label:"Land survey paperwork", hi:"भूमि सर्वे", fee:999},
+  encroachment:{label:"Encroachment / measurement", hi:"अतिक्रमण / नापी", fee:2499},
+  certificate:{label:"Certificate (caste, income, residence)", hi:"प्रमाण पत्र", fee:499},
+  scheme:{label:"Pension / scheme benefit", hi:"योजना लाभ", fee:499},
+  rti:{label:"Status check / RTI", hi:"स्थिति / RTI", fee:299}
+};
+const BLOCKS = ["Alinagar","Baheri","Bahadurpur","Benipur","Biraul","Darbhanga Sadar","Gaura Bauram","Ghanshyampur","Hanuman Nagar","Hayaghat","Jale","Keoti","Kiratpur","Kusheshwar Asthan","Kusheshwar Asthan Purbi","Manigachhi","Singhwara","Tardih"];
+const STATUS = {posted:"Posted · भेजा गया", assigned:"Sahayak assigned", in_progress:"Work in progress", escalated:"Escalated", resolved:"Solved · confirm", closed:"Closed ✓"};
+const KINDS = {visit:"Office visit", filed:"Application filed", hearing:"Hearing / next date", escalated:"Escalated (Lok Shikayat / RTI)", resolved:"Solved"};
+
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const fmt = iso => { try { return new Date(iso).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}); } catch(e){ return ""; } };
+const nowIso = () => new Date().toISOString();
+const code = id => "GS-" + String(id).slice(-5).toUpperCase();
+const rupee = n => "₹" + Number(n||0).toLocaleString("en-IN");
+function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2600); }
+function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
+function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+
+/* ---------- state + store ---------- */
+const state = { cases:[], sahayaks:[], uid:null, mode:"loading", readOnly:false, role:"family" };
+
+function demoData(){
+  const d = (n)=>new Date(Date.now()-n*864e5).toISOString();
+  const s1={id:"demo-s1",name:"Ramesh Jha",block:"Ghanshyampur",occupation:"Retired teacher",status:"verified",example:true};
+  const s2={id:"demo-s2",name:"Sunita Devi",block:"Biraul",occupation:"Jeevika SHG member",status:"verified",example:true};
+  const s3={id:"demo-s3",name:"Amit Kumar",block:"Ghanshyampur",occupation:"LLB graduate",status:"applied",example:true};
+  return {
+    sahayaks:[s1,s2,s3],
+    cases:[
+      {id:"demo-c1",example:true,category:"land_records",title:"Mutation pending for 8 months",description:"Applied online for dakhil-kharij after father's death. Circle office has not decided. No reply on calls.",village:"Korthu",block:"Ghanshyampur",land:"Khata 112, Khesra 845",userName:"Example family (Delhi)",city:"Delhi",fee:1499,status:"in_progress",sahayakId:"demo-s1",sahayakName:"Ramesh Jha",createdAt:d(20),createdBy:null,
+       updates:[{at:d(20),by:"system",kind:"posted",text:"Case posted from Delhi."},{at:d(19),by:"Ramesh Jha",kind:"visit",text:"Accepted case. Authorisation letter received."},{at:d(15),by:"Ramesh Jha",kind:"filed",text:"Met Revenue Karmachari at Anchal office. Objection period over; file sent to CO.",ref:"Mutation case no. shown on receipt",next:d(-5)}]},
+      {id:"demo-c2",example:true,category:"encroachment",title:"Neighbour built wall on our land",description:"Boundary wall raised 4 feet into our plot while family was in Mumbai. Need measurement (naapi) and complaint.",village:"Nawada",block:"Biraul",land:"Khesra 301",userName:"Example family (Mumbai)",city:"Mumbai",fee:2499,status:"escalated",sahayakId:"demo-s2",sahayakName:"Sunita Devi",createdAt:d(40),createdBy:null,
+       updates:[{at:d(40),by:"system",kind:"posted",text:"Case posted from Mumbai."},{at:d(38),by:"Sunita Devi",kind:"filed",text:"Measurement application filed at circle office.",ref:"Receipt photo uploaded"},{at:d(10),by:"Sunita Devi",kind:"escalated",text:"No action in 25 days. Lok Shikayat complaint filed; hearing date given.",next:d(-12)}]},
+      {id:"demo-c3",example:true,category:"certificate",title:"Residence certificate for son's admission",description:"Need niwas praman patra quickly for college admission.",village:"Korthu",block:"Ghanshyampur",land:"",userName:"Example family (Ludhiana)",city:"Ludhiana",fee:499,status:"posted",createdAt:d(1),createdBy:null,
+       updates:[{at:d(1),by:"system",kind:"posted",text:"Case posted from Ludhiana."}]}
+    ]
+  };
+}
+
+let db = null;
+const store = {
+  async addCase(c){ if(db){ await db.collection("cases").add(c); } else { state.cases.unshift({...c,id:"local-"+Date.now()}); render(); } },
+  async updateCase(id,patch){ if(db){ await db.collection("cases").doc(id).update(patch); } else { const c=state.cases.find(x=>x.id===id); Object.assign(c,patch); render(); } },
+  async addSahayak(s){ if(db){ const r=await db.collection("sahayaks").add(s); return r.id; } else { const id="local-s"+Date.now(); state.sahayaks.push({...s,id}); render(); return id; } },
+  async updateSahayak(id,patch){ if(db){ await db.collection("sahayaks").doc(id).update(patch); } else { Object.assign(state.sahayaks.find(x=>x.id===id),patch); render(); } }
+};
+
+async function boot(){
+  fillStatic();
+  const local = () => { const d=demoData(); state.cases=d.cases; state.sahayaks=d.sahayaks; state.mode="local"; render(); };
+  if(!window.claude || !window.claude.use){ local(); return; }
+  try {
+    const [d,u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
+    if(!d){ local(); return; }
+    db = d;
+    state.uid = u ? await u.id() : null;
+    const w = u ? await u.can("data.write") : null;
+    state.readOnly = (w === false);
+    state.mode = "live";
+    render();
+    db.collection("cases").onSnapshot(snap=>{ state.cases = snap.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))); render(); }, ()=>{ toast("Live updates stopped. Reload the page."); });
+    db.collection("sahayaks").onSnapshot(snap=>{ state.sahayaks = snap.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name))); render(); }, ()=>{});
+  } catch(e){ local(); }
+}
+
+/* ---------- static form setup ---------- */
+function fillStatic(){
+  $("#f-cat").innerHTML = Object.entries(CATS).map(([k,v])=>`<option value="${k}">${esc(v.label)} · ${esc(v.hi)}</option>`).join("");
+  $("#f-block").innerHTML = BLOCKS.map(b=>`<option${b==="Ghanshyampur"?" selected":""}>${b}</option>`).join("");
+  const showFee = ()=> $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+  $("#f-cat").addEventListener("change", showFee); showFee();
+  const nm=lsGet("gs-name"), ct=lsGet("gs-city"); if(nm) $("#f-name").value=nm; if(ct) $("#f-city").value=ct;
+  document.querySelectorAll(".roles button").forEach(b=>b.addEventListener("click",()=>setRole(b.dataset.role)));
+  const saved = lsGet("gs-role"); if(saved && ["family","sahayak","admin"].includes(saved)) setRole(saved, true);
+  $("#caseForm").addEventListener("submit", postCase);
+  $("#s-me").addEventListener("change", ()=>{ lsSet("gs-me",$("#s-me").value); renderSahayak(); });
+  $("#s-apply-open").addEventListener("click", openApply);
+  $("#sheet").addEventListener("click", e=>{ if(e.target.id==="sheet") closeSheet(); });
+  document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSheet(); });
+}
+function setRole(r, quiet){
+  state.role=r; lsSet("gs-role",r);
+  document.querySelectorAll(".roles button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.role===r)));
+  ["family","sahayak","admin"].forEach(k=> $("#view-"+k).hidden = k!==r);
+  if(!quiet) render();
+}
+
+/* ---------- actions ---------- */
+async function postCase(e){
+  e.preventDefault();
+  if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
+  const cat=$("#f-cat").value, city=$("#f-city").value.trim(), name=$("#f-name").value.trim();
+  const c = { category:cat, title:$("#f-title").value.trim(), description:$("#f-desc").value.trim(), village:$("#f-village").value.trim(), block:$("#f-block").value, land:$("#f-land").value.trim(), userName:name, city, fee:CATS[cat].fee, status:"posted", createdAt:nowIso(), createdBy:state.uid, example:false,
+    updates:[{at:nowIso(),by:"system",kind:"posted",text:`Case posted from ${city}.`}] };
+  $("#f-submit").disabled=true;
+  try { await store.addCase(c); lsSet("gs-name",name); lsSet("gs-city",city); $("#f-title").value=""; $("#f-desc").value=""; $("#f-land").value=""; toast("Problem posted. A Sahayak will pick it up."); }
+  catch(err){ toast(err && err.code==="quota_exceeded" ? "The prototype is full. Ask the admin to clear old cases." : "Could not post. Check your access and try again."); }
+  finally { $("#f-submit").disabled=false; }
+}
+function addUpdate(c, entry, patch){
+  return store.updateCase(c.id, {...patch, updates:[...(c.updates||[]), entry]});
+}
+async function acceptCase(id){
+  const me = currentSahayak(); const c = state.cases.find(x=>x.id===id); if(!me||!c) return;
+  try { await addUpdate(c,{at:nowIso(),by:me.name,kind:"visit",text:`${me.name} accepted the case.`},{status:"assigned",sahayakId:me.id,sahayakName:me.name}); toast("Case accepted. Ask the family for the authorisation letter."); }
+  catch(e){ toast("Could not accept. Try again."); }
+}
+async function assignCase(id, sid){
+  const s = state.sahayaks.find(x=>x.id===sid); const c = state.cases.find(x=>x.id===id); if(!s||!c) return;
+  try { await addUpdate(c,{at:nowIso(),by:"Admin",kind:"visit",text:`Assigned to ${s.name}.`},{status:c.status==="posted"?"assigned":c.status,sahayakId:s.id,sahayakName:s.name}); toast(`Assigned to ${s.name}.`); }
+  catch(e){ toast("Could not assign. Try again."); }
+}
+async function verifySahayak(id){ try { await store.updateSahayak(id,{status:"verified",verifiedAt:nowIso()}); toast("Sahayak verified."); } catch(e){ toast("Could not verify."); } }
+
+/* ---------- sheets ---------- */
+function openSheet(title, html, onReady){ $("#sheetTitle").textContent=title; $("#sheetBody").innerHTML=html; $("#sheet").hidden=false; onReady && onReady(); const f=$("#sheetBody").querySelector("input,select,textarea,button"); f && f.focus(); }
+function closeSheet(){ $("#sheet").hidden=true; $("#sheetBody").innerHTML=""; }
+
+function openUpdate(id){
+  const c = state.cases.find(x=>x.id===id); const me=currentSahayak(); if(!c||!me) return;
+  openSheet(`Update ${code(c.id)} · ${c.title}`, `
+    <form id="uForm" style="display:flex;flex-direction:column;gap:12px">
+      <label>What happened
+        <select id="u-kind">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></label>
+      <label>Note for the family
+        <textarea id="u-text" required maxlength="800" placeholder="Which office, whom you met, what they said"></textarea></label>
+      <label>Receipt / application no. <small>optional</small>
+        <input id="u-ref" maxlength="80"></label>
+      <label>Next date <small>optional</small>
+        <input id="u-next" type="date"></label>
+      <div class="actions"><button class="btn" type="submit">Save update</button><button class="btn ghost" type="button" id="u-cancel">Cancel</button></div>
+    </form>`, ()=>{
+      $("#u-cancel").onclick=closeSheet;
+      $("#uForm").onsubmit = async ev=>{
+        ev.preventDefault();
+        const kind=$("#u-kind").value;
+        const status = kind==="escalated" ? "escalated" : kind==="resolved" ? "resolved" : "in_progress";
+        const entry={at:nowIso(),by:me.name,kind,text:$("#u-text").value.trim()};
+        if($("#u-ref").value.trim()) entry.ref=$("#u-ref").value.trim();
+        if($("#u-next").value) entry.next=new Date($("#u-next").value+"T10:00:00").toISOString();
+        const patch={status}; if(status==="resolved") patch.resolvedAt=nowIso();
+        try { await addUpdate(c,entry,patch); closeSheet(); toast(status==="resolved"?"Marked solved. The family will confirm.":"Update saved."); }
+        catch(e){ toast("Could not save. Try again."); }
+      };
+    });
+}
+function openRate(id){
+  const c = state.cases.find(x=>x.id===id); if(!c) return;
+  let stars=5;
+  openSheet(`Confirm ${code(c.id)} is solved`, `
+    <p class="desc">${esc(c.sahayakName||"Your Sahayak")} marked this case as solved. Confirm and rate their work. The remaining ${rupee(Math.round((c.fee||0)/2))} will be released.</p>
+    <div class="stars" id="r-stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" aria-label="${n} star">★</button>`).join("")}</div>
+    <label>Comment <small>optional</small><textarea id="r-text" maxlength="400"></textarea></label>
+    <div class="actions"><button class="btn" id="r-ok" type="button">Confirm and close case</button><button class="btn ghost" id="r-no" type="button">Not solved yet</button></div>`, ()=>{
+      const paint=()=>document.querySelectorAll("#r-stars button").forEach(b=>b.classList.toggle("on", Number(b.dataset.n)<=stars));
+      document.querySelectorAll("#r-stars button").forEach(b=>b.onclick=()=>{stars=Number(b.dataset.n);paint();}); paint();
+      $("#r-ok").onclick=async()=>{ try { await addUpdate(c,{at:nowIso(),by:c.userName||"Family",kind:"closed",text:`Family confirmed. Rated ${stars}/5.${$("#r-text").value.trim()?" “"+$("#r-text").value.trim()+"”":""}`},{status:"closed",rating:stars,closedAt:nowIso()}); closeSheet(); toast("Case closed. Thank you."); } catch(e){ toast("Could not save. Try again."); } };
+      $("#r-no").onclick=async()=>{ try { await addUpdate(c,{at:nowIso(),by:c.userName||"Family",kind:"reopened",text:"Family says the problem is not solved yet."},{status:"in_progress"}); closeSheet(); toast("Sent back to the Sahayak."); } catch(e){ toast("Could not save."); } };
+    });
+}
+function openApply(){
+  openSheet("Apply as a Sahayak", `
+    <form id="aForm" style="display:flex;flex-direction:column;gap:12px">
+      <p class="desc" style="color:var(--muted)">After applying, the coordinator does police verification, two references and an interview before you get cases.</p>
+      <label>Full name<input id="a-name" required maxlength="60"></label>
+      <label>Block you will serve<select id="a-block">${BLOCKS.map(b=>`<option${b==="Ghanshyampur"?" selected":""}>${b}</option>`).join("")}</select></label>
+      <label>Occupation / background<input id="a-occ" required maxlength="60" placeholder="Retired teacher, SHG member, law graduate…"></label>
+      <div class="actions"><button class="btn" type="submit">Submit application</button><button class="btn ghost" type="button" id="a-cancel">Cancel</button></div>
+    </form>`, ()=>{
+      $("#a-cancel").onclick=closeSheet;
+      $("#aForm").onsubmit=async ev=>{ ev.preventDefault();
+        if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
+        try { const id=await store.addSahayak({name:$("#a-name").value.trim(),block:$("#a-block").value,occupation:$("#a-occ").value.trim(),status:"applied",appliedAt:nowIso(),example:false}); lsSet("gs-me",id); closeSheet(); toast("Application sent. The admin will verify you."); }
+        catch(e){ toast("Could not submit. Try again."); } };
+    });
+}
+
+/* ---------- render ---------- */
+function currentSahayak(){ const id=$("#s-me").value; return state.sahayaks.find(s=>s.id===id); }
+function caseCard(c, opts={}){
+  const cat = CATS[c.category]||{label:c.category};
+  const ups = (c.updates||[]).slice().reverse();
+  const nextUp = (c.updates||[]).filter(u=>u.next).slice(-1)[0];
+  return `<article class="case">
+    <div class="top"><div><div class="code">${code(c.id)}${c.example?'<span class="ex">Example</span>':""}</div><h3>${esc(c.title)}</h3></div><span class="pill s-${esc(c.status)}">${esc(STATUS[c.status]||c.status)}</span></div>
+    <div class="meta"><span>${esc(cat.label)}</span><span>${esc(c.village)}, ${esc(c.block)}</span><span>From ${esc(c.city)}</span><span>Posted ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>Sahayak: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>Next date: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
+    ${opts.full!==false?`<p class="desc">${esc(c.description)}</p>`:""}
+    ${c.land?`<div class="land"><span>${esc(c.land)}</span><span>Fee ${rupee(c.fee)}</span></div>`:`<div class="land"><span>Fee ${rupee(c.fee)}</span></div>`}
+    <details${opts.open?" open":""}><summary>Timeline · ${ups.length} step${ups.length===1?"":"s"}</summary>
+      <ul class="tl">${ups.map(u=>`<li><div class="when">${fmt(u.at)} · ${esc(u.by==="system"?"Gaon Sahayak":u.by)}</div>${esc(u.text)}${u.ref?`<div class="ref">Ref: ${esc(u.ref)}</div>`:""}${u.next?`<div class="ref">Next date: ${fmt(u.next)}</div>`:""}</li>`).join("")}</ul>
+    </details>
+    ${opts.actions?`<div class="actions">${opts.actions}</div>`:""}
+  </article>`;
+}
+
+function renderNote(){
+  const n=$("#modeNote");
+  if(state.mode==="live"){ n.className="notice"+(state.readOnly?" warn":""); n.textContent = state.readOnly ? "You have view-only access. Ask the owner for Contributor access to post or update cases." : "Live prototype: cases are shared with everyone you give access to. Cases marked Example are sample data."; }
+  else if(state.mode==="local"){ n.className="notice warn"; n.textContent="Demo mode: open this page signed in to claude.ai to save cases. Changes here are not saved."; }
+  else { n.className="notice"; n.textContent="Connecting…"; }
+}
+function renderFamily(){
+  const mine = state.uid ? state.cases.filter(c=>c.createdBy===state.uid || c.example) : state.cases;
+  $("#familyList").innerHTML = mine.length ? mine.map(c=>caseCard(c,{actions: c.status==="resolved" ? `<button class="btn warm small" data-rate="${esc(c.id)}">Confirm and rate</button>` : ""})).join("")
+    : `<div class="empty">No cases yet. Post your first problem above and it will appear here with every update.</div>`;
+}
+function renderSahayak(){
+  const sel=$("#s-me"), verified=state.sahayaks.filter(s=>s.status==="verified");
+  const want = sel.value || lsGet("gs-me");
+  sel.innerHTML = `<option value="">Choose your name…</option>` + state.sahayaks.map(s=>`<option value="${esc(s.id)}">${esc(s.name)} · ${esc(s.block)}${s.status!=="verified"?" (awaiting verification)":""}</option>`).join("");
+  if(want && state.sahayaks.some(s=>s.id===want)) sel.value=want;
+  const me=currentSahayak(), body=$("#sahayakBody");
+  if(!me){ body.innerHTML = `<div class="empty" style="margin-top:14px">${verified.length?"Choose your name above to see cases in your block.":"No verified Sahayaks yet. Apply above, then ask the admin to verify you."}</div>`; return; }
+  if(me.status!=="verified"){ body.innerHTML = `<div class="notice warn" style="margin-top:14px">Your application for ${esc(me.block)} is waiting for verification by the admin.</div>`; return; }
+  const open = state.cases.filter(c=>c.status==="posted" && c.block===me.block);
+  const mineC = state.cases.filter(c=>c.sahayakId===me.id && c.status!=="closed");
+  const done = state.cases.filter(c=>c.sahayakId===me.id && c.status==="closed");
+  const earned = done.reduce((s,c)=>s+Math.round((c.fee||0)*0.7),0);
+  body.innerHTML = `
+    <h2>Open in ${esc(me.block)}</h2><p class="sub">New problems waiting for a Sahayak.</p>
+    <div class="list">${open.length?open.map(c=>caseCard(c,{actions:`<button class="btn small" data-accept="${esc(c.id)}">Accept case · earn ${rupee(Math.round(c.fee*0.7))}</button>`})).join(""):`<div class="empty">No open cases in your block right now.</div>`}</div>
+    <h2>Your active cases</h2><p class="sub">Log every visit with the receipt number so the family can follow.</p>
+    <div class="list">${mineC.length?mineC.map(c=>caseCard(c,{actions: c.status==="resolved"?`<span class="fee">Waiting for the family to confirm</span>`:`<button class="btn small" data-update="${esc(c.id)}">Add update</button>`})).join(""):`<div class="empty">You have no active cases.</div>`}</div>
+    <h2>Earnings</h2><p class="sub">70% of each closed case's fee.</p>
+    <div class="stats"><div class="stat"><b>${done.length}</b><span>Cases closed</span></div><div class="stat"><b>${rupee(earned)}</b><span>Earned</span></div><div class="stat"><b>${avgRating(done)}</b><span>Average rating</span></div><div class="stat"><b>${mineC.length}</b><span>Active now</span></div></div>`;
+}
+function avgRating(list){ const r=list.filter(c=>c.rating); return r.length ? (r.reduce((s,c)=>s+c.rating,0)/r.length).toFixed(1)+" ★" : "–"; }
+function renderAdmin(){
+  const cs=state.cases, closed=cs.filter(c=>c.status==="closed");
+  const active=cs.filter(c=>!["closed","posted"].includes(c.status)).length, waiting=cs.filter(c=>c.status==="posted").length;
+  const days = closed.filter(c=>c.closedAt).map(c=>(Date.parse(c.closedAt)-Date.parse(c.createdAt))/864e5);
+  const med = days.length ? Math.round(days.sort((a,b)=>a-b)[Math.floor(days.length/2)]) + " days" : "–";
+  $("#stats").innerHTML = `<div class="stat"><b>${waiting}</b><span>Waiting for Sahayak</span></div><div class="stat"><b>${active}</b><span>In progress</span></div><div class="stat"><b>${closed.length}</b><span>Closed</span></div><div class="stat"><b>${med}</b><span>Median time to close</span></div>`;
+  $("#sahayakAdmin").innerHTML = state.sahayaks.length ? state.sahayaks.map(s=>{ const n=cs.filter(c=>c.sahayakId===s.id).length; return `<div class="row"><div class="who"><b>${esc(s.name)}</b>${s.example?'<span class="ex">Example</span>':""}<small>${esc(s.block)} · ${esc(s.occupation||"")} · ${n} case${n===1?"":"s"} · ${avgRating(cs.filter(c=>c.sahayakId===s.id&&c.status==="closed"))}</small></div>${s.status==="verified"?`<span class="pill s-closed">Verified</span>`:`<button class="btn small" data-verify="${esc(s.id)}">Verify</button>`}</div>`; }).join("") : `<div class="empty">No Sahayak applications yet.</div>`;
+  const verified=state.sahayaks.filter(s=>s.status==="verified");
+  $("#adminCases").innerHTML = cs.length ? cs.map(c=>{
+    const opts = verified.filter(s=>s.block===c.block);
+    const assign = c.status==="closed" ? "" : `<label style="flex:1 1 220px">Assign Sahayak<select data-assign="${esc(c.id)}"><option value="">${opts.length?"Choose…":"No verified Sahayak in "+esc(c.block)}</option>${opts.map(s=>`<option value="${esc(s.id)}"${s.id===c.sahayakId?" selected":""}>${esc(s.name)}</option>`).join("")}</select></label>`;
+    return caseCard(c,{full:false,actions:assign});
+  }).join("") : `<div class="empty">No cases yet.</div>`;
+}
+function render(){
+  renderNote();
+  if(state.role==="family") renderFamily();
+  if(state.role==="sahayak") renderSahayak();
+  if(state.role==="admin") renderAdmin();
+}
+
+document.addEventListener("click", e=>{
+  const t=e.target.closest("[data-accept],[data-update],[data-rate],[data-verify]"); if(!t) return;
+  if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
+  if(t.dataset.accept) acceptCase(t.dataset.accept);
+  if(t.dataset.update) openUpdate(t.dataset.update);
+  if(t.dataset.rate) openRate(t.dataset.rate);
+  if(t.dataset.verify) verifySahayak(t.dataset.verify);
+});
+document.addEventListener("change", e=>{
+  const s=e.target.closest("[data-assign]"); if(!s||!s.value) return;
+  if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
+  assignCase(s.dataset.assign, s.value);
+});
+
+boot();
+</script>
+
+</body>
+</html>
