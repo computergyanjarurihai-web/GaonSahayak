@@ -1,192 +1,147 @@
 <!doctype html>
-<html lang="en">
+<html lang="hi">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
-</head>
-<body>
 <title>Gram Sahayak App</title>
-<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Yatra+One&display=swap">
 <style>
-/* Layout: one narrow app column, role switch on top, cards for cases, slide-up sheets for actions */
+/* Layout: one narrow app column; top bar, role tabs, cards per case, slide-up sheets for actions */
 :root{
   --bg:#f2f5f0; --surface:#ffffff; --sunk:#e9eee7; --ink:#16241b; --muted:#5a695f; --line:#d5ded3;
   --green:#1e5a3d; --green-soft:#e1ede4; --turmeric:#b97d06; --turmeric-soft:#fbefd2;
   --ok:#2c7a4c; --ok-soft:#dff0e5; --warn:#a96200; --warn-soft:#fdebd0; --crit:#b3261e; --crit-soft:#fbe1de; --info:#2d5b8a; --info-soft:#e0eaf5;
-  --display:"Rozha One", "Mukta", Georgia, serif;
+  --wa:#1f8f4e; --on-accent:#ffffff;
+  --display:"Yatra One", "Mukta", serif;
   --body:"Mukta", "Noto Sans Devanagari", system-ui, sans-serif;
   --shadow:0 10px 30px rgba(20,40,28,.18);
+  color-scheme:light;
 }
-@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+@media (prefers-color-scheme: dark){:root{
   --bg:#0e1511; --surface:#16201a; --sunk:#1c2820; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
   --green:#79c79a; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10;
   --ok:#73d19c; --ok-soft:#173225; --warn:#f2b35e; --warn-soft:#3a2a12; --crit:#f2928a; --crit-soft:#3d1c19; --info:#8eb8f2; --info-soft:#18273a;
-  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
-:root[data-theme="dark"]{
-  --bg:#0e1511; --surface:#16201a; --sunk:#1c2820; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
-  --green:#79c79a; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10;
-  --ok:#73d19c; --ok-soft:#173225; --warn:#f2b35e; --warn-soft:#3a2a12; --crit:#f2928a; --crit-soft:#3d1c19; --info:#8eb8f2; --info-soft:#18273a;
-  --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}
+  --wa:#4cc27f; --on-accent:#0e1511; --shadow:0 10px 30px rgba(0,0,0,.5); color-scheme:dark}}
 *{box-sizing:border-box}
+html,body{margin:0}
+[hidden]{display:none!important}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.5}
-.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 64px}
-header{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
-.brand{display:flex;align-items:baseline;gap:10px}
-.brand b{font-family:var(--display);font-weight:400;font-size:30px;color:var(--green);line-height:1}
-.brand span{color:var(--muted);font-size:15px}
-.proto{font-size:13px;color:var(--turmeric);background:var(--turmeric-soft);border-radius:999px;padding:2px 10px;font-weight:600}
-.roles{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--sunk);border-radius:12px;padding:4px;margin:18px 0 8px}
-.roles button{border:0;background:transparent;color:var(--muted);font:600 15px/1.2 var(--body);padding:10px 6px;border-radius:9px;cursor:pointer}
-.roles button small{display:block;font-weight:400;font-size:12px}
-.roles button[aria-selected="true"]{background:var(--surface);color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,.12)}
+.wrap{max-width:760px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:calc(16px + env(safe-area-inset-top,0px)) 72px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:8px;text-decoration:none}
+.brand b{font-family:var(--display);font-weight:400;font-size:28px;color:var(--green);line-height:1.1}
+.brand span{color:var(--muted);font-size:14px}
+.barr{display:flex;gap:8px;align-items:center}
+.chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;font:600 13.5px/1 var(--body);padding:8px 12px;cursor:pointer}
+.tabs{display:flex;gap:4px;background:var(--sunk);border-radius:12px;padding:4px;margin:16px 0 6px}
+.tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:600 15px/1.2 var(--body);padding:10px 6px;border-radius:9px;cursor:pointer}
+.tabs button[aria-selected="true"]{background:var(--surface);color:var(--green);box-shadow:0 1px 3px rgba(0,0,0,.12)}
 .notice{font-size:14px;color:var(--muted);background:var(--sunk);border-radius:10px;padding:10px 12px;margin:10px 0}
 .notice.warn{background:var(--warn-soft);color:var(--warn)}
-h2{font-family:var(--display);font-weight:400;font-size:24px;margin:26px 0 4px;text-wrap:balance}
-h2 + .sub{color:var(--muted);margin:0 0 14px;font-size:15px}
-h3{font-size:17px;margin:0;font-weight:700}
+.notice b{color:inherit}
+h2{font-family:var(--display);font-weight:400;font-size:24px;margin:26px 0 2px;text-wrap:balance;line-height:1.25}
+:root[lang="en"] h2{font-family:var(--body);font-weight:700;font-size:22px}
+p.sub{color:var(--muted);margin:0 0 14px;font-size:15px}
+h3{font-size:17px;margin:0;font-weight:700;overflow-wrap:anywhere}
 .panel{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:18px}
-form .grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-@media (max-width:560px){form .grid{grid-template-columns:1fr}}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+@media (max-width:560px){.grid{grid-template-columns:1fr}}
 .full{grid-column:1/-1}
-label{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:600;color:var(--ink);min-width:0}
+label{display:flex;flex-direction:column;gap:4px;font-size:14px;font-weight:600;min-width:0}
 label small{font-weight:400;color:var(--muted)}
-input,select,textarea{font:16px/1.4 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:9px 11px;width:100%}
+input,select,textarea{font:16px/1.4 var(--body);color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:9px;padding:10px 11px;width:100%}
+input[type=file]{padding:8px;background:var(--sunk)}
 textarea{min-height:84px;resize:vertical}
-input:focus,select:focus,textarea:focus,button:focus-visible{outline:2px solid var(--green);outline-offset:1px}
-.feeline{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
+input:focus,select:focus,textarea:focus,button:focus-visible,a:focus-visible{outline:2px solid var(--green);outline-offset:1px}
+.phone{display:flex;gap:8px}
+.phone span{display:flex;align-items:center;padding:0 12px;border:1px solid var(--line);border-radius:9px;background:var(--sunk);font-weight:600}
+.row-end{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px dashed var(--line)}
 .fee{font-size:15px;color:var(--muted)} .fee b{color:var(--ink);font-size:20px;font-variant-numeric:tabular-nums}
-.btn{border:0;border-radius:10px;background:var(--green);color:var(--surface);font:600 15px/1 var(--body);padding:12px 16px;cursor:pointer}
+.btn{border:0;border-radius:10px;background:var(--green);color:var(--on-accent);font:600 15px/1.1 var(--body);padding:12px 16px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;justify-content:center}
 .btn.ghost{background:transparent;color:var(--green);border:1px solid var(--line)}
 .btn.small{padding:8px 12px;font-size:14px}
-.btn.warm{background:var(--turmeric);color:var(--surface)}
+.btn.warm{background:var(--turmeric)}
+.btn.wa{background:var(--wa)}
+.btn.block{width:100%}
 .btn:disabled{opacity:.5;cursor:not-allowed}
 .list{display:flex;flex-direction:column;gap:12px}
 .case{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;display:flex;flex-direction:column;gap:10px}
 .case .top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
-.case .meta{font-size:13px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
-.case .meta span{white-space:nowrap}
+.meta{font-size:13.5px;color:var(--muted);display:flex;flex-wrap:wrap;gap:4px 12px}
 .code{font-variant-numeric:tabular-nums;font-size:13px;color:var(--muted);font-weight:600;letter-spacing:.04em}
-.ex{font-size:11px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--turmeric);background:var(--turmeric-soft);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:2px}
+.ex{font-size:11px;font-weight:700;letter-spacing:.05em;color:var(--turmeric);background:var(--turmeric-soft);border-radius:5px;padding:1px 6px;margin-left:6px;vertical-align:2px}
 .pill{font-size:12.5px;font-weight:700;border-radius:999px;padding:3px 10px;white-space:nowrap}
 .s-posted{background:var(--info-soft);color:var(--info)}
 .s-assigned,.s-in_progress{background:var(--green-soft);color:var(--green)}
 .s-escalated{background:var(--warn-soft);color:var(--warn)}
 .s-resolved{background:var(--turmeric-soft);color:var(--turmeric)}
 .s-closed{background:var(--ok-soft);color:var(--ok)}
-.desc{margin:0;font-size:15px;min-width:0;overflow-wrap:anywhere}
-.land{display:flex;gap:8px;flex-wrap:wrap}
-.land span{font-size:13px;background:var(--sunk);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+.desc{margin:0;font-size:15px;overflow-wrap:anywhere}
+.tags{display:flex;gap:8px;flex-wrap:wrap}
+.tags span{font-size:13px;background:var(--sunk);border-radius:6px;padding:2px 8px;font-variant-numeric:tabular-nums}
+.files{display:flex;flex-wrap:wrap;gap:8px}
+.files a{font-size:13.5px;border:1px solid var(--line);border-radius:8px;padding:4px 10px;text-decoration:none;color:var(--green);max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pay{background:var(--turmeric-soft);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px}
+.pay .line{display:flex;justify-content:space-between;gap:8px;flex-wrap:wrap;font-size:14.5px}
+.pay .ok{color:var(--ok);font-weight:600}
+.pay .wait{color:var(--warn);font-weight:600}
 details summary{cursor:pointer;color:var(--green);font-weight:600;font-size:14px}
 .tl{list-style:none;margin:10px 0 0;padding:0 0 0 14px;border-left:2px solid var(--line);display:flex;flex-direction:column;gap:10px}
-.tl li{position:relative;font-size:14px}
+.tl li{position:relative;font-size:14.5px;overflow-wrap:anywhere}
 .tl li::before{content:"";position:absolute;left:-20px;top:7px;width:10px;height:10px;border-radius:50%;background:var(--surface);border:2px solid var(--green)}
-.tl .when{color:var(--muted);font-size:12.5px}
-.tl .ref{font-size:12.5px;color:var(--muted)}
+.tl .when,.tl .ref{color:var(--muted);font-size:12.5px}
 .actions{display:flex;gap:8px;flex-wrap:wrap}
-.empty{text-align:center;color:var(--muted);padding:26px 12px;border:1px dashed var(--line);border-radius:14px;font-size:15px}
+.empty{text-align:center;color:var(--muted);padding:24px 12px;border:1px dashed var(--line);border-radius:14px;font-size:15px}
 .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
 @media (max-width:560px){.stats{grid-template-columns:repeat(2,1fr)}}
 .stat{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px}
-.stat b{display:block;font-size:26px;font-variant-numeric:tabular-nums;line-height:1.1}
+.stat b{display:block;font-size:24px;font-variant-numeric:tabular-nums;line-height:1.15}
 .stat span{font-size:13px;color:var(--muted)}
-.row{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
-.row:last-child{border-bottom:0}
-.row .who{min-width:0}
-.row .who small{display:block;color:var(--muted);font-size:13px}
-.iam{display:flex;gap:10px;align-items:end;flex-wrap:wrap}
-.iam label{flex:1 1 220px}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid var(--line)}
+.prow:last-child{border-bottom:0}
+.prow small{display:block;color:var(--muted);font-size:13px}
 .stars{display:flex;gap:6px}
 .stars button{font-size:30px;line-height:1;background:none;border:0;cursor:pointer;color:var(--line);padding:2px}
 .stars button.on{color:var(--turmeric)}
 .sheet-bg{position:fixed;inset:0;background:rgba(10,20,14,.45);display:flex;align-items:flex-end;justify-content:center;z-index:20}
 .sheet{background:var(--surface);width:100%;max-width:560px;border-radius:18px 18px 0 0;padding:20px max(18px,env(safe-area-inset-right,0px)) calc(20px + env(safe-area-inset-bottom,0px)) max(18px,env(safe-area-inset-left,0px));box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px;max-height:90%;overflow:auto}
-.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30}
+.sheet form{display:flex;flex-direction:column;gap:12px}
+.upi{font-size:18px;font-weight:700;font-variant-numeric:tabular-nums;background:var(--sunk);border-radius:8px;padding:8px 12px;word-break:break-all}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));background:var(--ink);color:var(--bg);padding:10px 16px;border-radius:10px;font-size:14px;z-index:30;max-width:90%}
 @media (prefers-reduced-motion:no-preference){.sheet{animation:up .2s ease-out}@keyframes up{from{transform:translateY(30px);opacity:.6}}}
 </style>
+</head>
+<body>
+<!--
+  ============================================================
+  SETUP / सेटअप — see SETUP.md
+  1. Firebase project बनाकर firebaseConfig नीचे CONFIG.firebase में डालें।
+  2. UPI ID डालें (CONFIG.upiId) — परिवार सीधे इस UPI पर भुगतान करेंगे।
+  3. चाहें तो Razorpay key (CONFIG.razorpayKey)।
+  जब तक CONFIG.firebase खाली है, ऐप डेमो मोड में चलेगा (कुछ सेव नहीं होगा)।
+  ============================================================
+-->
+<script>
+const CONFIG = {
+  firebase: null,          // उदाहरण: { apiKey:"...", authDomain:"...", projectId:"...", storageBucket:"...", messagingSenderId:"...", appId:"..." }
+  upiId: "",               // उदाहरण: "gramsahayak@sbi"
+  upiName: "Gram Sahayak",
+  razorpayKey: "",         // उदाहरण: "rzp_live_xxxx" (खाली छोड़ें तो सिर्फ़ UPI)
+  sahayakShare: 0.7
+};
+</script>
 
 <div class="wrap">
-  <header>
-    <div class="brand"><b>Gram Sahayak</b><span>गाँव का काम, शहर से</span></div>
-    <span class="proto">Prototype</span>
-  </header>
-
-  <div class="roles" role="tablist">
-    <button id="tab-family" role="tab" aria-selected="true" data-role="family">Family<small>परिवार</small></button>
-    <button id="tab-sahayak" role="tab" aria-selected="false" data-role="sahayak">Sahayak<small>सहायक</small></button>
-    <button id="tab-admin" role="tab" aria-selected="false" data-role="admin">Admin<small>प्रबंधन</small></button>
-  </div>
-  <div id="modeNote" class="notice">Connecting…</div>
-
-  <!-- FAMILY -->
-  <section id="view-family">
-    <h2>समस्या भेजें · Post a problem</h2>
-    <p class="sub">Tell us what's stuck in the village. A verified Sahayak from your block will take it up.</p>
-    <form id="caseForm" class="panel">
-      <div class="grid">
-        <label>Problem type
-          <select id="f-cat" required></select>
-        </label>
-        <label>Block (प्रखंड)
-          <select id="f-block" required></select>
-        </label>
-        <label class="full">Short title
-          <input id="f-title" required maxlength="90" placeholder="e.g. Mutation pending for 8 months">
-        </label>
-        <label class="full">What happened? <small>Hindi or English. Office name, dates, who is involved.</small>
-          <textarea id="f-desc" required maxlength="1500" placeholder="Describe the problem…"></textarea>
-        </label>
-        <label>Village (गाँव)
-          <input id="f-village" required maxlength="60" placeholder="e.g. Korthu">
-        </label>
-        <label>Khata / Khesra no. <small>for land cases</small>
-          <input id="f-land" maxlength="40" placeholder="Khata 112, Khesra 845">
-        </label>
-        <label>Your name
-          <input id="f-name" required maxlength="60">
-        </label>
-        <label>City you live in
-          <input id="f-city" required maxlength="40" placeholder="e.g. Delhi">
-        </label>
-      </div>
-      <div class="feeline">
-        <div class="fee">Service fee <b id="f-fee">₹0</b><br><small>50% when a Sahayak accepts, 50% when you confirm it's done</small></div>
-        <button class="btn" id="f-submit" type="submit">Post problem</button>
-      </div>
-    </form>
-
-    <h2>आपके केस · Your cases</h2>
-    <p class="sub">Every visit, receipt and next date shows here.</p>
-    <div id="familyList" class="list"></div>
-  </section>
-
-  <!-- SAHAYAK -->
-  <section id="view-sahayak" hidden>
-    <h2>सहायक डेस्क · Sahayak desk</h2>
-    <p class="sub">Pick your name to see cases in your block.</p>
-    <div class="panel iam">
-      <label>I am
-        <select id="s-me"></select>
-      </label>
-      <button class="btn ghost small" id="s-apply-open" type="button">Apply as a new Sahayak</button>
+  <div class="bar">
+    <a class="brand" href="index.html"><b id="brandName">ग्राम सहायक</b><span id="brandSub">Gram Sahayak</span></a>
+    <div class="barr">
+      <button class="chip" id="langBtn" type="button">English</button>
+      <button class="chip" id="logoutBtn" type="button" hidden>लॉग आउट</button>
     </div>
-    <div id="sahayakBody"></div>
-  </section>
-
-  <!-- ADMIN -->
-  <section id="view-admin" hidden>
-    <h2>Overview</h2>
-    <p class="sub">All cases across the pilot blocks.</p>
-    <div class="stats" id="stats"></div>
-    <h2>Sahayaks</h2>
-    <p class="sub">Verify after police verification, references and interview.</p>
-    <div class="panel" id="sahayakAdmin"></div>
-    <h2>All cases</h2>
-    <p class="sub">Assign open cases to a verified Sahayak in the same block.</p>
-    <div id="adminCases" class="list"></div>
-  </section>
+  </div>
+  <div id="modeNote" class="notice" hidden></div>
+  <main id="main"></main>
 </div>
 
 <div id="sheet" class="sheet-bg" hidden>
@@ -196,276 +151,597 @@ details summary{cursor:pointer;color:var(--green);font-weight:600;font-size:14px
   </div>
 </div>
 <div id="toast" class="toast" hidden></div>
+<div id="recaptcha"></div>
 
 <script>
+/* ===================== text (Hindi first, English toggle) ===================== */
+const TXT = {
+  logout:["लॉग आउट","Log out"], other:["English","हिंदी"],
+  demo:["डेमो मोड: कोई भी 10 अंकों का नंबर डालें, OTP 123456 है। यहाँ कुछ भी सेव नहीं होता।","Demo mode: enter any 10-digit number, the OTP is 123456. Nothing is saved here."],
+  loginT:["लॉगिन करें","Log in"], loginS:["अपना मोबाइल नंबर डालें, OTP से लॉगिन होगा। पासवर्ड की ज़रूरत नहीं।","Enter your mobile number and log in with an OTP. No password needed."],
+  mobile:["मोबाइल नंबर","Mobile number"], sendOtp:["OTP भेजें","Send OTP"], otp:["OTP","OTP"], verify:["लॉगिन करें","Log in"],
+  otpSent:["OTP भेज दिया गया।","OTP sent."], badPhone:["सही 10 अंकों का मोबाइल नंबर डालें।","Enter a valid 10-digit mobile number."], badOtp:["OTP गलत है, फिर से डालें।","Wrong OTP, try again."],
+  profT:["आपकी जानकारी","Your details"], profS:["एक बार भरें। यह आपके हर केस में काम आएगी।","Fill this once. It is used for all your cases."],
+  name:["आपका नाम","Your name"], city:["आप किस शहर में रहते हैं","City you live in"], village:["गाँव","Village"], block:["प्रखंड","Block"], save:["सेव करें","Save"],
+  tFamily:["मेरे केस","My cases"], tSahayak:["सहायक डेस्क","Sahayak desk"], tAdmin:["प्रबंधन","Admin"],
+  postT:["समस्या भेजें","Post a problem"], postS:["गाँव में क्या अटका है, बताइए। आपके प्रखंड का सत्यापित सहायक इसे देखेगा।","Tell us what is stuck in the village. A verified Sahayak from your block will take it up."],
+  cat:["समस्या का प्रकार","Problem type"], title:["छोटा शीर्षक","Short title"], titlePh:["जैसे: 8 महीने से दाखिल-खारिज लंबित","e.g. Mutation pending for 8 months"],
+  desc:["क्या हुआ?","What happened?"], descHelp:["हिंदी या अंग्रेज़ी में। दफ़्तर का नाम, तारीख, कौन शामिल है।","Hindi or English. Office name, dates, who is involved."],
+  land:["खाता / खेसरा नंबर","Khata / Khesra no."], landHelp:["ज़मीन के केस के लिए","for land cases"],
+  files:["काग़ज़ और फ़ोटो","Papers and photos"], filesHelp:["खतियान, रसीद, आवेदन, फ़ोटो। PDF या फ़ोटो, हर फ़ाइल 10 MB तक।","Khatiyan, receipts, applications, photos. PDF or image, up to 10 MB each."],
+  feeL:["सेवा शुल्क","Service fee"], feeHelp:["सहायक के केस लेने पर 50%, काम पूरा होने पर 50%","50% when a Sahayak accepts, 50% when the work is done"],
+  postBtn:["समस्या भेजें","Post problem"], posting:["भेजा जा रहा है…","Posting…"], posted:["समस्या भेज दी गई। सहायक जल्द केस लेगा।","Problem posted. A Sahayak will take it up soon."],
+  mineT:["आपके केस","Your cases"], mineS:["हर दौरा, रसीद और अगली तारीख यहाँ दिखेगी।","Every visit, receipt and next date shows here."],
+  noCases:["अभी कोई केस नहीं है। ऊपर अपनी पहली समस्या भेजें।","No cases yet. Post your first problem above."],
+  timeline:["कार्यवाही","Timeline"], filesL:["फ़ाइलें","Files"], addFiles:["फ़ाइल जोड़ें","Add files"],
+  sahayakL:["सहायक","Sahayak"], from:["से","From"], postedOn:["भेजा","Posted"], nextDate:["अगली तारीख","Next date"], fee:["शुल्क","Fee"], ref:["रसीद/आवेदन नं.","Ref"],
+  payAdv:["अग्रिम 50%","Advance 50%"], payFin:["बाकी 50%","Final 50%"], payNow:["भुगतान करें","Pay now"], paidWait:["भुगतान दर्ज, जाँच बाकी","Paid, being verified"], paidOk:["भुगतान पक्का","Payment confirmed"],
+  confirm:["पुष्टि करें और रेटिंग दें","Confirm and rate"], notYet:["अभी हल नहीं हुआ","Not solved yet"],
+  applyT:["सहायक बनना चाहते हैं?","Want to become a Sahayak?"], applyBtn:["सहायक के लिए आवेदन करें","Apply as a Sahayak"], applied:["आपका सहायक आवेदन जाँच में है।","Your Sahayak application is under review."],
+  occ:["काम / पृष्ठभूमि","Occupation / background"], occPh:["सेवानिवृत्त शिक्षक, जीविका दीदी, लॉ ग्रेजुएट…","Retired teacher, SHG member, law graduate…"], submit:["आवेदन भेजें","Submit application"], cancel:["रद्द करें","Cancel"],
+  openT:["प्रखंड में नए केस","New cases in your block"], openS:["जिन समस्याओं के लिए सहायक का इंतज़ार है।","Problems waiting for a Sahayak."], noOpen:["आपके प्रखंड में अभी कोई नया केस नहीं।","No new cases in your block right now."],
+  accept:["केस लें","Accept case"], earn:["कमाई","earn"], activeT:["आपके चालू केस","Your active cases"], activeS:["हर दौरा रसीद नंबर के साथ दर्ज करें, परिवार को WhatsApp जाएगा।","Log each visit with the receipt number; the family gets a WhatsApp update."],
+  noActive:["अभी कोई चालू केस नहीं।","No active cases."], addUpdate:["अपडेट जोड़ें","Add update"], waFamily:["परिवार को WhatsApp","WhatsApp family"], waitConfirm:["परिवार की पुष्टि का इंतज़ार","Waiting for family to confirm"],
+  earnT:["कमाई","Earnings"], closedN:["पूरे केस","Cases closed"], earned:["कमाई","Earned"], rating:["औसत रेटिंग","Average rating"], activeN:["चालू","Active"],
+  what:["क्या हुआ","What happened"], note:["परिवार के लिए नोट","Note for the family"], notePh:["किस दफ़्तर में गए, किससे मिले, क्या कहा","Which office, whom you met, what they said"],
+  refL:["रसीद / आवेदन नंबर","Receipt / application no."], opt:["वैकल्पिक","optional"], nextL:["अगली तारीख","Next date"], photo:["रसीद / फ़ोटो","Receipt / photo"], saveUpd:["अपडेट सेव करें","Save update"],
+  updSaved:["अपडेट सेव हुआ। परिवार को WhatsApp भेजें।","Update saved. Send the family a WhatsApp."],
+  ovT:["सारांश","Overview"], waiting:["सहायक का इंतज़ार","Waiting for Sahayak"], inProg:["काम चल रहा","In progress"], closed:["पूरे","Closed"], payPend:["भुगतान जाँच बाकी","Payments to verify"],
+  appsT:["सहायक आवेदन","Sahayak applications"], appsS:["पुलिस सत्यापन, दो गारंटर और इंटरव्यू के बाद मंज़ूरी दें।","Approve after police verification, two references and an interview."], noApps:["कोई नया आवेदन नहीं।","No new applications."], approve:["मंज़ूरी दें","Approve"],
+  sahT:["सहायक","Sahayaks"], noSah:["अभी कोई सत्यापित सहायक नहीं।","No verified Sahayaks yet."],
+  payT:["भुगतान जाँच","Payment checks"], payS:["UPI रसीद नंबर (UTR) बैंक स्टेटमेंट से मिलाकर पक्का करें।","Match the UTR with your bank statement, then confirm."], noPay:["जाँच के लिए कोई भुगतान नहीं।","No payments to check."], verifyPay:["पक्का करें","Confirm"],
+  allT:["सभी केस","All cases"], assign:["सहायक चुनें","Assign Sahayak"], choose:["चुनें…","Choose…"], noneInBlock:["इस प्रखंड में कोई सहायक नहीं","No Sahayak in this block"],
+  payTitle:["भुगतान","Payment"], upiPay:["इस UPI ID पर भुगतान करें","Pay to this UPI ID"], openUpi:["UPI ऐप खोलें","Open UPI app"], copy:["कॉपी करें","Copy"], copied:["कॉपी हो गया","Copied"],
+  utr:["UTR / रसीद नंबर","UTR / transaction ref"], utrHelp:["भुगतान के बाद UPI ऐप में 12 अंकों का नंबर दिखता है","The 12-digit number your UPI app shows after paying"], iPaid:["मैंने भुगतान कर दिया","I have paid"],
+  payRec:["भुगतान दर्ज हुआ। जाँच के बाद पक्का होगा।","Payment recorded. It will be confirmed after checking."], noPayMethod:["भुगतान व्यवस्था जल्द शुरू होगी। अभी सहायक से बात करें।","Payments open soon. Talk to your Sahayak for now."], payCard:["UPI / कार्ड से भुगतान","Pay by UPI / card"],
+  rateT:["काम पूरा होने की पुष्टि","Confirm the work is done"], comment:["टिप्पणी","Comment"], closeCase:["पुष्टि करें, केस बंद करें","Confirm and close case"],
+  thanks:["केस बंद हुआ। धन्यवाद!","Case closed. Thank you!"], reopened:["सहायक को वापस भेजा गया।","Sent back to the Sahayak."],
+  failed:["सेव नहीं हुआ। इंटरनेट देखकर फिर कोशिश करें।","Could not save. Check your internet and try again."], tooBig:["फ़ाइल 10 MB से बड़ी है:","File is larger than 10 MB:"],
+  uploading:["फ़ाइल अपलोड हो रही है…","Uploading files…"], demoRole:["डेमो में भूमिका आज़माएँ:","Try a role in demo:"],
+  example:["उदाहरण","Example"], system:["ग्राम सहायक","Gram Sahayak"], accepted:["ने केस लिया।","accepted the case."], assignedTo:["सहायक तय:","Assigned to"],
+  postedFrom:["से केस भेजा गया।","Case posted from"], filesAdded:["फ़ाइलें जोड़ी गईं:","Files added:"], famConfirmed:["परिवार ने पुष्टि की। रेटिंग","Family confirmed. Rated"], famNotYet:["परिवार के अनुसार काम अभी हल नहीं हुआ।","Family says it is not solved yet."],
+  approved:["सहायक मंज़ूर हुआ।","Sahayak approved."], payVerified:["भुगतान पक्का किया।","Payment confirmed."]
+};
 const CATS = {
-  land_records:{label:"Mutation / jamabandi / LPC", hi:"दाखिल-खारिज", fee:1499},
-  survey:{label:"Land survey paperwork", hi:"भूमि सर्वे", fee:999},
-  encroachment:{label:"Encroachment / measurement", hi:"अतिक्रमण / नापी", fee:2499},
-  certificate:{label:"Certificate (caste, income, residence)", hi:"प्रमाण पत्र", fee:499},
-  scheme:{label:"Pension / scheme benefit", hi:"योजना लाभ", fee:499},
-  rti:{label:"Status check / RTI", hi:"स्थिति / RTI", fee:299}
+  land_records:{hi:"दाखिल-खारिज / जमाबंदी / एलपीसी", en:"Mutation / jamabandi / LPC", fee:1499},
+  survey:{hi:"भूमि सर्वे के काग़ज़", en:"Land survey paperwork", fee:999},
+  encroachment:{hi:"अतिक्रमण / नापी", en:"Encroachment / measurement", fee:2499},
+  certificate:{hi:"प्रमाण पत्र (जाति, आय, निवास)", en:"Certificate (caste, income, residence)", fee:499},
+  scheme:{hi:"पेंशन / योजना लाभ", en:"Pension / scheme benefit", fee:499},
+  rti:{hi:"फ़ाइल की स्थिति / RTI", en:"Status check / RTI", fee:299}
+};
+const STATUS = {
+  posted:["भेजा गया","Posted"], assigned:["सहायक तय","Sahayak assigned"], in_progress:["काम चल रहा","In progress"],
+  escalated:["शिकायत दर्ज","Escalated"], resolved:["हल हुआ · पुष्टि करें","Solved · confirm"], closed:["पूरा ✓","Closed ✓"]
+};
+const KINDS = {
+  visit:["दफ़्तर दौरा","Office visit"], filed:["आवेदन जमा","Application filed"], hearing:["सुनवाई / अगली तारीख","Hearing / next date"],
+  escalated:["लोक शिकायत / RTI दर्ज","Escalated (Lok Shikayat / RTI)"], resolved:["काम हो गया","Solved"]
 };
 const BLOCKS = ["Alinagar","Baheri","Bahadurpur","Benipur","Biraul","Darbhanga Sadar","Gaura Bauram","Ghanshyampur","Hanuman Nagar","Hayaghat","Jale","Keoti","Kiratpur","Kusheshwar Asthan","Kusheshwar Asthan Purbi","Manigachhi","Singhwara","Tardih"];
-const STATUS = {posted:"Posted · भेजा गया", assigned:"Sahayak assigned", in_progress:"Work in progress", escalated:"Escalated", resolved:"Solved · confirm", closed:"Closed ✓"};
-const KINDS = {visit:"Office visit", filed:"Application filed", hearing:"Hearing / next date", escalated:"Escalated (Lok Shikayat / RTI)", resolved:"Solved"};
 
+/* ===================== helpers ===================== */
 const $ = s => document.querySelector(s);
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
-const fmt = iso => { try { return new Date(iso).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"}); } catch(e){ return ""; } };
+let LANG = "hi";
+try { if (localStorage.getItem("gs-lang") === "en") LANG = "en"; } catch(e){}
+const L = () => LANG === "en" ? 1 : 0;
+const t = k => (TXT[k] || [k,k])[L()];
+const catName = k => (CATS[k] || {})[LANG] || k;
+const stName = k => (STATUS[k] || [k,k])[L()];
+const fmt = iso => { try { return new Date(iso).toLocaleDateString(LANG==="en"?"en-IN":"hi-IN",{day:"numeric",month:"short",year:"numeric"}); } catch(e){ return ""; } };
 const nowIso = () => new Date().toISOString();
 const code = id => "GS-" + String(id).slice(-5).toUpperCase();
 const rupee = n => "₹" + Number(n||0).toLocaleString("en-IN");
-function toast(msg){ const t=$("#toast"); t.textContent=msg; t.hidden=false; clearTimeout(toast.t); toast.t=setTimeout(()=>t.hidden=true,2600); }
-function lsGet(k){ try { return localStorage.getItem(k); } catch(e){ return null; } }
-function lsSet(k,v){ try { localStorage.setItem(k,v); } catch(e){} }
+const half = c => Math.round((c.fee||0)/2);
+function toast(msg){ const el=$("#toast"); el.textContent=msg; el.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>el.hidden=true,3000); }
+const blockOpts = sel => BLOCKS.map(b=>`<option${b===sel?" selected":""}>${b}</option>`).join("");
+const siteBase = () => location.href.replace(/[#?].*$/,"").replace(/app\.html$/,"");
 
-/* ---------- state + store ---------- */
-const state = { cases:[], sahayaks:[], uid:null, mode:"loading", readOnly:false, role:"family" };
-
-function demoData(){
-  const d = (n)=>new Date(Date.now()-n*864e5).toISOString();
-  const s1={id:"demo-s1",name:"Ramesh Jha",block:"Ghanshyampur",occupation:"Retired teacher",status:"verified",example:true};
-  const s2={id:"demo-s2",name:"Sunita Devi",block:"Biraul",occupation:"Jeevika SHG member",status:"verified",example:true};
-  const s3={id:"demo-s3",name:"Amit Kumar",block:"Ghanshyampur",occupation:"LLB graduate",status:"applied",example:true};
+/* ===================== backend: Firebase ===================== */
+function loadScript(src){ return new Promise((ok,bad)=>{ const s=document.createElement("script"); s.src=src; s.onload=ok; s.onerror=()=>bad(new Error("load "+src)); document.head.appendChild(s); }); }
+const FB_V = "10.12.2";
+function firebaseBackend(){
+  let auth, fs, st, confirmation = null, verifier = null;
+  const FV = () => firebase.firestore.FieldValue;
+  const snapList = q => cb => q.onSnapshot(s => cb(s.docs.map(d=>({id:d.id, ...d.data()}))), e => { console.error(e); toast(t("failed")); });
   return {
-    sahayaks:[s1,s2,s3],
-    cases:[
-      {id:"demo-c1",example:true,category:"land_records",title:"Mutation pending for 8 months",description:"Applied online for dakhil-kharij after father's death. Circle office has not decided. No reply on calls.",village:"Korthu",block:"Ghanshyampur",land:"Khata 112, Khesra 845",userName:"Example family (Delhi)",city:"Delhi",fee:1499,status:"in_progress",sahayakId:"demo-s1",sahayakName:"Ramesh Jha",createdAt:d(20),createdBy:null,
-       updates:[{at:d(20),by:"system",kind:"posted",text:"Case posted from Delhi."},{at:d(19),by:"Ramesh Jha",kind:"visit",text:"Accepted case. Authorisation letter received."},{at:d(15),by:"Ramesh Jha",kind:"filed",text:"Met Revenue Karmachari at Anchal office. Objection period over; file sent to CO.",ref:"Mutation case no. shown on receipt",next:d(-5)}]},
-      {id:"demo-c2",example:true,category:"encroachment",title:"Neighbour built wall on our land",description:"Boundary wall raised 4 feet into our plot while family was in Mumbai. Need measurement (naapi) and complaint.",village:"Nawada",block:"Biraul",land:"Khesra 301",userName:"Example family (Mumbai)",city:"Mumbai",fee:2499,status:"escalated",sahayakId:"demo-s2",sahayakName:"Sunita Devi",createdAt:d(40),createdBy:null,
-       updates:[{at:d(40),by:"system",kind:"posted",text:"Case posted from Mumbai."},{at:d(38),by:"Sunita Devi",kind:"filed",text:"Measurement application filed at circle office.",ref:"Receipt photo uploaded"},{at:d(10),by:"Sunita Devi",kind:"escalated",text:"No action in 25 days. Lok Shikayat complaint filed; hearing date given.",next:d(-12)}]},
-      {id:"demo-c3",example:true,category:"certificate",title:"Residence certificate for son's admission",description:"Need niwas praman patra quickly for college admission.",village:"Korthu",block:"Ghanshyampur",land:"",userName:"Example family (Ludhiana)",city:"Ludhiana",fee:499,status:"posted",createdAt:d(1),createdBy:null,
-       updates:[{at:d(1),by:"system",kind:"posted",text:"Case posted from Ludhiana."}]}
-    ]
+    mode:"live",
+    async init(){
+      for (const m of ["app","auth","firestore","storage"]) await loadScript(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-${m}-compat.js`);
+      firebase.initializeApp(CONFIG.firebase);
+      auth = firebase.auth(); fs = firebase.firestore(); st = firebase.storage();
+      auth.languageCode = "hi";
+    },
+    onAuth(cb){ auth.onAuthStateChanged(u => cb(u ? {uid:u.uid, phone:u.phoneNumber} : null)); },
+    async sendOtp(phone10){
+      if (!verifier) verifier = new firebase.auth.RecaptchaVerifier("recaptcha", {size:"invisible"});
+      confirmation = await auth.signInWithPhoneNumber("+91"+phone10, verifier);
+    },
+    async verifyOtp(code){ await confirmation.confirm(code); },
+    signOut(){ return auth.signOut(); },
+    async getUser(uid){ const d = await fs.collection("users").doc(uid).get(); return d.exists ? {id:d.id, ...d.data()} : null; },
+    watchUser(uid, cb){ return fs.collection("users").doc(uid).onSnapshot(d => cb(d.exists ? {id:d.id, ...d.data()} : null)); },
+    createUser(uid, data){ return fs.collection("users").doc(uid).set(data); },
+    updateUser(uid, data){ return fs.collection("users").doc(uid).update(data); },
+    watchCases(scope, cb){
+      let q = fs.collection("cases");
+      if (scope.owner) q = q.where("ownerUid","==",scope.owner);
+      if (scope.sahayak) q = q.where("sahayakUid","==",scope.sahayak);
+      if (scope.openBlock) q = q.where("status","==","posted").where("block","==",scope.openBlock);
+      return snapList(q)(cb);
+    },
+    watchUsers(field, value, cb){ return snapList(fs.collection("users").where(field,"==",value))(cb); },
+    async createCase(data, priv){ const ref = fs.collection("cases").doc(); await ref.set(data); await ref.collection("private").doc("contact").set(priv); return ref.id; },
+    getPrivate(id){ return fs.collection("cases").doc(id).collection("private").doc("contact").get().then(d => d.exists ? d.data() : null); },
+    updateCase(id, patch, entry, payment, files){
+      const p = {...patch};
+      if (entry) p.updates = FV().arrayUnion(entry);
+      if (payment) p.payments = FV().arrayUnion(payment);
+      if (files && files.length) p.files = FV().arrayUnion(...files);
+      return fs.collection("cases").doc(id).update(p);
+    },
+    setPayments(id, payments){ return fs.collection("cases").doc(id).update({payments}); },
+    async uploadFile(caseId, file, by){
+      const path = `cases/${caseId}/${Date.now()}-${file.name.replace(/[^\w.\-]+/g,"_")}`;
+      const ref = st.ref(path);
+      await ref.put(file, {contentType:file.type});
+      return {name:file.name, path, url: await ref.getDownloadURL(), type:file.type, size:file.size, at:nowIso(), by};
+    },
+    queueNotification(n){ return fs.collection("notifications").add({...n, status:"queued", at:nowIso()}); }
   };
 }
 
-let db = null;
-const store = {
-  async addCase(c){ if(db){ await db.collection("cases").add(c); } else { state.cases.unshift({...c,id:"local-"+Date.now()}); render(); } },
-  async updateCase(id,patch){ if(db){ await db.collection("cases").doc(id).update(patch); } else { const c=state.cases.find(x=>x.id===id); Object.assign(c,patch); render(); } },
-  async addSahayak(s){ if(db){ const r=await db.collection("sahayaks").add(s); return r.id; } else { const id="local-s"+Date.now(); state.sahayaks.push({...s,id}); render(); return id; } },
-  async updateSahayak(id,patch){ if(db){ await db.collection("sahayaks").doc(id).update(patch); } else { Object.assign(state.sahayaks.find(x=>x.id===id),patch); render(); } }
-};
-
-async function boot(){
-  fillStatic();
-  const local = () => { const d=demoData(); state.cases=d.cases; state.sahayaks=d.sahayaks; state.mode="local"; render(); };
-  if(!window.claude || !window.claude.use){ local(); return; }
-  try {
-    const [d,u] = await Promise.all([window.claude.use("db"), window.claude.use("user")]);
-    if(!d){ local(); return; }
-    db = d;
-    state.uid = u ? await u.id() : null;
-    const w = u ? await u.can("data.write") : null;
-    state.readOnly = (w === false);
-    state.mode = "live";
-    render();
-    db.collection("cases").onSnapshot(snap=>{ state.cases = snap.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))); render(); }, ()=>{ toast("Live updates stopped. Reload the page."); });
-    db.collection("sahayaks").onSnapshot(snap=>{ state.sahayaks = snap.docs.map(x=>({id:x.id,...x.data()})).sort((a,b)=>String(a.name).localeCompare(String(b.name))); render(); }, ()=>{});
-  } catch(e){ local(); }
+/* ===================== backend: demo (in memory) ===================== */
+function demoBackend(){
+  const d = n => new Date(Date.now()-n*864e5).toISOString();
+  const db = {
+    users:{
+      "demo-family":{name:"उदाहरण परिवार",city:"दिल्ली",village:"Korthu",block:"Ghanshyampur",phone:"+919800000001",role:"family",example:true},
+      "demo-ramesh":{name:"रमेश झा",city:"",village:"Korthu",block:"Ghanshyampur",phone:"+919800000002",role:"sahayak",occupation:"सेवानिवृत्त शिक्षक",example:true},
+      "demo-amit":{name:"अमित कुमार",city:"",village:"Korthu",block:"Ghanshyampur",phone:"+919800000003",role:"family",applied:true,occupation:"लॉ ग्रेजुएट",appliedBlock:"Ghanshyampur",example:true}
+    },
+    cases:{
+      "demo-c1mut":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"land_records",title:"8 महीने से दाखिल-खारिज लंबित",description:"पिताजी के निधन के बाद ऑनलाइन दाखिल-खारिज का आवेदन किया था। अंचल कार्यालय ने अब तक फ़ैसला नहीं किया।",village:"Korthu",block:"Ghanshyampur",land:"खाता 112, खेसरा 845",fee:1499,status:"in_progress",sahayakUid:"demo-ramesh",sahayakName:"रमेश झा",createdAt:d(20),
+        files:[], payments:[{part:"advance",amount:750,method:"upi",ref:"412345678901",at:d(19),verified:true}],
+        updates:[{at:d(20),by:"system",kind:"posted",text:"दिल्ली से केस भेजा गया।"},{at:d(19),by:"रमेश झा",kind:"visit",text:"रमेश झा ने केस लिया।"},{at:d(15),by:"रमेश झा",kind:"filed",text:"अंचल कार्यालय में राजस्व कर्मचारी से मिले। फ़ाइल सीओ को भेजी गई।",ref:"Mutation receipt",next:d(-5)}]},
+      "demo-c2res":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"certificate",title:"बेटे के दाख़िले के लिए निवास प्रमाण पत्र",description:"कॉलेज दाख़िले के लिए जल्दी निवास प्रमाण पत्र चाहिए।",village:"Korthu",block:"Ghanshyampur",land:"",fee:499,status:"posted",createdAt:d(1),files:[],payments:[],
+        updates:[{at:d(1),by:"system",kind:"posted",text:"दिल्ली से केस भेजा गया।"}]}
+    },
+    priv:{ "demo-c1mut":{phone:"+919800000001",name:"उदाहरण परिवार"}, "demo-c2res":{phone:"+919800000001",name:"उदाहरण परिवार"} }
+  };
+  const subs = new Set();
+  const notify = () => subs.forEach(f => f());
+  let authCb = null, pendingPhone = null;
+  const caseList = () => Object.entries(db.cases).map(([id,c]) => ({id, ...c}));
+  const userList = () => Object.entries(db.users).map(([id,u]) => ({id, ...u}));
+  const watch = (fn, cb) => { const run = () => cb(fn()); subs.add(run); run(); return () => subs.delete(run); };
+  return {
+    mode:"demo",
+    async init(){},
+    onAuth(cb){ authCb = cb; cb(null); },
+    async sendOtp(p){ pendingPhone = p; },
+    async verifyOtp(c){ if (c !== "123456") throw new Error("bad otp"); authCb({uid:"demo-family", phone:"+91"+pendingPhone}); },
+    async signOut(){ authCb(null); },
+    switchUser(uid){ authCb({uid, phone: db.users[uid].phone}); },
+    async getUser(uid){ return db.users[uid] ? {id:uid, ...db.users[uid]} : null; },
+    watchUser(uid, cb){ return watch(() => db.users[uid] ? {id:uid, ...db.users[uid]} : null, cb); },
+    async createUser(uid, data){ db.users[uid] = data; notify(); },
+    async updateUser(uid, data){ Object.assign(db.users[uid], data); notify(); },
+    watchCases(scope, cb){ return watch(() => caseList().filter(c => scope.owner ? c.ownerUid===scope.owner : scope.sahayak ? c.sahayakUid===scope.sahayak : scope.openBlock ? (c.status==="posted" && c.block===scope.openBlock) : true), cb); },
+    watchUsers(field, value, cb){ return watch(() => userList().filter(u => u[field] === value), cb); },
+    async createCase(data, priv){ const id = "demo-" + Date.now().toString(36); db.cases[id] = data; db.priv[id] = priv; notify(); return id; },
+    async getPrivate(id){ return db.priv[id] || null; },
+    async updateCase(id, patch, entry, payment, files){ const c = db.cases[id]; Object.assign(c, patch); if (entry) c.updates = [...(c.updates||[]), entry]; if (payment) c.payments = [...(c.payments||[]), payment]; if (files && files.length) c.files = [...(c.files||[]), ...files]; notify(); },
+    async setPayments(id, payments){ db.cases[id].payments = payments; notify(); },
+    async uploadFile(caseId, file, by){ return {name:file.name, path:"demo/"+file.name, url:URL.createObjectURL(file), type:file.type, size:file.size, at:nowIso(), by}; },
+    async queueNotification(){}
+  };
 }
 
-/* ---------- static form setup ---------- */
-function fillStatic(){
-  $("#f-cat").innerHTML = Object.entries(CATS).map(([k,v])=>`<option value="${k}">${esc(v.label)} · ${esc(v.hi)}</option>`).join("");
-  $("#f-block").innerHTML = BLOCKS.map(b=>`<option${b==="Ghanshyampur"?" selected":""}>${b}</option>`).join("");
-  const showFee = ()=> $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+/* ===================== app state ===================== */
+const B = CONFIG.firebase ? firebaseBackend() : demoBackend();
+const S = { authUser:null, me:null, view:null, lists:{}, unsubs:[], privCache:{} };
+
+function stopWatches(){ S.unsubs.forEach(u => { try { u(); } catch(e){} }); S.unsubs = []; S.lists = {}; }
+function watchList(key, unsub){ S.unsubs.push(unsub); }
+
+async function start(){
+  $("#langBtn").addEventListener("click", () => { LANG = LANG === "en" ? "hi" : "en"; try { localStorage.setItem("gs-lang", LANG); } catch(e){} renderShell(); });
+  $("#logoutBtn").addEventListener("click", () => B.signOut());
+  $("#sheet").addEventListener("click", e => { if (e.target.id === "sheet") closeSheet(); });
+  document.addEventListener("keydown", e => { if (e.key === "Escape") closeSheet(); });
+  try { await B.init(); } catch(e){ console.error(e); toast(t("failed")); }
+  let userUnsub = null;
+  B.onAuth(u => {
+    stopWatches(); if (userUnsub) { userUnsub(); userUnsub = null; }
+    S.authUser = u; S.me = null; S.view = null;
+    if (!u) { renderShell(); return; }
+    userUnsub = B.watchUser(u.uid, me => {
+      const roleChanged = !S.me || !me || S.me.role !== me.role || S.me.block !== me.block;
+      S.me = me;
+      if (roleChanged) { stopWatches(); startWatches(); renderShell(); } else renderData();
+    });
+  });
+}
+function startWatches(){
+  const me = S.me, uid = S.authUser && S.authUser.uid; if (!me || !uid) return;
+  const put = k => list => { S.lists[k] = list.sort((a,b)=>String(b.createdAt||b.appliedAt).localeCompare(String(a.createdAt||a.appliedAt))); renderData(); };
+  watchList("mine", B.watchCases({owner:uid}, put("mine")));
+  if (me.role === "sahayak") {
+    watchList("open", B.watchCases({openBlock:me.block}, put("open")));
+    watchList("assigned", B.watchCases({sahayak:uid}, put("assigned")));
+  }
+  if (me.role === "admin") {
+    watchList("all", B.watchCases({}, put("all")));
+    watchList("apps", B.watchUsers("applied", true, put("apps")));
+    watchList("sahayaks", B.watchUsers("role", "sahayak", put("sahayaks")));
+  }
+}
+
+/* ===================== rendering: shell (forms) ===================== */
+function renderShell(){
+  document.documentElement.lang = LANG;
+  $("#langBtn").textContent = t("other");
+  $("#brandName").textContent = LANG === "en" ? "Gram Sahayak" : "ग्राम सहायक";
+  $("#brandSub").textContent = LANG === "en" ? "ग्राम सहायक" : "Gram Sahayak";
+  $("#logoutBtn").textContent = t("logout");
+  $("#logoutBtn").hidden = !S.authUser;
+  const note = $("#modeNote");
+  note.hidden = B.mode !== "demo"; note.className = "notice warn"; note.textContent = t("demo");
+  const main = $("#main");
+  if (!S.authUser) { main.innerHTML = loginHtml(); bindLogin(); return; }
+  if (!S.me) { main.innerHTML = profileHtml(); bindProfile(); return; }
+  const tabs = [["family", t("tFamily")]];
+  if (S.me.role === "sahayak") tabs.push(["sahayak", t("tSahayak")]);
+  if (S.me.role === "admin") tabs.push(["admin", t("tAdmin")]);
+  if (!S.view || !tabs.some(x => x[0] === S.view)) S.view = tabs.length > 1 ? tabs[1][0] : "family";
+  const demoRoles = B.mode === "demo" ? `<div class="notice">${t("demoRole")} <span class="actions" style="display:inline-flex;margin-left:6px">
+      <button class="chip" data-demo="demo-family">${LANG==="en"?"Family":"परिवार"}</button><button class="chip" data-demo="demo-ramesh">${LANG==="en"?"Sahayak":"सहायक"}</button><button class="chip" data-demo="demo-admin">${LANG==="en"?"Admin":"प्रबंधन"}</button></span></div>` : "";
+  main.innerHTML = demoRoles + (tabs.length > 1 ? `<div class="tabs" role="tablist">${tabs.map(([k,l]) => `<button role="tab" data-tab="${k}" aria-selected="${k===S.view}">${l}</button>`).join("")}</div>` : "") +
+    `<section id="v-family"${S.view!=="family"?" hidden":""}>${familyShell()}</section>` +
+    (S.me.role === "sahayak" ? `<section id="v-sahayak"${S.view!=="sahayak"?" hidden":""}>${sahayakShell()}</section>` : "") +
+    (S.me.role === "admin" ? `<section id="v-admin"${S.view!=="admin"?" hidden":""}>${adminShell()}</section>` : "");
+  main.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => { S.view = b.dataset.tab; renderShell(); }));
+  main.querySelectorAll("[data-demo]").forEach(b => b.addEventListener("click", () => demoSwitch(b.dataset.demo)));
+  bindFamily();
+  renderData();
+}
+function demoSwitch(uid){
+  if (uid === "demo-admin") { B.getUser("demo-admin").then(u => { if (!u) B.createUser("demo-admin",{name:"प्रबंधक",city:"",village:"",block:"Ghanshyampur",phone:"+919800000009",role:"admin",example:true}).then(()=>B.switchUser("demo-admin")); else B.switchUser("demo-admin"); }); return; }
+  B.switchUser(uid);
+}
+
+function loginHtml(){
+  return `<h2>${t("loginT")}</h2><p class="sub">${t("loginS")}</p>
+  <form id="loginForm" class="panel" style="display:flex;flex-direction:column;gap:12px">
+    <label>${t("mobile")}<div class="phone"><span>+91</span><input id="l-phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="98XXXXXXXX" required></div></label>
+    <button class="btn" id="l-send" type="submit">${t("sendOtp")}</button>
+    <div id="l-otpBox" hidden style="display:flex;flex-direction:column;gap:12px">
+      <label>${t("otp")}<input id="l-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
+      <button class="btn" id="l-verify" type="button">${t("verify")}</button>
+    </div>
+  </form>`;
+}
+function bindLogin(){
+  $("#loginForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const p = $("#l-phone").value.replace(/\D/g,"");
+    if (!/^[6-9]\d{9}$/.test(p)) { toast(t("badPhone")); return; }
+    $("#l-send").disabled = true;
+    try { await B.sendOtp(p); $("#l-otpBox").hidden = false; $("#l-otp").focus(); toast(t("otpSent")); }
+    catch(err){ console.error(err); toast(t("failed")); }
+    finally { $("#l-send").disabled = false; }
+  });
+  $("#l-verify").addEventListener("click", async () => {
+    $("#l-verify").disabled = true;
+    try { await B.verifyOtp($("#l-otp").value.trim()); } catch(err){ toast(t("badOtp")); }
+    finally { const b = $("#l-verify"); if (b) b.disabled = false; }
+  });
+}
+function profileHtml(){
+  return `<h2>${t("profT")}</h2><p class="sub">${t("profS")}</p>
+  <form id="profForm" class="panel"><div class="grid">
+    <label>${t("name")}<input id="p-name" required maxlength="60"></label>
+    <label>${t("city")}<input id="p-city" required maxlength="40" placeholder="${LANG==="en"?"e.g. Delhi":"जैसे: दिल्ली"}"></label>
+    <label>${t("village")}<input id="p-village" required maxlength="60"></label>
+    <label>${t("block")}<select id="p-block">${blockOpts("Ghanshyampur")}</select></label>
+  </div><div class="row-end"><span></span><button class="btn" type="submit">${t("save")}</button></div></form>`;
+}
+function bindProfile(){
+  $("#profForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const u = S.authUser;
+    try { await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), village:$("#p-village").value.trim(), block:$("#p-block").value, phone:u.phone, role:"family", createdAt:nowIso()}); }
+    catch(err){ console.error(err); toast(t("failed")); }
+  });
+}
+
+function familyShell(){
+  const me = S.me;
+  return `<h2>${t("postT")}</h2><p class="sub">${t("postS")}</p>
+  <form id="caseForm" class="panel"><div class="grid">
+    <label>${t("cat")}<select id="f-cat">${Object.keys(CATS).map(k=>`<option value="${k}">${esc(catName(k))}</option>`).join("")}</select></label>
+    <label>${t("block")}<select id="f-block">${blockOpts(me.block)}</select></label>
+    <label class="full">${t("title")}<input id="f-title" required maxlength="90" placeholder="${esc(t("titlePh"))}"></label>
+    <label class="full">${t("desc")} <small>${t("descHelp")}</small><textarea id="f-desc" required maxlength="1500"></textarea></label>
+    <label>${t("village")}<input id="f-village" required maxlength="60" value="${esc(me.village||"")}"></label>
+    <label>${t("land")} <small>${t("landHelp")}</small><input id="f-land" maxlength="40"></label>
+    <label class="full">${t("files")} <small>${t("filesHelp")}</small><input id="f-files" type="file" multiple accept="image/*,application/pdf"></label>
+  </div>
+  <div class="row-end"><div class="fee">${t("feeL")} <b id="f-fee"></b><br><small>${t("feeHelp")}</small></div><button class="btn" id="f-submit" type="submit">${t("postBtn")}</button></div></form>
+  <h2>${t("mineT")}</h2><p class="sub">${t("mineS")}</p>
+  <div id="mineList" class="list"></div>
+  <div id="applyBox"></div>`;
+}
+function bindFamily(){
+  const f = $("#caseForm"); if (!f) return;
+  const showFee = () => $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
   $("#f-cat").addEventListener("change", showFee); showFee();
-  const nm=lsGet("gs-name"), ct=lsGet("gs-city"); if(nm) $("#f-name").value=nm; if(ct) $("#f-city").value=ct;
-  document.querySelectorAll(".roles button").forEach(b=>b.addEventListener("click",()=>setRole(b.dataset.role)));
-  const saved = lsGet("gs-role"); if(saved && ["family","sahayak","admin"].includes(saved)) setRole(saved, true);
-  $("#caseForm").addEventListener("submit", postCase);
-  $("#s-me").addEventListener("change", ()=>{ lsSet("gs-me",$("#s-me").value); renderSahayak(); });
-  $("#s-apply-open").addEventListener("click", openApply);
-  $("#sheet").addEventListener("click", e=>{ if(e.target.id==="sheet") closeSheet(); });
-  document.addEventListener("keydown", e=>{ if(e.key==="Escape") closeSheet(); });
+  f.addEventListener("submit", postCase);
 }
-function setRole(r, quiet){
-  state.role=r; lsSet("gs-role",r);
-  document.querySelectorAll(".roles button").forEach(b=>b.setAttribute("aria-selected", String(b.dataset.role===r)));
-  ["family","sahayak","admin"].forEach(k=> $("#view-"+k).hidden = k!==r);
-  if(!quiet) render();
+function sahayakShell(){
+  return `<h2>${t("openT")} · ${esc(S.me.block)}</h2><p class="sub">${t("openS")}</p><div id="openList" class="list"></div>
+  <h2>${t("activeT")}</h2><p class="sub">${t("activeS")}</p><div id="assignedList" class="list"></div>
+  <h2>${t("earnT")}</h2><div id="earnStats" class="stats"></div>`;
 }
-
-/* ---------- actions ---------- */
-async function postCase(e){
-  e.preventDefault();
-  if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
-  const cat=$("#f-cat").value, city=$("#f-city").value.trim(), name=$("#f-name").value.trim();
-  const c = { category:cat, title:$("#f-title").value.trim(), description:$("#f-desc").value.trim(), village:$("#f-village").value.trim(), block:$("#f-block").value, land:$("#f-land").value.trim(), userName:name, city, fee:CATS[cat].fee, status:"posted", createdAt:nowIso(), createdBy:state.uid, example:false,
-    updates:[{at:nowIso(),by:"system",kind:"posted",text:`Case posted from ${city}.`}] };
-  $("#f-submit").disabled=true;
-  try { await store.addCase(c); lsSet("gs-name",name); lsSet("gs-city",city); $("#f-title").value=""; $("#f-desc").value=""; $("#f-land").value=""; toast("Problem posted. A Sahayak will pick it up."); }
-  catch(err){ toast(err && err.code==="quota_exceeded" ? "The prototype is full. Ask the admin to clear old cases." : "Could not post. Check your access and try again."); }
-  finally { $("#f-submit").disabled=false; }
-}
-function addUpdate(c, entry, patch){
-  return store.updateCase(c.id, {...patch, updates:[...(c.updates||[]), entry]});
-}
-async function acceptCase(id){
-  const me = currentSahayak(); const c = state.cases.find(x=>x.id===id); if(!me||!c) return;
-  try { await addUpdate(c,{at:nowIso(),by:me.name,kind:"visit",text:`${me.name} accepted the case.`},{status:"assigned",sahayakId:me.id,sahayakName:me.name}); toast("Case accepted. Ask the family for the authorisation letter."); }
-  catch(e){ toast("Could not accept. Try again."); }
-}
-async function assignCase(id, sid){
-  const s = state.sahayaks.find(x=>x.id===sid); const c = state.cases.find(x=>x.id===id); if(!s||!c) return;
-  try { await addUpdate(c,{at:nowIso(),by:"Admin",kind:"visit",text:`Assigned to ${s.name}.`},{status:c.status==="posted"?"assigned":c.status,sahayakId:s.id,sahayakName:s.name}); toast(`Assigned to ${s.name}.`); }
-  catch(e){ toast("Could not assign. Try again."); }
-}
-async function verifySahayak(id){ try { await store.updateSahayak(id,{status:"verified",verifiedAt:nowIso()}); toast("Sahayak verified."); } catch(e){ toast("Could not verify."); } }
-
-/* ---------- sheets ---------- */
-function openSheet(title, html, onReady){ $("#sheetTitle").textContent=title; $("#sheetBody").innerHTML=html; $("#sheet").hidden=false; onReady && onReady(); const f=$("#sheetBody").querySelector("input,select,textarea,button"); f && f.focus(); }
-function closeSheet(){ $("#sheet").hidden=true; $("#sheetBody").innerHTML=""; }
-
-function openUpdate(id){
-  const c = state.cases.find(x=>x.id===id); const me=currentSahayak(); if(!c||!me) return;
-  openSheet(`Update ${code(c.id)} · ${c.title}`, `
-    <form id="uForm" style="display:flex;flex-direction:column;gap:12px">
-      <label>What happened
-        <select id="u-kind">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v}</option>`).join("")}</select></label>
-      <label>Note for the family
-        <textarea id="u-text" required maxlength="800" placeholder="Which office, whom you met, what they said"></textarea></label>
-      <label>Receipt / application no. <small>optional</small>
-        <input id="u-ref" maxlength="80"></label>
-      <label>Next date <small>optional</small>
-        <input id="u-next" type="date"></label>
-      <div class="actions"><button class="btn" type="submit">Save update</button><button class="btn ghost" type="button" id="u-cancel">Cancel</button></div>
-    </form>`, ()=>{
-      $("#u-cancel").onclick=closeSheet;
-      $("#uForm").onsubmit = async ev=>{
-        ev.preventDefault();
-        const kind=$("#u-kind").value;
-        const status = kind==="escalated" ? "escalated" : kind==="resolved" ? "resolved" : "in_progress";
-        const entry={at:nowIso(),by:me.name,kind,text:$("#u-text").value.trim()};
-        if($("#u-ref").value.trim()) entry.ref=$("#u-ref").value.trim();
-        if($("#u-next").value) entry.next=new Date($("#u-next").value+"T10:00:00").toISOString();
-        const patch={status}; if(status==="resolved") patch.resolvedAt=nowIso();
-        try { await addUpdate(c,entry,patch); closeSheet(); toast(status==="resolved"?"Marked solved. The family will confirm.":"Update saved."); }
-        catch(e){ toast("Could not save. Try again."); }
-      };
-    });
-}
-function openRate(id){
-  const c = state.cases.find(x=>x.id===id); if(!c) return;
-  let stars=5;
-  openSheet(`Confirm ${code(c.id)} is solved`, `
-    <p class="desc">${esc(c.sahayakName||"Your Sahayak")} marked this case as solved. Confirm and rate their work. The remaining ${rupee(Math.round((c.fee||0)/2))} will be released.</p>
-    <div class="stars" id="r-stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" aria-label="${n} star">★</button>`).join("")}</div>
-    <label>Comment <small>optional</small><textarea id="r-text" maxlength="400"></textarea></label>
-    <div class="actions"><button class="btn" id="r-ok" type="button">Confirm and close case</button><button class="btn ghost" id="r-no" type="button">Not solved yet</button></div>`, ()=>{
-      const paint=()=>document.querySelectorAll("#r-stars button").forEach(b=>b.classList.toggle("on", Number(b.dataset.n)<=stars));
-      document.querySelectorAll("#r-stars button").forEach(b=>b.onclick=()=>{stars=Number(b.dataset.n);paint();}); paint();
-      $("#r-ok").onclick=async()=>{ try { await addUpdate(c,{at:nowIso(),by:c.userName||"Family",kind:"closed",text:`Family confirmed. Rated ${stars}/5.${$("#r-text").value.trim()?" “"+$("#r-text").value.trim()+"”":""}`},{status:"closed",rating:stars,closedAt:nowIso()}); closeSheet(); toast("Case closed. Thank you."); } catch(e){ toast("Could not save. Try again."); } };
-      $("#r-no").onclick=async()=>{ try { await addUpdate(c,{at:nowIso(),by:c.userName||"Family",kind:"reopened",text:"Family says the problem is not solved yet."},{status:"in_progress"}); closeSheet(); toast("Sent back to the Sahayak."); } catch(e){ toast("Could not save."); } };
-    });
-}
-function openApply(){
-  openSheet("Apply as a Sahayak", `
-    <form id="aForm" style="display:flex;flex-direction:column;gap:12px">
-      <p class="desc" style="color:var(--muted)">After applying, the coordinator does police verification, two references and an interview before you get cases.</p>
-      <label>Full name<input id="a-name" required maxlength="60"></label>
-      <label>Block you will serve<select id="a-block">${BLOCKS.map(b=>`<option${b==="Ghanshyampur"?" selected":""}>${b}</option>`).join("")}</select></label>
-      <label>Occupation / background<input id="a-occ" required maxlength="60" placeholder="Retired teacher, SHG member, law graduate…"></label>
-      <div class="actions"><button class="btn" type="submit">Submit application</button><button class="btn ghost" type="button" id="a-cancel">Cancel</button></div>
-    </form>`, ()=>{
-      $("#a-cancel").onclick=closeSheet;
-      $("#aForm").onsubmit=async ev=>{ ev.preventDefault();
-        if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
-        try { const id=await store.addSahayak({name:$("#a-name").value.trim(),block:$("#a-block").value,occupation:$("#a-occ").value.trim(),status:"applied",appliedAt:nowIso(),example:false}); lsSet("gs-me",id); closeSheet(); toast("Application sent. The admin will verify you."); }
-        catch(e){ toast("Could not submit. Try again."); } };
-    });
+function adminShell(){
+  return `<h2>${t("ovT")}</h2><div id="adminStats" class="stats"></div>
+  <h2>${t("payT")}</h2><p class="sub">${t("payS")}</p><div id="payList" class="panel"></div>
+  <h2>${t("appsT")}</h2><p class="sub">${t("appsS")}</p><div id="appList" class="panel"></div>
+  <h2>${t("sahT")}</h2><div id="sahList" class="panel"></div>
+  <h2>${t("allT")}</h2><div id="allList" class="list"></div>`;
 }
 
-/* ---------- render ---------- */
-function currentSahayak(){ const id=$("#s-me").value; return state.sahayaks.find(s=>s.id===id); }
-function caseCard(c, opts={}){
-  const cat = CATS[c.category]||{label:c.category};
-  const ups = (c.updates||[]).slice().reverse();
-  const nextUp = (c.updates||[]).filter(u=>u.next).slice(-1)[0];
+/* ===================== rendering: data ===================== */
+function renderData(){
+  if (!S.me) return;
+  const mine = S.lists.mine || [];
+  const ml = $("#mineList");
+  if (ml) ml.innerHTML = mine.length ? mine.map(c => caseCard(c, familyActions(c), {payments:true})).join("") : `<div class="empty">${t("noCases")}</div>`;
+  const ab = $("#applyBox");
+  if (ab) ab.innerHTML = S.me.role !== "family" ? "" : S.me.applied ? `<div class="notice" style="margin-top:20px">${t("applied")}</div>`
+    : `<div class="panel" style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><b>${t("applyT")}</b><button class="btn ghost small" data-act="apply">${t("applyBtn")}</button></div>`;
+  if (S.me.role === "sahayak") {
+    const open = S.lists.open || [], asg = S.lists.assigned || [];
+    const active = asg.filter(c => c.status !== "closed"), done = asg.filter(c => c.status === "closed");
+    const ol = $("#openList"); if (ol) ol.innerHTML = open.length ? open.map(c => caseCard(c, `<button class="btn small" data-act="accept" data-id="${esc(c.id)}">${t("accept")} · ${t("earn")} ${rupee(Math.round(c.fee*CONFIG.sahayakShare))}</button>`)).join("") : `<div class="empty">${t("noOpen")}</div>`;
+    const al = $("#assignedList"); if (al) al.innerHTML = active.length ? active.map(c => caseCard(c, sahayakActions(c))).join("") : `<div class="empty">${t("noActive")}</div>`;
+    const es = $("#earnStats"); if (es) es.innerHTML = stat(done.length, t("closedN")) + stat(rupee(done.reduce((s,c)=>s+Math.round((c.fee||0)*CONFIG.sahayakShare),0)), t("earned")) + stat(avgRating(done), t("rating")) + stat(active.length, t("activeN"));
+  }
+  if (S.me.role === "admin") renderAdmin();
+}
+const stat = (v, l) => `<div class="stat"><b>${v}</b><span>${l}</span></div>`;
+function avgRating(list){ const r = list.filter(c => c.rating); return r.length ? (r.reduce((s,c)=>s+c.rating,0)/r.length).toFixed(1)+" ★" : "–"; }
+function familyActions(c){
+  const a = [];
+  if (c.status !== "closed") a.push(`<button class="btn ghost small" data-act="addfiles" data-id="${esc(c.id)}">${t("addFiles")}</button>`);
+  if (c.status === "resolved") a.push(`<button class="btn warm small" data-act="rate" data-id="${esc(c.id)}">${t("confirm")}</button>`);
+  return a.join("");
+}
+function sahayakActions(c){
+  if (c.status === "resolved") return `<span class="fee">${t("waitConfirm")}</span><button class="btn wa small" data-act="wa" data-id="${esc(c.id)}">${t("waFamily")}</button>`;
+  return `<button class="btn small" data-act="update" data-id="${esc(c.id)}">${t("addUpdate")}</button><button class="btn wa small" data-act="wa" data-id="${esc(c.id)}">${t("waFamily")}</button>`;
+}
+function payBox(c){
+  if (c.status === "posted") return "";
+  const pays = c.payments || [];
+  const row = (part, label, due) => {
+    const p = pays.find(x => x.part === part);
+    if (p) return `<div class="line"><span>${label} · ${rupee(p.amount)}</span><span class="${p.verified?"ok":"wait"}">${p.verified?t("paidOk"):t("paidWait")}</span></div>`;
+    if (!due) return `<div class="line"><span>${label} · ${rupee(half(c))}</span><span>–</span></div>`;
+    return `<div class="line"><span>${label} · <b>${rupee(half(c))}</b></span><button class="btn warm small" data-act="pay" data-part="${part}" data-id="${esc(c.id)}">${t("payNow")}</button></div>`;
+  };
+  return `<div class="pay">${row("advance", t("payAdv"), true)}${row("final", t("payFin"), c.status === "resolved" || c.status === "closed")}</div>`;
+}
+function caseCard(c, actions, opts={}){
+  const ups = (c.updates || []).slice().reverse();
+  const nextUp = (c.updates || []).filter(u => u.next).slice(-1)[0];
+  const files = c.files || [];
   return `<article class="case">
-    <div class="top"><div><div class="code">${code(c.id)}${c.example?'<span class="ex">Example</span>':""}</div><h3>${esc(c.title)}</h3></div><span class="pill s-${esc(c.status)}">${esc(STATUS[c.status]||c.status)}</span></div>
-    <div class="meta"><span>${esc(cat.label)}</span><span>${esc(c.village)}, ${esc(c.block)}</span><span>From ${esc(c.city)}</span><span>Posted ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>Sahayak: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>Next date: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
-    ${opts.full!==false?`<p class="desc">${esc(c.description)}</p>`:""}
-    ${c.land?`<div class="land"><span>${esc(c.land)}</span><span>Fee ${rupee(c.fee)}</span></div>`:`<div class="land"><span>Fee ${rupee(c.fee)}</span></div>`}
-    <details${opts.open?" open":""}><summary>Timeline · ${ups.length} step${ups.length===1?"":"s"}</summary>
-      <ul class="tl">${ups.map(u=>`<li><div class="when">${fmt(u.at)} · ${esc(u.by==="system"?"Gram Sahayak":u.by)}</div>${esc(u.text)}${u.ref?`<div class="ref">Ref: ${esc(u.ref)}</div>`:""}${u.next?`<div class="ref">Next date: ${fmt(u.next)}</div>`:""}</li>`).join("")}</ul>
+    <div class="top"><div><div class="code">${code(c.id)}${c.example?`<span class="ex">${t("example")}</span>`:""}</div><h3>${esc(c.title)}</h3></div><span class="pill s-${esc(c.status)}">${esc(stName(c.status))}</span></div>
+    <div class="meta"><span>${esc(catName(c.category))}</span><span>${esc(c.village)}, ${esc(c.block)}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
+    <p class="desc">${esc(c.description)}</p>
+    <div class="tags">${c.land?`<span>${esc(c.land)}</span>`:""}<span>${t("fee")} ${rupee(c.fee)}</span></div>
+    ${files.length?`<div class="files">${files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}
+    ${opts.payments ? payBox(c) : ""}
+    <details><summary>${t("timeline")} · ${ups.length}</summary>
+      <ul class="tl">${ups.map(u=>`<li><div class="when">${fmt(u.at)} · ${esc(u.by==="system"?t("system"):u.by)}</div>${esc(u.text)}${u.ref?`<div class="ref">${t("ref")}: ${esc(u.ref)}</div>`:""}${u.next?`<div class="ref">${t("nextDate")}: ${fmt(u.next)}</div>`:""}</li>`).join("")}</ul>
     </details>
-    ${opts.actions?`<div class="actions">${opts.actions}</div>`:""}
+    ${actions?`<div class="actions">${actions}</div>`:""}
   </article>`;
 }
-
-function renderNote(){
-  const n=$("#modeNote");
-  if(state.mode==="live"){ n.className="notice"+(state.readOnly?" warn":""); n.textContent = state.readOnly ? "You have view-only access. Ask the owner for Contributor access to post or update cases." : "Live prototype: cases are shared with everyone you give access to. Cases marked Example are sample data."; }
-  else if(state.mode==="local"){ n.className="notice warn"; n.textContent="Demo mode: open this page signed in to claude.ai to save cases. Changes here are not saved."; }
-  else { n.className="notice"; n.textContent="Connecting…"; }
-}
-function renderFamily(){
-  const mine = state.uid ? state.cases.filter(c=>c.createdBy===state.uid || c.example) : state.cases;
-  $("#familyList").innerHTML = mine.length ? mine.map(c=>caseCard(c,{actions: c.status==="resolved" ? `<button class="btn warm small" data-rate="${esc(c.id)}">Confirm and rate</button>` : ""})).join("")
-    : `<div class="empty">No cases yet. Post your first problem above and it will appear here with every update.</div>`;
-}
-function renderSahayak(){
-  const sel=$("#s-me"), verified=state.sahayaks.filter(s=>s.status==="verified");
-  const want = sel.value || lsGet("gs-me");
-  sel.innerHTML = `<option value="">Choose your name…</option>` + state.sahayaks.map(s=>`<option value="${esc(s.id)}">${esc(s.name)} · ${esc(s.block)}${s.status!=="verified"?" (awaiting verification)":""}</option>`).join("");
-  if(want && state.sahayaks.some(s=>s.id===want)) sel.value=want;
-  const me=currentSahayak(), body=$("#sahayakBody");
-  if(!me){ body.innerHTML = `<div class="empty" style="margin-top:14px">${verified.length?"Choose your name above to see cases in your block.":"No verified Sahayaks yet. Apply above, then ask the admin to verify you."}</div>`; return; }
-  if(me.status!=="verified"){ body.innerHTML = `<div class="notice warn" style="margin-top:14px">Your application for ${esc(me.block)} is waiting for verification by the admin.</div>`; return; }
-  const open = state.cases.filter(c=>c.status==="posted" && c.block===me.block);
-  const mineC = state.cases.filter(c=>c.sahayakId===me.id && c.status!=="closed");
-  const done = state.cases.filter(c=>c.sahayakId===me.id && c.status==="closed");
-  const earned = done.reduce((s,c)=>s+Math.round((c.fee||0)*0.7),0);
-  body.innerHTML = `
-    <h2>Open in ${esc(me.block)}</h2><p class="sub">New problems waiting for a Sahayak.</p>
-    <div class="list">${open.length?open.map(c=>caseCard(c,{actions:`<button class="btn small" data-accept="${esc(c.id)}">Accept case · earn ${rupee(Math.round(c.fee*0.7))}</button>`})).join(""):`<div class="empty">No open cases in your block right now.</div>`}</div>
-    <h2>Your active cases</h2><p class="sub">Log every visit with the receipt number so the family can follow.</p>
-    <div class="list">${mineC.length?mineC.map(c=>caseCard(c,{actions: c.status==="resolved"?`<span class="fee">Waiting for the family to confirm</span>`:`<button class="btn small" data-update="${esc(c.id)}">Add update</button>`})).join(""):`<div class="empty">You have no active cases.</div>`}</div>
-    <h2>Earnings</h2><p class="sub">70% of each closed case's fee.</p>
-    <div class="stats"><div class="stat"><b>${done.length}</b><span>Cases closed</span></div><div class="stat"><b>${rupee(earned)}</b><span>Earned</span></div><div class="stat"><b>${avgRating(done)}</b><span>Average rating</span></div><div class="stat"><b>${mineC.length}</b><span>Active now</span></div></div>`;
-}
-function avgRating(list){ const r=list.filter(c=>c.rating); return r.length ? (r.reduce((s,c)=>s+c.rating,0)/r.length).toFixed(1)+" ★" : "–"; }
 function renderAdmin(){
-  const cs=state.cases, closed=cs.filter(c=>c.status==="closed");
-  const active=cs.filter(c=>!["closed","posted"].includes(c.status)).length, waiting=cs.filter(c=>c.status==="posted").length;
-  const days = closed.filter(c=>c.closedAt).map(c=>(Date.parse(c.closedAt)-Date.parse(c.createdAt))/864e5);
-  const med = days.length ? Math.round(days.sort((a,b)=>a-b)[Math.floor(days.length/2)]) + " days" : "–";
-  $("#stats").innerHTML = `<div class="stat"><b>${waiting}</b><span>Waiting for Sahayak</span></div><div class="stat"><b>${active}</b><span>In progress</span></div><div class="stat"><b>${closed.length}</b><span>Closed</span></div><div class="stat"><b>${med}</b><span>Median time to close</span></div>`;
-  $("#sahayakAdmin").innerHTML = state.sahayaks.length ? state.sahayaks.map(s=>{ const n=cs.filter(c=>c.sahayakId===s.id).length; return `<div class="row"><div class="who"><b>${esc(s.name)}</b>${s.example?'<span class="ex">Example</span>':""}<small>${esc(s.block)} · ${esc(s.occupation||"")} · ${n} case${n===1?"":"s"} · ${avgRating(cs.filter(c=>c.sahayakId===s.id&&c.status==="closed"))}</small></div>${s.status==="verified"?`<span class="pill s-closed">Verified</span>`:`<button class="btn small" data-verify="${esc(s.id)}">Verify</button>`}</div>`; }).join("") : `<div class="empty">No Sahayak applications yet.</div>`;
-  const verified=state.sahayaks.filter(s=>s.status==="verified");
-  $("#adminCases").innerHTML = cs.length ? cs.map(c=>{
-    const opts = verified.filter(s=>s.block===c.block);
-    const assign = c.status==="closed" ? "" : `<label style="flex:1 1 220px">Assign Sahayak<select data-assign="${esc(c.id)}"><option value="">${opts.length?"Choose…":"No verified Sahayak in "+esc(c.block)}</option>${opts.map(s=>`<option value="${esc(s.id)}"${s.id===c.sahayakId?" selected":""}>${esc(s.name)}</option>`).join("")}</select></label>`;
-    return caseCard(c,{full:false,actions:assign});
-  }).join("") : `<div class="empty">No cases yet.</div>`;
-}
-function render(){
-  renderNote();
-  if(state.role==="family") renderFamily();
-  if(state.role==="sahayak") renderSahayak();
-  if(state.role==="admin") renderAdmin();
+  const all = S.lists.all || [], apps = (S.lists.apps || []).filter(u => u.role === "family"), sah = S.lists.sahayaks || [];
+  const closed = all.filter(c => c.status === "closed");
+  const pending = []; all.forEach(c => (c.payments||[]).forEach((p,i) => { if (!p.verified) pending.push({c,p,i}); }));
+  const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
+  const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${p.part==="advance"?t("payAdv"):t("payFin")} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
+  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.appliedBlock||u.block)} · ${esc(u.occupation||"")} · ${esc(u.phone||"")}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
+  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.block)} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
+  const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
+    const opts = sah.filter(u => u.block === c.block);
+    const sel = c.status === "closed" ? "" : `<label style="flex:1 1 220px">${t("assign")}<select data-act="assign" data-id="${esc(c.id)}"><option value="">${opts.length?t("choose"):t("noneInBlock")}</option>${opts.map(u=>`<option value="${esc(u.id)}"${u.id===c.sahayakUid?" selected":""}>${esc(u.name)}</option>`).join("")}</select></label>`;
+    return caseCard(c, sel, {payments:true});
+  }).join("") : `<div class="empty">${t("noCases")}</div>`;
 }
 
-document.addEventListener("click", e=>{
-  const t=e.target.closest("[data-accept],[data-update],[data-rate],[data-verify]"); if(!t) return;
-  if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
-  if(t.dataset.accept) acceptCase(t.dataset.accept);
-  if(t.dataset.update) openUpdate(t.dataset.update);
-  if(t.dataset.rate) openRate(t.dataset.rate);
-  if(t.dataset.verify) verifySahayak(t.dataset.verify);
+/* ===================== actions ===================== */
+function findCase(id){ for (const k of ["mine","open","assigned","all"]) { const c = (S.lists[k]||[]).find(x => x.id === id); if (c) return c; } return null; }
+async function uploadAll(caseId, fileList){
+  const out = [];
+  for (const f of fileList) {
+    if (f.size > 10*1024*1024) { toast(t("tooBig") + " " + f.name); continue; }
+    out.push(await B.uploadFile(caseId, f, S.me.name));
+  }
+  return out;
+}
+async function postCase(e){
+  e.preventDefault();
+  const btn = $("#f-submit"); btn.disabled = true; btn.textContent = t("posting");
+  const me = S.me, cat = $("#f-cat").value, files = [...$("#f-files").files];
+  const data = { ownerUid:S.authUser.uid, ownerName:me.name, city:me.city, category:cat, title:$("#f-title").value.trim(), description:$("#f-desc").value.trim(),
+    village:$("#f-village").value.trim(), block:$("#f-block").value, land:$("#f-land").value.trim(), fee:CATS[cat].fee, status:"posted", createdAt:nowIso(),
+    files:[], payments:[], updates:[{at:nowIso(), by:"system", kind:"posted", text: LANG==="en" ? `Case posted from ${me.city}.` : `${me.city} से केस भेजा गया।`}] };
+  try {
+    const id = await B.createCase(data, {phone:S.authUser.phone || me.phone, name:me.name});
+    if (files.length) { toast(t("uploading")); const up = await uploadAll(id, files); if (up.length) await B.updateCase(id, {}, null, null, up); }
+    $("#caseForm").reset(); $("#f-village").value = me.village || ""; $("#f-block").value = me.block; $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+    toast(t("posted"));
+  } catch(err){ console.error(err); toast(t("failed")); }
+  finally { btn.disabled = false; btn.textContent = t("postBtn"); }
+}
+function waText(c, extra){
+  const last = (c.updates||[]).slice(-1)[0] || {};
+  const next = (c.updates||[]).filter(u=>u.next).slice(-1)[0];
+  const lines = [`ग्राम सहायक: आपका केस ${code(c.id)} (${c.title})`, `स्थिति: ${STATUS[c.status] ? STATUS[c.status][0] : c.status}`];
+  if (extra || last.text) lines.push(extra || last.text);
+  if (next) lines.push(`अगली तारीख: ${new Date(next.next).toLocaleDateString("hi-IN",{day:"numeric",month:"long"})}`);
+  lines.push(`पूरा विवरण: ${siteBase()}app.html`);
+  return lines.join("\n");
+}
+async function openWhatsApp(c, title){
+  let p = S.privCache[c.id];
+  if (!p) { try { p = await B.getPrivate(c.id); S.privCache[c.id] = p; } catch(e){ p = null; } }
+  const num = p && p.phone ? p.phone.replace(/\D/g,"") : "";
+  const url = `https://wa.me/${num}?text=${encodeURIComponent(waText(c))}`;
+  openSheet(title || t("waFamily"), `<pre style="white-space:pre-wrap;font:15px/1.5 var(--body);background:var(--sunk);border-radius:10px;padding:12px;margin:0">${esc(waText(c))}</pre>
+    <a class="btn wa block" href="${esc(url)}" target="_blank" rel="noopener">${t("waFamily")}${num?" · +"+esc(num):""}</a>
+    <button class="btn ghost block" type="button" id="wa-x">${t("cancel")}</button>`, () => { $("#wa-x").onclick = closeSheet; });
+}
+async function acceptCase(c){
+  try { await B.updateCase(c.id, {status:"assigned", sahayakUid:S.authUser.uid, sahayakName:S.me.name}, {at:nowIso(), by:S.me.name, kind:"visit", text: LANG==="en" ? `${S.me.name} accepted the case.` : `${S.me.name} ${TXT.accepted[0]}`}); toast("✓"); }
+  catch(e){ console.error(e); toast(t("failed")); }
+}
+async function assignCase(c, uid){
+  const s = (S.lists.sahayaks||[]).find(u => u.id === uid); if (!s) return;
+  try { await B.updateCase(c.id, {status: c.status==="posted"?"assigned":c.status, sahayakUid:s.id, sahayakName:s.name}, {at:nowIso(), by:"system", kind:"visit", text:`${TXT.assignedTo[0]} ${s.name}`}); toast("✓"); }
+  catch(e){ console.error(e); toast(t("failed")); }
+}
+
+/* sheets */
+function openSheet(title, html, onReady){ $("#sheetTitle").textContent = title; $("#sheetBody").innerHTML = html; $("#sheet").hidden = false; if (onReady) onReady(); const f = $("#sheetBody").querySelector("input,select,textarea,button"); if (f) f.focus(); }
+function closeSheet(){ $("#sheet").hidden = true; $("#sheetBody").innerHTML = ""; }
+
+function openUpdate(c){
+  openSheet(`${code(c.id)} · ${c.title}`, `<form id="uForm">
+    <label>${t("what")}<select id="u-kind">${Object.entries(KINDS).map(([k,v])=>`<option value="${k}">${v[L()]}</option>`).join("")}</select></label>
+    <label>${t("note")}<textarea id="u-text" required maxlength="800" placeholder="${esc(t("notePh"))}"></textarea></label>
+    <label>${t("refL")} <small>${t("opt")}</small><input id="u-ref" maxlength="80"></label>
+    <label>${t("nextL")} <small>${t("opt")}</small><input id="u-next" type="date"></label>
+    <label>${t("photo")} <small>${t("opt")}</small><input id="u-files" type="file" multiple accept="image/*,application/pdf"></label>
+    <div class="actions"><button class="btn" id="u-save" type="submit">${t("saveUpd")}</button><button class="btn ghost" type="button" id="u-cancel">${t("cancel")}</button></div></form>`, () => {
+    $("#u-cancel").onclick = closeSheet;
+    $("#uForm").onsubmit = async ev => {
+      ev.preventDefault(); $("#u-save").disabled = true;
+      const kind = $("#u-kind").value;
+      const status = kind === "escalated" ? "escalated" : kind === "resolved" ? "resolved" : "in_progress";
+      const entry = {at:nowIso(), by:S.me.name, kind, text:$("#u-text").value.trim()};
+      if ($("#u-ref").value.trim()) entry.ref = $("#u-ref").value.trim();
+      if ($("#u-next").value) entry.next = new Date($("#u-next").value + "T10:00:00").toISOString();
+      try {
+        const up = await uploadAll(c.id, [...$("#u-files").files]);
+        const patch = {status}; if (status === "resolved") patch.resolvedAt = nowIso();
+        await B.updateCase(c.id, patch, entry, null, up);
+        const updated = {...c, status, updates:[...(c.updates||[]), entry]};
+        B.queueNotification({caseId:c.id, status, text:waText(updated)}).catch(()=>{});
+        closeSheet();
+        openWhatsApp(updated, t("updSaved"));
+      } catch(e){ console.error(e); toast(t("failed")); const b=$("#u-save"); if (b) b.disabled = false; }
+    };
+  });
+}
+function openAddFiles(c){
+  openSheet(`${t("addFiles")} · ${code(c.id)}`, `<form id="afForm"><label>${t("files")} <small>${t("filesHelp")}</small><input id="af-files" type="file" multiple required accept="image/*,application/pdf"></label>
+    <div class="actions"><button class="btn" id="af-save" type="submit">${t("save")}</button><button class="btn ghost" type="button" id="af-cancel">${t("cancel")}</button></div></form>`, () => {
+    $("#af-cancel").onclick = closeSheet;
+    $("#afForm").onsubmit = async ev => {
+      ev.preventDefault(); $("#af-save").disabled = true; toast(t("uploading"));
+      try { const up = await uploadAll(c.id, [...$("#af-files").files]); if (up.length) await B.updateCase(c.id, {}, {at:nowIso(), by:S.me.name, kind:"files", text:`${TXT.filesAdded[0]} ${up.map(f=>f.name).join(", ")}`}, null, up); closeSheet(); toast("✓"); }
+      catch(e){ console.error(e); toast(t("failed")); const b=$("#af-save"); if (b) b.disabled = false; }
+    };
+  });
+}
+function openPay(c, part){
+  const amount = half(c);
+  const note = `${code(c.id)} ${part === "advance" ? "advance" : "final"}`;
+  if (!CONFIG.upiId && !CONFIG.razorpayKey && B.mode !== "demo") { openSheet(t("payTitle"), `<p class="desc">${t("noPayMethod")}</p><button class="btn ghost" id="pp-x">${t("cancel")}</button>`, () => $("#pp-x").onclick = closeSheet); return; }
+  const upi = CONFIG.upiId || (B.mode === "demo" ? "gramsahayak@upi" : "");
+  const upiLink = `upi://pay?pa=${encodeURIComponent(upi)}&pn=${encodeURIComponent(CONFIG.upiName)}&am=${amount}&cu=INR&tn=${encodeURIComponent(note)}`;
+  openSheet(`${t("payTitle")} · ${rupee(amount)}`, `
+    ${CONFIG.razorpayKey ? `<button class="btn block" id="pp-rzp" type="button">${t("payCard")} · ${rupee(amount)}</button><div class="sub" style="text-align:center;color:var(--muted)">—</div>` : ""}
+    ${upi ? `<div><div class="sub" style="color:var(--muted);margin-bottom:6px">${t("upiPay")}${B.mode==="demo"?` <span class="ex">${t("example")}</span>`:""}</div>
+      <div class="upi" id="pp-upi">${esc(upi)}</div>
+      <div class="actions" style="margin-top:8px"><a class="btn small" href="${esc(upiLink)}">${t("openUpi")}</a><button class="btn ghost small" type="button" id="pp-copy">${t("copy")}</button></div></div>
+    <form id="ppForm"><label>${t("utr")} <small>${t("utrHelp")}</small><input id="pp-utr" required minlength="6" maxlength="30" inputmode="numeric"></label>
+      <div class="actions"><button class="btn warm" type="submit">${t("iPaid")}</button><button class="btn ghost" type="button" id="pp-x">${t("cancel")}</button></div></form>` : `<button class="btn ghost" id="pp-x">${t("cancel")}</button>`}`, () => {
+    $("#pp-x").onclick = closeSheet;
+    const cp = $("#pp-copy"); if (cp) cp.onclick = () => { navigator.clipboard.writeText(upi).then(() => toast(t("copied"))).catch(() => { const r = document.createRange(); r.selectNodeContents($("#pp-upi")); const s = getSelection(); s.removeAllRanges(); s.addRange(r); }); };
+    const record = async (method, ref) => {
+      try { await B.updateCase(c.id, {}, {at:nowIso(), by:S.me.name, kind:"payment", text:`${part==="advance"?TXT.payAdv[0]:TXT.payFin[0]} ${rupee(amount)} (${method.toUpperCase()})`, ref}, {part, amount, method, ref, at:nowIso(), verified:false}); closeSheet(); toast(t("payRec")); }
+      catch(e){ console.error(e); toast(t("failed")); }
+    };
+    const f = $("#ppForm"); if (f) f.onsubmit = ev => { ev.preventDefault(); record("upi", $("#pp-utr").value.trim()); };
+    const rz = $("#pp-rzp"); if (rz) rz.onclick = async () => {
+      try {
+        if (!window.Razorpay) await loadScript("https://checkout.razorpay.com/v1/checkout.js");
+        new window.Razorpay({ key:CONFIG.razorpayKey, amount:amount*100, currency:"INR", name:"Gram Sahayak", description:note, prefill:{contact:S.authUser.phone||""}, notes:{caseId:c.id, part},
+          handler: r => record("razorpay", r.razorpay_payment_id) }).open();
+      } catch(e){ console.error(e); toast(t("failed")); }
+    };
+  });
+}
+function openRate(c){
+  let stars = 5;
+  openSheet(t("rateT"), `<p class="desc">${esc(c.sahayakName||"")} · ${code(c.id)}</p>
+    <div class="stars" id="r-stars">${[1,2,3,4,5].map(n=>`<button type="button" data-n="${n}" aria-label="${n}">★</button>`).join("")}</div>
+    <label>${t("comment")} <small>${t("opt")}</small><textarea id="r-text" maxlength="400"></textarea></label>
+    <div class="actions"><button class="btn" id="r-ok" type="button">${t("closeCase")}</button><button class="btn ghost" id="r-no" type="button">${t("notYet")}</button></div>`, () => {
+    const paint = () => document.querySelectorAll("#r-stars button").forEach(b => b.classList.toggle("on", Number(b.dataset.n) <= stars));
+    document.querySelectorAll("#r-stars button").forEach(b => b.onclick = () => { stars = Number(b.dataset.n); paint(); }); paint();
+    $("#r-ok").onclick = async () => { const cm = $("#r-text").value.trim(); try { await B.updateCase(c.id, {status:"closed", rating:stars, closedAt:nowIso()}, {at:nowIso(), by:S.me.name, kind:"closed", text:`${TXT.famConfirmed[0]} ${stars}/5.${cm?" “"+cm+"”":""}`}); closeSheet(); toast(t("thanks")); } catch(e){ toast(t("failed")); } };
+    $("#r-no").onclick = async () => { try { await B.updateCase(c.id, {status:"in_progress"}, {at:nowIso(), by:S.me.name, kind:"reopened", text:TXT.famNotYet[0]}); closeSheet(); toast(t("reopened")); } catch(e){ toast(t("failed")); } };
+  });
+}
+function openApply(){
+  openSheet(t("applyBtn"), `<form id="aForm"><p class="desc" style="color:var(--muted)">${t("appsS")}</p>
+    <label>${t("block")}<select id="a-block">${blockOpts(S.me.block)}</select></label>
+    <label>${t("occ")}<input id="a-occ" required maxlength="60" placeholder="${esc(t("occPh"))}"></label>
+    <div class="actions"><button class="btn" type="submit">${t("submit")}</button><button class="btn ghost" type="button" id="a-x">${t("cancel")}</button></div></form>`, () => {
+    $("#a-x").onclick = closeSheet;
+    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:$("#a-block").value, occupation:$("#a-occ").value.trim(), appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
+  });
+}
+async function approve(uid){
+  const u = (S.lists.apps||[]).find(x => x.id === uid); if (!u) return;
+  try { await B.updateUser(uid, {role:"sahayak", block:u.appliedBlock||u.block, applied:false, approvedAt:nowIso()}); toast(t("approved")); } catch(e){ console.error(e); toast(t("failed")); }
+}
+async function verifyPay(c, i){
+  const pays = (c.payments||[]).map((p,j) => j === i ? {...p, verified:true, verifiedAt:nowIso()} : p);
+  try { await B.setPayments(c.id, pays); toast(t("payVerified")); } catch(e){ console.error(e); toast(t("failed")); }
+}
+
+document.addEventListener("click", e => {
+  const b = e.target.closest("[data-act]"); if (!b || b.tagName === "SELECT") return;
+  const c = b.dataset.id ? findCase(b.dataset.id) : null;
+  switch (b.dataset.act) {
+    case "accept": if (c) acceptCase(c); break;
+    case "update": if (c) openUpdate(c); break;
+    case "wa": if (c) openWhatsApp(c); break;
+    case "addfiles": if (c) openAddFiles(c); break;
+    case "pay": if (c) openPay(c, b.dataset.part); break;
+    case "rate": if (c) openRate(c); break;
+    case "apply": openApply(); break;
+    case "approve": approve(b.dataset.uid); break;
+    case "verifypay": if (c) verifyPay(c, Number(b.dataset.i)); break;
+  }
 });
-document.addEventListener("change", e=>{
-  const s=e.target.closest("[data-assign]"); if(!s||!s.value) return;
-  if(state.readOnly){ toast("You have view-only access to this prototype."); return; }
-  assignCase(s.dataset.assign, s.value);
+document.addEventListener("change", e => {
+  const s = e.target.closest("select[data-act='assign']"); if (!s || !s.value) return;
+  const c = findCase(s.dataset.id); if (c) assignCase(c, s.value);
 });
 
-boot();
+start();
 </script>
-
 </body>
 </html>

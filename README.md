@@ -11,17 +11,19 @@ The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block)
 | Path | What it is |
 | --- | --- |
 | `index.html` | Public website. Hindi by default, with a हिंदी / English switch. Add `#en` to the URL to open it in English. |
-| `app.html` | App prototype with three views: **Family** (post and track a case), **Sahayak** (accept cases, log visits), **Admin** (verify Sahayaks, assign cases, see totals). |
+| `app.html` | The app, Hindi first with an English switch. Mobile OTP login; families post cases with photos/PDFs, pay by UPI and see only their own cases; Sahayaks accept cases, log visits with receipts and send WhatsApp updates; Admin approves Sahayaks, assigns cases and confirms payments. |
+| `firestore.rules`, `storage.rules` | Firebase security rules: each family sees only its own cases, files and phone number. |
+| `SETUP.md` | Step-by-step setup guide in Hindi: Firebase, UPI, Razorpay, WhatsApp. |
 
-Both are single HTML files with no build step.
+Both pages are single HTML files with no build step.
 
 ## Running it
 
-Open `index.html` in a browser, or turn on **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root). The site will then be live at `https://<your-username>.github.io/GramSahayak/`.
+Open `index.html` in a browser, or turn on **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root). The site will then be live at `https://<your-username>.github.io/<repo-name>/`.
 
-### Note about the app
+### Demo mode vs live mode
 
-Outside claude.ai the app runs in **demo mode**: it loads sample cases and everything works on screen, but nothing is saved after a page reload. The saved, shared version currently runs as a claude.ai artifact. A production app needs its own backend (for example Firebase or Supabase), phone OTP login and UPI payments, which are planned for phase 2.
+Until a Firebase config is pasted into `CONFIG` at the top of `app.html`, the app runs in **demo mode**: any 10-digit number logs in with OTP `123456`, sample cases load, and nothing is saved. Follow `SETUP.md` to switch it to live mode.
 
 ## How a case works
 
