@@ -6,7 +6,7 @@
 <style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
 </head>
 <body>
-<title>Gaon Sahayak App</title>
+<title>Gram Sahayak App</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&display=swap">
@@ -109,7 +109,7 @@ details summary{cursor:pointer;color:var(--green);font-weight:600;font-size:14px
 
 <div class="wrap">
   <header>
-    <div class="brand"><b>Gaon Sahayak</b><span>गाँव का काम, शहर से</span></div>
+    <div class="brand"><b>Gram Sahayak</b><span>गाँव का काम, शहर से</span></div>
     <span class="proto">Prototype</span>
   </header>
 
@@ -391,7 +391,7 @@ function caseCard(c, opts={}){
     ${opts.full!==false?`<p class="desc">${esc(c.description)}</p>`:""}
     ${c.land?`<div class="land"><span>${esc(c.land)}</span><span>Fee ${rupee(c.fee)}</span></div>`:`<div class="land"><span>Fee ${rupee(c.fee)}</span></div>`}
     <details${opts.open?" open":""}><summary>Timeline · ${ups.length} step${ups.length===1?"":"s"}</summary>
-      <ul class="tl">${ups.map(u=>`<li><div class="when">${fmt(u.at)} · ${esc(u.by==="system"?"Gaon Sahayak":u.by)}</div>${esc(u.text)}${u.ref?`<div class="ref">Ref: ${esc(u.ref)}</div>`:""}${u.next?`<div class="ref">Next date: ${fmt(u.next)}</div>`:""}</li>`).join("")}</ul>
+      <ul class="tl">${ups.map(u=>`<li><div class="when">${fmt(u.at)} · ${esc(u.by==="system"?"Gram Sahayak":u.by)}</div>${esc(u.text)}${u.ref?`<div class="ref">Ref: ${esc(u.ref)}</div>`:""}${u.next?`<div class="ref">Next date: ${fmt(u.next)}</div>`:""}</li>`).join("")}</ul>
     </details>
     ${opts.actions?`<div class="actions">${opts.actions}</div>`:""}
   </article>`;

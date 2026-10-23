@@ -1,8 +1,8 @@
-# Gaon Sahayak · गाँव सहायक
+# Gram Sahayak · ग्राम सहायक
 
 **गाँव का काम, अब शहर से।** Village work, now from the city.
 
-Gaon Sahayak helps Biharis living outside Bihar get village problems solved without travelling home. A family posts the problem (land encroachment, pending mutation, land survey paperwork, certificates, pensions), a verified local helper called a *Sahayak* visits the right office on their behalf, and every step is logged with photos, receipt numbers and next dates.
+Gram Sahayak helps Biharis living outside Bihar get village problems solved without travelling home. A family posts the problem (land encroachment, pending mutation, land survey paperwork, certificates, pensions), a verified local helper called a *Sahayak* visits the right office on their behalf, and every step is logged with photos, receipt numbers and next dates.
 
 The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block).
 
@@ -17,7 +17,7 @@ Both are single HTML files with no build step.
 
 ## Running it
 
-Open `index.html` in a browser, or turn on **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root). The site will then be live at `https://<your-username>.github.io/gaon-sahayak/`.
+Open `index.html` in a browser, or turn on **GitHub Pages** (Settings → Pages → Deploy from branch → `main` / root). The site will then be live at `https://<your-username>.github.io/GramSahayak/`.
 
 ### Note about the app
 
