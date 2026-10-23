@@ -9,7 +9,7 @@
 <title>Gaon Sahayak</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&family=Yatra+One&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 /* Layout: bilingual landing page (Hindi default, English toggle) — hero with a "case slip" styled like a circle-office receipt, then full-width bands, each with a centered 1080px inner column */
 :root{
@@ -19,6 +19,7 @@
   --display:"Rozha One", "Mukta", Georgia, serif;
   --body:"Mukta", "Noto Sans Devanagari", system-ui, sans-serif;
   --mono:"IBM Plex Mono", ui-monospace, monospace;
+  --display-hi:"Yatra One", "Rozha One", serif;
 }
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
   --bg:#0e1511; --paper:#16201a; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
@@ -30,6 +31,11 @@
   --on-green:#e5ede7; color-scheme:dark}
 *{box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65}
+
+/* Hindi headings get their own display face */
+h1 .l-hi, h2 .l-hi, .logo b .l-hi, .slip header b .l-hi{font-family:var(--display-hi);font-weight:400;letter-spacing:.01em}
+.hero h1 .l-hi{line-height:1.2}
+:root:not([data-lang="en"]) .steps li::before{font-family:var(--display-hi)}
 
 /* language switching: Hindi shows by default */
 .l-en{display:none}
