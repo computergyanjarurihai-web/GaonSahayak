@@ -132,6 +132,7 @@ const CONFIG = {
 };
 </script>
 
+<script src="locations.js"></script>
 <div class="wrap">
   <div class="bar">
     <a class="brand" href="index.html"><b id="brandName">ग्राम सहायक</b><span id="brandSub">Gram Sahayak</span></a>
@@ -162,7 +163,7 @@ const TXT = {
   mobile:["मोबाइल नंबर","Mobile number"], sendOtp:["OTP भेजें","Send OTP"], otp:["OTP","OTP"], verify:["लॉगिन करें","Log in"],
   otpSent:["OTP भेज दिया गया।","OTP sent."], badPhone:["सही 10 अंकों का मोबाइल नंबर डालें।","Enter a valid 10-digit mobile number."], badOtp:["OTP गलत है, फिर से डालें।","Wrong OTP, try again."],
   profT:["आपकी जानकारी","Your details"], profS:["एक बार भरें। यह आपके हर केस में काम आएगी।","Fill this once. It is used for all your cases."],
-  name:["आपका नाम","Your name"], city:["आप किस शहर में रहते हैं","City you live in"], village:["गाँव","Village"], block:["प्रखंड","Block"], save:["सेव करें","Save"],
+  name:["आपका नाम","Your name"], district:["ज़िला","District"], subdiv:["अनुमंडल","Subdivision"], panchayat:["पंचायत","Panchayat"], chooseP:["पंचायत चुनें…","Choose panchayat…"], otherP:["अन्य पंचायत (सूची में नहीं)","Other panchayat (not in list)"], panOther:["पंचायत का नाम लिखें","Type the panchayat name"], villHelp:["लिखना शुरू करें, नाम सुझाए जाएँगे","Start typing for suggestions"], soon:["जल्द","soon"], needVillage:["पंचायत चुनें और गाँव का नाम लिखें।","Choose the panchayat and type the village."], city:["आप किस शहर में रहते हैं","City you live in"], village:["गाँव","Village"], block:["प्रखंड","Block"], save:["सेव करें","Save"],
   tFamily:["मेरे केस","My cases"], tSahayak:["सहायक डेस्क","Sahayak desk"], tAdmin:["प्रबंधन","Admin"],
   postT:["समस्या भेजें","Post a problem"], postS:["गाँव में क्या अटका है, बताइए। आपके प्रखंड का सत्यापित सहायक इसे देखेगा।","Tell us what is stuck in the village. A verified Sahayak from your block will take it up."],
   cat:["समस्या का प्रकार","Problem type"], title:["छोटा शीर्षक","Short title"], titlePh:["जैसे: 8 महीने से दाखिल-खारिज लंबित","e.g. Mutation pending for 8 months"],
@@ -236,6 +237,59 @@ const rupee = n => "₹" + Number(n||0).toLocaleString("en-IN");
 const half = c => Math.round((c.fee||0)/2);
 function toast(msg){ const el=$("#toast"); el.textContent=msg; el.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>el.hidden=true,3000); }
 const blockOpts = sel => BLOCKS.map(b=>`<option${b===sel?" selected":""}>${b}</option>`).join("");
+const LOC = window.GS_LOCATIONS || {districts:[]};
+const locName = o => o ? (LANG === "en" ? o.en : o.hi) : "";
+const findDist = en => LOC.districts.find(d => d.en === en);
+function findBlock(en){ for (const d of LOC.districts) for (const sd of d.subdivisions) for (const b of sd.blocks) if (b.en === en) return {d, sd, b}; return null; }
+const blockLabel = en => { const f = findBlock(en); return f ? locName(f.b) : en; };
+function locFields(px, withVillage = true){
+  return `<label>${t("district")}<select id="${px}-dist"></select></label>
+    <label>${t("subdiv")}<select id="${px}-sub"></select></label>
+    <label>${t("block")}<select id="${px}-block"></select></label>
+    ${withVillage ? `<label>${t("panchayat")}<select id="${px}-pan" required></select></label>
+    <label class="full" id="${px}-pow" hidden>${t("panOther")}<input id="${px}-pother" maxlength="60"></label>
+    <label class="full">${t("village")} <small>${t("villHelp")}</small><input id="${px}-vill" list="${px}-vlist" required maxlength="60" autocomplete="off"><datalist id="${px}-vlist"></datalist></label>` : ""}`;
+}
+function bindLoc(px, cur = {}){
+  const g = id => document.getElementById(px + "-" + id);
+  const dS = g("dist"), sS = g("sub"), bS = g("block"), pS = g("pan"), po = g("pother"), pow = g("pow"), vI = g("vill"), vL = g("vlist");
+  let want = {district:"Darbhanga", ...cur};
+  if (want.block && !want.subdivision) { const f = findBlock(want.block); if (f) { want.district = f.d.en; want.subdivision = f.sd.en; } }
+  const opt = (val, label, sel, dis) => `<option value="${esc(val)}"${sel ? " selected" : ""}${dis ? " disabled" : ""}>${esc(label)}</option>`;
+  dS.innerHTML = LOC.districts.map(d => opt(d.en, locName(d) + (d.subdivisions.length ? "" : " (" + t("soon") + ")"), d.en === want.district, !d.subdivisions.length)).join("");
+  const fillPan = () => {
+    if (!pS) return;
+    const f = findBlock(bS.value), list = f ? (f.b.panchayats || []) : [];
+    const inList = want.panchayat && list.includes(want.panchayat);
+    pS.innerHTML = opt("", t("chooseP"), !want.panchayat, false) + list.map(v => opt(v, v, v === want.panchayat, false)).join("") + opt("__other", t("otherP"), !!want.panchayat && !inList, false);
+    po.value = want.panchayat && !inList ? want.panchayat : "";
+    pow.hidden = pS.value !== "__other";
+    vL.innerHTML = (f ? f.b.villages : []).map(v => `<option value="${esc(v)}"></option>`).join("");
+    if (want.village !== undefined) vI.value = want.village || "";
+    want.panchayat = null; want.village = undefined;
+  };
+  const fillBlock = () => {
+    const d = findDist(dS.value), sd = d && d.subdivisions.find(x => x.en === sS.value);
+    const blocks = sd ? sd.blocks : [];
+    bS.innerHTML = blocks.map(b => opt(b.en, locName(b), b.en === want.block, false)).join("");
+    want.block = null; fillPan();
+  };
+  const fillSub = () => {
+    const d = findDist(dS.value), subs = d ? d.subdivisions : [];
+    sS.innerHTML = subs.map(sd => opt(sd.en, locName(sd), sd.en === want.subdivision, false)).join("");
+    want.subdivision = null; fillBlock();
+  };
+  fillSub();
+  dS.addEventListener("change", fillSub); sS.addEventListener("change", fillBlock); bS.addEventListener("change", fillPan);
+  if (pS) pS.addEventListener("change", () => { pow.hidden = pS.value !== "__other"; if (!pow.hidden) po.focus(); });
+}
+function readLoc(px){
+  const g = id => document.getElementById(px + "-" + id);
+  const out = {district:g("dist").value, subdivision:g("sub").value, block:g("block").value};
+  const pS = g("pan");
+  if (pS) { out.panchayat = pS.value === "__other" ? g("pother").value.trim() : pS.value; out.village = g("vill").value.trim(); }
+  return out;
+}
 const siteBase = () => location.href.replace(/[#?].*$/,"").replace(/app\.html$/,"");
 
 /* ===================== backend: Firebase ===================== */
@@ -297,15 +351,15 @@ function demoBackend(){
   const d = n => new Date(Date.now()-n*864e5).toISOString();
   const db = {
     users:{
-      "demo-family":{name:"उदाहरण परिवार",city:"दिल्ली",village:"Korthu",block:"Ghanshyampur",phone:"+919800000001",role:"family",example:true},
-      "demo-ramesh":{name:"रमेश झा",city:"",village:"Korthu",block:"Ghanshyampur",phone:"+919800000002",role:"sahayak",occupation:"सेवानिवृत्त शिक्षक",example:true},
-      "demo-amit":{name:"अमित कुमार",city:"",village:"Korthu",block:"Ghanshyampur",phone:"+919800000003",role:"family",applied:true,occupation:"लॉ ग्रेजुएट",appliedBlock:"Ghanshyampur",example:true}
+      "demo-family":{name:"उदाहरण परिवार",city:"दिल्ली",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",phone:"+919800000001",role:"family",example:true},
+      "demo-ramesh":{name:"रमेश झा",city:"",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",phone:"+919800000002",role:"sahayak",occupation:"सेवानिवृत्त शिक्षक",example:true},
+      "demo-amit":{name:"अमित कुमार",city:"",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",phone:"+919800000003",role:"family",applied:true,occupation:"लॉ ग्रेजुएट",appliedBlock:"Ghanshyampur",example:true}
     },
     cases:{
-      "demo-c1mut":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"land_records",title:"8 महीने से दाखिल-खारिज लंबित",description:"पिताजी के निधन के बाद ऑनलाइन दाखिल-खारिज का आवेदन किया था। अंचल कार्यालय ने अब तक फ़ैसला नहीं किया।",village:"Korthu",block:"Ghanshyampur",land:"खाता 112, खेसरा 845",fee:1499,status:"in_progress",sahayakUid:"demo-ramesh",sahayakName:"रमेश झा",createdAt:d(20),
+      "demo-c1mut":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"land_records",title:"8 महीने से दाखिल-खारिज लंबित",description:"पिताजी के निधन के बाद ऑनलाइन दाखिल-खारिज का आवेदन किया था। अंचल कार्यालय ने अब तक फ़ैसला नहीं किया।",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",land:"खाता 112, खेसरा 845",fee:1499,status:"in_progress",sahayakUid:"demo-ramesh",sahayakName:"रमेश झा",createdAt:d(20),
         files:[], payments:[{part:"advance",amount:750,method:"upi",ref:"412345678901",at:d(19),verified:true}],
         updates:[{at:d(20),by:"system",kind:"posted",text:"दिल्ली से केस भेजा गया।"},{at:d(19),by:"रमेश झा",kind:"visit",text:"रमेश झा ने केस लिया।"},{at:d(15),by:"रमेश झा",kind:"filed",text:"अंचल कार्यालय में राजस्व कर्मचारी से मिले। फ़ाइल सीओ को भेजी गई।",ref:"Mutation receipt",next:d(-5)}]},
-      "demo-c2res":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"certificate",title:"बेटे के दाख़िले के लिए निवास प्रमाण पत्र",description:"कॉलेज दाख़िले के लिए जल्दी निवास प्रमाण पत्र चाहिए।",village:"Korthu",block:"Ghanshyampur",land:"",fee:499,status:"posted",createdAt:d(1),files:[],payments:[],
+      "demo-c2res":{example:true,ownerUid:"demo-family",ownerName:"उदाहरण परिवार",city:"दिल्ली",category:"certificate",title:"बेटे के दाख़िले के लिए निवास प्रमाण पत्र",description:"कॉलेज दाख़िले के लिए जल्दी निवास प्रमाण पत्र चाहिए।",district:"Darbhanga",subdivision:"Biraul",panchayat:"Kortho West",village:"Kortho (Korthu)",block:"Ghanshyampur",land:"",fee:499,status:"posted",createdAt:d(1),files:[],payments:[],
         updates:[{at:d(1),by:"system",kind:"posted",text:"दिल्ली से केस भेजा गया।"}]}
     },
     priv:{ "demo-c1mut":{phone:"+919800000001",name:"उदाहरण परिवार"}, "demo-c2res":{phone:"+919800000001",name:"उदाहरण परिवार"} }
@@ -444,15 +498,16 @@ function profileHtml(){
   <form id="profForm" class="panel"><div class="grid">
     <label>${t("name")}<input id="p-name" required maxlength="60"></label>
     <label>${t("city")}<input id="p-city" required maxlength="40" placeholder="${LANG==="en"?"e.g. Delhi":"जैसे: दिल्ली"}"></label>
-    <label>${t("village")}<input id="p-village" required maxlength="60"></label>
-    <label>${t("block")}<select id="p-block">${blockOpts("Ghanshyampur")}</select></label>
+    ${locFields("p")}
   </div><div class="row-end"><span></span><button class="btn" type="submit">${t("save")}</button></div></form>`;
 }
 function bindProfile(){
+  bindLoc("p");
   $("#profForm").addEventListener("submit", async e => {
     e.preventDefault();
-    const u = S.authUser;
-    try { await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), village:$("#p-village").value.trim(), block:$("#p-block").value, phone:u.phone, role:"family", createdAt:nowIso()}); }
+    const u = S.authUser, loc = readLoc("p");
+    if (!loc.panchayat || !loc.village) { toast(t("needVillage")); return; }
+    try { await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), ...loc, phone:u.phone, role:"family", createdAt:nowIso()}); }
     catch(err){ console.error(err); toast(t("failed")); }
   });
 }
@@ -461,11 +516,10 @@ function familyShell(){
   const me = S.me;
   return `<h2>${t("postT")}</h2><p class="sub">${t("postS")}</p>
   <form id="caseForm" class="panel"><div class="grid">
+    ${locFields("f")}
     <label>${t("cat")}<select id="f-cat">${Object.keys(CATS).map(k=>`<option value="${k}">${esc(catName(k))}</option>`).join("")}</select></label>
-    <label>${t("block")}<select id="f-block">${blockOpts(me.block)}</select></label>
     <label class="full">${t("title")}<input id="f-title" required maxlength="90" placeholder="${esc(t("titlePh"))}"></label>
     <label class="full">${t("desc")} <small>${t("descHelp")}</small><textarea id="f-desc" required maxlength="1500"></textarea></label>
-    <label>${t("village")}<input id="f-village" required maxlength="60" value="${esc(me.village||"")}"></label>
     <label>${t("land")} <small>${t("landHelp")}</small><input id="f-land" maxlength="40"></label>
     <label class="full">${t("files")} <small>${t("filesHelp")}</small><input id="f-files" type="file" multiple accept="image/*,application/pdf"></label>
   </div>
@@ -478,10 +532,11 @@ function bindFamily(){
   const f = $("#caseForm"); if (!f) return;
   const showFee = () => $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
   $("#f-cat").addEventListener("change", showFee); showFee();
+  bindLoc("f", {district:S.me.district, subdivision:S.me.subdivision, block:S.me.block, panchayat:S.me.panchayat, village:S.me.village});
   f.addEventListener("submit", postCase);
 }
 function sahayakShell(){
-  return `<h2>${t("openT")} · ${esc(S.me.block)}</h2><p class="sub">${t("openS")}</p><div id="openList" class="list"></div>
+  return `<h2>${t("openT")} · ${esc(blockLabel(S.me.block))}</h2><p class="sub">${t("openS")}</p><div id="openList" class="list"></div>
   <h2>${t("activeT")}</h2><p class="sub">${t("activeS")}</p><div id="assignedList" class="list"></div>
   <h2>${t("earnT")}</h2><div id="earnStats" class="stats"></div>`;
 }
@@ -540,7 +595,7 @@ function caseCard(c, actions, opts={}){
   const files = c.files || [];
   return `<article class="case">
     <div class="top"><div><div class="code">${code(c.id)}${c.example?`<span class="ex">${t("example")}</span>`:""}</div><h3>${esc(c.title)}</h3></div><span class="pill s-${esc(c.status)}">${esc(stName(c.status))}</span></div>
-    <div class="meta"><span>${esc(catName(c.category))}</span><span>${esc(c.village)}, ${esc(c.block)}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
+    <div class="meta"><span>${esc(catName(c.category))}</span><span>${esc(c.village)}${c.panchayat?" ("+esc(c.panchayat)+")":""}, ${esc(blockLabel(c.block))}${c.district?", "+esc(locName(findDist(c.district))||c.district):""}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
     <p class="desc">${esc(c.description)}</p>
     <div class="tags">${c.land?`<span>${esc(c.land)}</span>`:""}<span>${t("fee")} ${rupee(c.fee)}</span></div>
     ${files.length?`<div class="files">${files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}
@@ -557,8 +612,8 @@ function renderAdmin(){
   const pending = []; all.forEach(c => (c.payments||[]).forEach((p,i) => { if (!p.verified) pending.push({c,p,i}); }));
   const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
   const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${p.part==="advance"?t("payAdv"):t("payFin")} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
-  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.appliedBlock||u.block)} · ${esc(u.occupation||"")} · ${esc(u.phone||"")}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
-  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.block)} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
+  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${esc(u.phone||"")}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
+  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
   const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
     const opts = sah.filter(u => u.block === c.block);
     const sel = c.status === "closed" ? "" : `<label style="flex:1 1 220px">${t("assign")}<select data-act="assign" data-id="${esc(c.id)}"><option value="">${opts.length?t("choose"):t("noneInBlock")}</option>${opts.map(u=>`<option value="${esc(u.id)}"${u.id===c.sahayakUid?" selected":""}>${esc(u.name)}</option>`).join("")}</select></label>`;
@@ -579,14 +634,15 @@ async function uploadAll(caseId, fileList){
 async function postCase(e){
   e.preventDefault();
   const btn = $("#f-submit"); btn.disabled = true; btn.textContent = t("posting");
-  const me = S.me, cat = $("#f-cat").value, files = [...$("#f-files").files];
+  const me = S.me, cat = $("#f-cat").value, files = [...$("#f-files").files], loc = readLoc("f");
+  if (!loc.panchayat || !loc.village) { toast(t("needVillage")); btn.disabled = false; btn.textContent = t("postBtn"); return; }
   const data = { ownerUid:S.authUser.uid, ownerName:me.name, city:me.city, category:cat, title:$("#f-title").value.trim(), description:$("#f-desc").value.trim(),
-    village:$("#f-village").value.trim(), block:$("#f-block").value, land:$("#f-land").value.trim(), fee:CATS[cat].fee, status:"posted", createdAt:nowIso(),
+    ...loc, land:$("#f-land").value.trim(), fee:CATS[cat].fee, status:"posted", createdAt:nowIso(),
     files:[], payments:[], updates:[{at:nowIso(), by:"system", kind:"posted", text: LANG==="en" ? `Case posted from ${me.city}.` : `${me.city} से केस भेजा गया।`}] };
   try {
     const id = await B.createCase(data, {phone:S.authUser.phone || me.phone, name:me.name});
     if (files.length) { toast(t("uploading")); const up = await uploadAll(id, files); if (up.length) await B.updateCase(id, {}, null, null, up); }
-    $("#caseForm").reset(); $("#f-village").value = me.village || ""; $("#f-block").value = me.block; $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+    $("#caseForm").reset(); bindLoc("f", {district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}); $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
     toast(t("posted"));
   } catch(err){ console.error(err); toast(t("failed")); }
   finally { btn.disabled = false; btn.textContent = t("postBtn"); }
@@ -705,11 +761,12 @@ function openRate(c){
 }
 function openApply(){
   openSheet(t("applyBtn"), `<form id="aForm"><p class="desc" style="color:var(--muted)">${t("appsS")}</p>
-    <label>${t("block")}<select id="a-block">${blockOpts(S.me.block)}</select></label>
+    ${locFields("a", false)}
     <label>${t("occ")}<input id="a-occ" required maxlength="60" placeholder="${esc(t("occPh"))}"></label>
     <div class="actions"><button class="btn" type="submit">${t("submit")}</button><button class="btn ghost" type="button" id="a-x">${t("cancel")}</button></div></form>`, () => {
     $("#a-x").onclick = closeSheet;
-    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:$("#a-block").value, occupation:$("#a-occ").value.trim(), appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
+    bindLoc("a", {district:S.me.district, subdivision:S.me.subdivision, block:S.me.block});
+    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:readLoc("a").block, occupation:$("#a-occ").value.trim(), appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
   });
 }
 async function approve(uid){
