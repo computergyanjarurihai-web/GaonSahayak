@@ -1,0 +1,74 @@
+rules_version = '2';
+// Gram Sahayak — Firestore security rules
+// Firebase console → Firestore Database → Rules में यह पूरा कॉपी करके Publish करें।
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+    function uid() { return request.auth.uid; }
+    function hasProfile() { return exists(/databases/$(database)/documents/users/$(uid())); }
+    function me() { return get(/databases/$(database)/documents/users/$(uid())).data; }
+    function isAdmin() { return signedIn() && hasProfile() && me().role == 'admin'; }
+    function isSahayak() { return signedIn() && hasProfile() && me().role == 'sahayak'; }
+
+    // ---------- users ----------
+    // हर व्यक्ति अपनी प्रोफ़ाइल बना/देख सकता है। भूमिका (role) और प्रखंड सिर्फ़ admin बदल सकता है।
+    match /users/{userId} {
+      allow read: if signedIn() && (uid() == userId || isAdmin());
+      allow create: if signedIn() && uid() == userId && request.resource.data.role == 'family';
+      allow update: if isAdmin()
+        || (signedIn() && uid() == userId
+            && request.resource.data.role == resource.data.role
+            && request.resource.data.block == resource.data.block);
+      allow delete: if isAdmin();
+    }
+
+    // ---------- cases ----------
+    match /cases/{caseId} {
+      function isOwner() { return signedIn() && resource.data.ownerUid == uid(); }
+      function isAssigned() { return isSahayak() && resource.data.sahayakUid == uid(); }
+      function isOpenInMyBlock() { return isSahayak() && resource.data.status == 'posted' && resource.data.block == me().block; }
+
+      allow read: if isOwner() || isAssigned() || isOpenInMyBlock() || isAdmin();
+
+      allow create: if signedIn() && hasProfile()
+        && request.resource.data.ownerUid == uid()
+        && request.resource.data.status == 'posted'
+        && !('sahayakUid' in request.resource.data);
+
+      allow update: if isAdmin()
+        // परिवार: फ़ाइल जोड़ना, भुगतान दर्ज करना, पुष्टि/रेटिंग — लेकिन सहायक या मालिक नहीं बदल सकता
+        || (isOwner()
+            && request.resource.data.ownerUid == resource.data.ownerUid
+            && request.resource.data.get('sahayakUid', null) == resource.data.get('sahayakUid', null)
+            && request.resource.data.fee == resource.data.fee)
+        // सहायक: अपना केस अपडेट करना
+        || (isAssigned()
+            && request.resource.data.sahayakUid == uid()
+            && request.resource.data.ownerUid == resource.data.ownerUid
+            && request.resource.data.fee == resource.data.fee
+            && request.resource.data.payments == resource.data.payments)
+        // सहायक: अपने प्रखंड का नया केस लेना
+        || (isOpenInMyBlock()
+            && request.resource.data.sahayakUid == uid()
+            && request.resource.data.status == 'assigned'
+            && request.resource.data.ownerUid == resource.data.ownerUid
+            && request.resource.data.fee == resource.data.fee);
+
+      allow delete: if isAdmin();
+
+      // परिवार का मोबाइल नंबर — सिर्फ़ परिवार, उसका सहायक और admin देख सकते हैं
+      match /private/{docId} {
+        function parent() { return get(/databases/$(database)/documents/cases/$(caseId)).data; }
+        allow read: if signedIn() && (parent().ownerUid == uid() || parent().get('sahayakUid', '') == uid() || isAdmin());
+        allow create, update: if signedIn() && (parent().ownerUid == uid() || isAdmin());
+      }
+    }
+
+    // ---------- WhatsApp notification queue (बाद में Cloud Function/AiSensy से भेजने के लिए) ----------
+    match /notifications/{id} {
+      allow create: if signedIn();
+      allow read, update, delete: if isAdmin();
+    }
+  }
+}

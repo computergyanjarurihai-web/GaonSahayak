@@ -1,0 +1,24 @@
+rules_version = '2';
+// Gram Sahayak — Storage security rules
+// Firebase console → Storage → Rules में यह पूरा कॉपी करके Publish करें।
+// फ़ाइलें सिर्फ़ केस का परिवार, उसका सहायक और admin देख/अपलोड कर सकते हैं। हर फ़ाइल 10 MB तक, सिर्फ़ फ़ोटो या PDF।
+service firebase.storage {
+  match /b/{bucket}/o {
+    function caseDoc(caseId) { return firestore.get(/databases/(default)/documents/cases/$(caseId)).data; }
+    function role() { return firestore.get(/databases/(default)/documents/users/$(request.auth.uid)).data.role; }
+    function canSee(caseId) {
+      return request.auth != null && (
+        caseDoc(caseId).ownerUid == request.auth.uid ||
+        caseDoc(caseId).get('sahayakUid', '') == request.auth.uid ||
+        role() == 'admin');
+    }
+
+    match /cases/{caseId}/{fileName} {
+      allow read: if canSee(caseId);
+      allow create: if canSee(caseId)
+        && request.resource.size < 10 * 1024 * 1024
+        && (request.resource.contentType.matches('image/.*') || request.resource.contentType == 'application/pdf');
+      allow update, delete: if request.auth != null && role() == 'admin';
+    }
+  }
+}
