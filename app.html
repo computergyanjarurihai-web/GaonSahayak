@@ -33,6 +33,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16p
 .brand b{font-family:var(--display);font-weight:400;font-size:28px;color:var(--green);line-height:1.1}
 .brand span{color:var(--muted);font-size:14px}
 .barr{display:flex;gap:8px;align-items:center}
+.svc-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
+.svc-btn{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:14px 16px;font:500 15.5px/1.35 var(--body);cursor:pointer}
+.svc-btn b{white-space:nowrap;font-variant-numeric:tabular-nums}
+@media (hover:hover){.svc-btn:hover{border-color:var(--green)}}
+.svc-btn[aria-pressed="true"]{border-color:var(--green);box-shadow:inset 0 0 0 1px var(--green)}
 .chip{border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;font:600 13.5px/1 var(--body);padding:8px 12px;cursor:pointer}
 .tabs{display:flex;gap:4px;background:var(--sunk);border-radius:12px;padding:4px;margin:16px 0 6px}
 .tabs button{flex:1;border:0;background:transparent;color:var(--muted);font:600 15px/1.2 var(--body);padding:10px 6px;border-radius:9px;cursor:pointer}
@@ -241,7 +246,7 @@ const catName = k => (CATS[k] || {})[LANG] || k;
 const PENDING = (() => {
   let k = null;
   try { k = new URLSearchParams(location.search).get("seva"); if (k && CATS[k]) sessionStorage.setItem("gs_seva", k); else k = sessionStorage.getItem("gs_seva"); } catch(e) {}
-  return { get: () => (k && CATS[k]) ? k : null, clear: () => { k = null; try { sessionStorage.removeItem("gs_seva"); } catch(e) {} } };
+  return { get: () => (k && CATS[k]) ? k : null, set: v => { k = v; try { sessionStorage.setItem("gs_seva", v); } catch(e) {} }, clear: () => { k = null; try { sessionStorage.removeItem("gs_seva"); } catch(e) {} } };
 })();
 const pendingNote = () => { const k = PENDING.get(); if (!k) return "";
   return `<div class="notice">${LANG==="en" ? "You chose: " : "आपने चुनी सेवा: "}<b>${esc(catName(k))}</b> · ${rupee(CATS[k].fee)}<br><small>${LANG==="en" ? "Log in and this service will be filled in for you." : "लॉगिन करें, फ़ॉर्म में यह सेवा पहले से भरी मिलेगी।"}</small></div>`; };
@@ -497,7 +502,10 @@ function loginHtml(){
       <label>${t("otp")}<input id="l-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
       <button class="btn" id="l-verify" type="button">${t("verify")}</button>
     </div>
-  </form>`;
+  </form>
+  <h2 style="margin-top:28px">${LANG==="en" ? "Our services" : "हमारी सेवाएँ"}</h2>
+  <p class="sub">${LANG==="en" ? "Pick the work you need, then log in. Full refund if the work is not done." : "जो काम करवाना है वह चुनें, फिर लॉगिन करें। काम न होने पर पूरा पैसा वापस।"}</p>
+  <div class="svc-pick">${Object.keys(CATS).map(k => `<button type="button" class="svc-btn" data-seva="${k}" aria-pressed="${PENDING.get()===k}"><span>${esc(catName(k))}</span><b>${rupee(CATS[k].fee)}${k==="guardian" ? (LANG==="en"?"/mo":"/माह") : ""}</b></button>`).join("")}</div>`;
 }
 const AUTH_ERR = {
   "auth/invalid-phone-number":["मोबाइल नंबर सही नहीं है।","The mobile number is not valid."],
@@ -519,6 +527,10 @@ function showLoginError(err){
   box.textContent = (m ? m[L()] : t("failed")) + (c ? "  [" + c + "]" : (err.message ? "  [" + err.message + "]" : ""));
 }
 function bindLogin(){
+  document.querySelectorAll("[data-seva]").forEach(b => b.addEventListener("click", () => {
+    const ph = $("#l-phone").value; PENDING.set(b.dataset.seva); renderShell();
+    $("#l-phone").value = ph; window.scrollTo({top:0, behavior:"smooth"}); $("#l-phone").focus({preventScroll:true});
+  }));
   $("#loginForm").addEventListener("submit", async e => {
     e.preventDefault();
     const p = $("#l-phone").value.replace(/\D/g,"");
