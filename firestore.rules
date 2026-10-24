@@ -19,7 +19,8 @@ service cloud.firestore {
       allow update: if isAdmin()
         || (signedIn() && uid() == userId
             && request.resource.data.role == resource.data.role
-            && request.resource.data.block == resource.data.block);
+            && request.resource.data.block == resource.data.block
+            && request.resource.data.get('blockKey', '') == resource.data.get('blockKey', ''));
       allow delete: if isAdmin();
     }
 
@@ -27,7 +28,13 @@ service cloud.firestore {
     match /cases/{caseId} {
       function isOwner() { return signedIn() && resource.data.ownerUid == uid(); }
       function isAssigned() { return isSahayak() && resource.data.sahayakUid == uid(); }
-      function isOpenInMyBlock() { return isSahayak() && resource.data.status == 'posted' && resource.data.block == me().block; }
+      // blockKey = "राज्य|ज़िला|प्रखंड/तहसील" — अलग ज़िलों के एक जैसे नाम वाले प्रखंड आपस में न मिलें
+      function isOpenInMyBlock() {
+        return isSahayak() && resource.data.status == 'posted'
+          && (me().get('blockKey', '') != ''
+                ? resource.data.get('blockKey', '') == me().get('blockKey', '')
+                : resource.data.block == me().block);
+      }
 
       allow read: if isOwner() || isAssigned() || isOpenInMyBlock() || isAdmin();
 

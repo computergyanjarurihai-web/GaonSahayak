@@ -254,7 +254,12 @@ let LANG = "hi";
 try { if (localStorage.getItem("gs-lang") === "en") LANG = "en"; } catch(e){}
 const L = () => LANG === "en" ? 1 : 0;
 const t = k => (TXT[k] || [k,k])[L()];
-const catName = k => (CATS[k] || {})[LANG] || k;
+const CAT_ST = { punjab: {
+  land_records:{hi:"इंतकाल / जमाबंदी / फ़र्द", en:"Mutation (intkal) / jamabandi / fard"},
+  encroachment:{hi:"कब्ज़ा / निशानदेही (नापी)", en:"Encroachment / demarcation (nishandehi)"},
+  survey:null } };
+const catName = (k, st) => { const o = (CAT_ST[st] || {})[k]; return (o || CATS[k] || {})[LANG] || k; };
+const catsFor = st => Object.keys(CATS).filter(k => !(CAT_ST[st] && CAT_ST[st][k] === null));
 const anonCase = c => ({anonymized:true, ownerUid:"deleted", category:c.category||"", fee:c.fee||0, status:c.status||"", block:c.block||"", district:c.district||"",
   payments:(c.payments||[]).map(p => ({part:p.part||"", amount:p.amount||0, method:p.method||"", ref:p.ref||"", at:p.at||"", verified:!!p.verified})), createdAt:c.createdAt||"", deletedAt:nowIso()});
 const consentRecord = () => ({version:CONFIG.privacyVersion, at:nowIso(), adult:true});
@@ -277,29 +282,53 @@ const rupee = n => "₹" + Number(n||0).toLocaleString("en-IN");
 const half = c => Math.round((c.fee||0)/2);
 function toast(msg){ const el=$("#toast"); el.textContent=msg; el.hidden=false; clearTimeout(toast.h); toast.h=setTimeout(()=>el.hidden=true,3000); }
 const blockOpts = sel => BLOCKS.map(b=>`<option${b===sel?" selected":""}>${b}</option>`).join("");
-const LOC = window.GS_LOCATIONS || {districts:[]};
-const locName = o => o ? (LANG === "en" ? o.en : o.hi) : "";
-const findDist = en => LOC.districts.find(d => d.en === en);
-function findBlock(en){ for (const d of LOC.districts) for (const sd of d.subdivisions) for (const b of sd.blocks) if (b.en === en) return {d, sd, b}; return null; }
-const blockLabel = en => { const f = findBlock(en); return f ? locName(f.b) : en; };
+/* ===================== states & locations ===================== */
+// हर राज्य की लोकेशन फ़ाइल अलग है; बिहार पहले से लोड रहता है, बाक़ी ज़रूरत पड़ने पर
+const STATES = {
+  bihar:  {en:"Bihar",  hi:"बिहार",  file:null, sub:["अनुमंडल","Subdivision"], block:["प्रखंड","Block"]},
+  punjab: {en:"Punjab", hi:"पंजाब", file:"locations-punjab.js", sub:null, block:["तहसील","Tehsil"]}
+};
+const LOCS = { bihar: window.GS_LOCATIONS || {districts:[]} };
+const LOC = LOCS.bihar;   // पुराने कोड के लिए
+const stOf = x => (x && x.state && STATES[x.state]) ? x.state : "bihar";
+function loadState(st){
+  st = STATES[st] ? st : "bihar";
+  if (LOCS[st]) return Promise.resolve(LOCS[st]);
+  if (!loadState.p) loadState.p = {};
+  if (!loadState.p[st]) loadState.p[st] = loadScript(STATES[st].file + "?v=1").then(() => (LOCS[st] = (window.GS_LOC || {})[st] || {districts:[]}));
+  return loadState.p[st];
+}
+const locName = o => o ? (LANG === "en" ? o.en : (o.hi || o.en)) : "";
+const findDist = (en, st) => { for (const k of st ? [st] : Object.keys(LOCS)) { const d = (LOCS[k] || {districts:[]}).districts.find(d => d.en === en); if (d) return d; } return null; };
+function findBlock(en, st, dist){
+  for (const k of st ? [st] : Object.keys(LOCS)) { const L = LOCS[k]; if (!L) continue;
+    for (const d of L.districts) { if (dist && d.en !== dist) continue; for (const sd of d.subdivisions) for (const b of sd.blocks) if (b.en === en) return {d, sd, b, st:k}; } }
+  return null;
+}
+const blockLabel = (en, st, dist) => { const f = findBlock(en, st, dist); return f ? locName(f.b) : (en || ""); };
+const blockWord = st => STATES[st || "bihar"].block[L()];
+const keyOf = x => x && x.blockKey ? x.blockKey : null;
+const makeKey = l => [l.state || "bihar", l.district || "", l.block || ""].join("|");
+const sameBlock = (u, c) => keyOf(u) && keyOf(c) ? keyOf(u) === keyOf(c) : u.block === c.block;
 function locFields(px, withVillage = true){
-  return `<label>${t("district")}<select id="${px}-dist"></select></label>
-    <label>${t("subdiv")}<select id="${px}-sub"></select></label>
-    <label>${t("block")}<select id="${px}-block"></select></label>
+  return `<label>${LANG==="en" ? "State" : "राज्य"}<select id="${px}-state">${Object.entries(STATES).map(([k,v]) => `<option value="${k}">${esc(locName(v))}</option>`).join("")}</select></label>
+    <label>${t("district")}<select id="${px}-dist"></select></label>
+    <label id="${px}-subw">${t("subdiv")}<select id="${px}-sub"></select></label>
+    <label><span id="${px}-blw">${t("block")}</span><select id="${px}-block"></select></label>
     ${withVillage ? `<label>${t("panchayat")}<select id="${px}-pan" required></select></label>
     <label class="full" id="${px}-pow" hidden>${t("panOther")}<input id="${px}-pother" maxlength="60"></label>
     <label class="full">${t("village")} <small>${t("villHelp")}</small><input id="${px}-vill" list="${px}-vlist" required maxlength="60" autocomplete="off"><datalist id="${px}-vlist"></datalist></label>` : ""}`;
 }
-function bindLoc(px, cur = {}){
+function bindLoc(px, cur = {}, onState){
   const g = id => document.getElementById(px + "-" + id);
-  const dS = g("dist"), sS = g("sub"), bS = g("block"), pS = g("pan"), po = g("pother"), pow = g("pow"), vI = g("vill"), vL = g("vlist");
-  let want = {district:"Darbhanga", ...cur};
-  if (want.block && !want.subdivision) { const f = findBlock(want.block); if (f) { want.district = f.d.en; want.subdivision = f.sd.en; } }
+  const tS = g("state"), dS = g("dist"), sS = g("sub"), bS = g("block"), pS = g("pan"), po = g("pother"), pow = g("pow"), vI = g("vill"), vL = g("vlist");
+  let want = {...cur};
+  want.state = STATES[cur.state] ? cur.state : (cur.district && !findDist(cur.district, "bihar") && cur.state ? cur.state : "bihar");
   const opt = (val, label, sel, dis) => `<option value="${esc(val)}"${sel ? " selected" : ""}${dis ? " disabled" : ""}>${esc(label)}</option>`;
-  dS.innerHTML = LOC.districts.map(d => opt(d.en, locName(d) + (d.subdivisions.length ? "" : " (" + t("soon") + ")"), d.en === want.district, !d.subdivisions.length)).join("");
+  const st = () => tS.value;
   const fillPan = () => {
     if (!pS) return;
-    const f = findBlock(bS.value), list = f ? (f.b.panchayats || []) : [];
+    const f = findBlock(bS.value, st(), dS.value), list = f ? (f.b.panchayats || []) : [];
     const inList = want.panchayat && list.includes(want.panchayat);
     pS.innerHTML = opt("", t("chooseP"), !want.panchayat, false) + list.map(v => opt(v, v, v === want.panchayat, false)).join("") + opt("__other", t("otherP"), !!want.panchayat && !inList, false);
     po.value = want.panchayat && !inList ? want.panchayat : "";
@@ -307,28 +336,59 @@ function bindLoc(px, cur = {}){
     pS.closest("label").hidden = noList;
     if (noList) pS.value = "__other";
     pow.hidden = pS.value !== "__other";
-    vL.innerHTML = (f ? f.b.villages : []).map(v => `<option value="${esc(v)}"></option>`).join("");
+    vL.innerHTML = (f ? (f.b.villages || []) : []).map(v => `<option value="${esc(v)}"></option>`).join("");
     if (want.village !== undefined) vI.value = want.village || "";
     want.panchayat = null; want.village = undefined;
   };
   const fillBlock = () => {
-    const d = findDist(dS.value), sd = d && d.subdivisions.find(x => x.en === sS.value);
+    const d = findDist(dS.value, st()), sd = d && d.subdivisions.find(x => x.en === sS.value);
     const blocks = sd ? sd.blocks : [];
     bS.innerHTML = blocks.map(b => opt(b.en, locName(b), b.en === want.block, false)).join("");
     want.block = null; fillPan();
   };
   const fillSub = () => {
-    const d = findDist(dS.value), subs = d ? d.subdivisions : [];
+    const d = findDist(dS.value, st()), subs = d ? d.subdivisions : [];
+    if (want.block && !want.subdivision && d) { const f = findBlock(want.block, st(), d.en); if (f) want.subdivision = f.sd.en; }
     sS.innerHTML = subs.map(sd => opt(sd.en, locName(sd), sd.en === want.subdivision, false)).join("");
+    g("subw").hidden = !STATES[st()].sub || (subs.length === 1 && !subs[0].en);
     want.subdivision = null; fillBlock();
   };
-  fillSub();
+  const fillDist = () => {
+    const L = LOCS[st()] || {districts:[]};
+    const wd = want.district && L.districts.some(d => d.en === want.district) ? want.district : (st() === "bihar" ? "Darbhanga" : (L.districts[0] || {}).en);
+    dS.innerHTML = L.districts.map(d => opt(d.en, locName(d) + (d.subdivisions.length ? "" : " (" + t("soon") + ")"), d.en === wd, !d.subdivisions.length)).join("");
+    g("blw").textContent = blockWord(st());
+    want.district = null; fillSub();
+    if (onState) onState(st());
+  };
+  const fillState = () => {
+    dS.disabled = true;
+    loadState(st()).then(() => { dS.disabled = false; fillDist(); }).catch(e => { console.error(e); dS.disabled = false; toast(t("failed")); });
+  };
+  tS.value = want.state;
+  fillState();
+  tS.addEventListener("change", () => { want = {village:""}; fillState(); });
   dS.addEventListener("change", fillSub); sS.addEventListener("change", fillBlock); bS.addEventListener("change", fillPan);
   if (pS) pS.addEventListener("change", () => { pow.hidden = pS.value !== "__other"; if (!pow.hidden) po.focus(); });
 }
+const keyLabel = x => { if (x && x.blockKey) { const [st, d, b] = x.blockKey.split("|"); const dd = findDist(d, st); return blockLabel(b, st, d) + (dd ? ", " + locName(dd) : (d ? ", " + d : "")); } return blockLabel(x && x.block); };
+function setCats(st){
+  const sel = $("#f-cat"); if (!sel) return;
+  const cur = sel.value, ks = catsFor(st);
+  sel.innerHTML = ks.map(k => `<option value="${k}">${esc(catName(k, st))}</option>`).join("");
+  sel.value = ks.includes(cur) ? cur : ks[0];
+  const fee = $("#f-fee"); if (fee) fee.textContent = rupee(CATS[sel.value].fee);
+  const lw = $("#f-landw"); if (lw) lw.textContent = st === "punjab" ? (LANG==="en" ? "Khewat / Khatauni / Khasra no." : "खेवट / खतौनी / खसरा नंबर") : t("land");
+}
+function ensureStates(items){
+  const need = new Set();
+  for (const x of items || []) { const st = x && (x.state || (x.blockKey || x.appliedBlockKey || "").split("|")[0]); if (st && STATES[st] && !LOCS[st]) need.add(st); }
+  need.forEach(st => loadState(st).then(() => renderData()).catch(() => {}));
+}
 function readLoc(px){
   const g = id => document.getElementById(px + "-" + id);
-  const out = {district:g("dist").value, subdivision:g("sub").value, block:g("block").value};
+  const out = {state:g("state").value, district:g("dist").value, subdivision:g("sub").value, block:g("block").value};
+  out.blockKey = makeKey(out);
   const pS = g("pan");
   if (pS) { out.panchayat = pS.value === "__other" ? g("pother").value.trim() : pS.value; out.village = g("vill").value.trim(); }
   return out;
@@ -369,7 +429,8 @@ function firebaseBackend(){
       let q = fs.collection("cases");
       if (scope.owner) q = q.where("ownerUid","==",scope.owner);
       if (scope.sahayak) q = q.where("sahayakUid","==",scope.sahayak);
-      if (scope.openBlock) q = q.where("status","==","posted").where("block","==",scope.openBlock);
+      if (scope.openKey) q = q.where("status","==","posted").where("blockKey","==",scope.openKey);
+      else if (scope.openBlock) q = q.where("status","==","posted").where("block","==",scope.openBlock);
       return snapList(q)(cb);
     },
     watchUsers(field, value, cb){ return snapList(fs.collection("users").where(field,"==",value))(cb); },
@@ -445,7 +506,7 @@ function demoBackend(){
     watchUser(uid, cb){ return watch(() => db.users[uid] ? {id:uid, ...db.users[uid]} : null, cb); },
     async createUser(uid, data){ db.users[uid] = data; notify(); },
     async updateUser(uid, data){ Object.assign(db.users[uid], data); notify(); },
-    watchCases(scope, cb){ return watch(() => caseList().filter(c => scope.owner ? c.ownerUid===scope.owner : scope.sahayak ? c.sahayakUid===scope.sahayak : scope.openBlock ? (c.status==="posted" && c.block===scope.openBlock) : true), cb); },
+    watchCases(scope, cb){ return watch(() => caseList().filter(c => scope.owner ? c.ownerUid===scope.owner : scope.sahayak ? c.sahayakUid===scope.sahayak : scope.openKey ? (c.status==="posted" && c.blockKey===scope.openKey) : scope.openBlock ? (c.status==="posted" && c.block===scope.openBlock) : true), cb); },
     watchUsers(field, value, cb){ return watch(() => userList().filter(u => u[field] === value), cb); },
     watchAllUsers(cb){ return watch(userList, cb); },
     async createCase(data, priv){ const id = "demo-" + Date.now().toString(36); db.cases[id] = data; db.priv[id] = priv; notify(); return id; },
@@ -501,7 +562,7 @@ async function start(){
     if (!u) { renderShell(); return; }
     userUnsub = B.watchUser(u.uid, me => {
       const gate = x => !!x && !!x.consent && x.consent.version === CONFIG.privacyVersion && (x.role !== "sahayak" || !!x.undertaking);
-      const roleChanged = !S.me || !me || S.me.role !== me.role || S.me.block !== me.block || gate(S.me) !== gate(me);
+      const roleChanged = !S.me || !me || S.me.role !== me.role || S.me.block !== me.block || S.me.blockKey !== me.blockKey || gate(S.me) !== gate(me);
       S.me = me;
       if (roleChanged) { stopWatches(); startWatches(); renderShell(); } else renderData();
     });
@@ -512,7 +573,7 @@ function startWatches(){
   const put = k => list => { S.lists[k] = list.sort((a,b)=>String(b.createdAt||b.appliedAt).localeCompare(String(a.createdAt||a.appliedAt))); renderData(); };
   watchList("mine", B.watchCases({owner:uid}, put("mine")));
   if (me.role === "sahayak") {
-    watchList("open", B.watchCases({openBlock:me.block}, put("open")));
+    watchList("open", B.watchCases(me.blockKey ? {openKey:me.blockKey} : {openBlock:me.block}, put("open")));
     watchList("assigned", B.watchCases({sahayak:uid}, put("assigned")));
   }
   if (me.role === "admin") {
@@ -670,9 +731,9 @@ function renderAppoint(){
   const el = $("#apList"); if (!el) return;
   const q = (S.apQuery || "").trim().toLowerCase();
   const fam = (S.lists.users || []).filter(u => u.role === "family" && u.id !== S.authUser.uid);
-  const hit = q ? fam.filter(u => [u.name, u.village, u.panchayat, u.block, u.city, blockLabel(u.block)].some(v => String(v||"").toLowerCase().includes(q))) : [];
+  const hit = q ? fam.filter(u => [u.name, u.village, u.panchayat, u.block, u.city, u.district, blockLabel(u.block, stOf(u), u.district)].some(v => String(v||"").toLowerCase().includes(q))) : [];
   el.innerHTML = !q ? `<div class="empty" style="border:0">${LANG==="en" ? `Type to search ${fam.length} registered people.` : `${fam.length} पंजीकृत लोगों में खोजने के लिए लिखें।`}</div>`
-    : hit.length ? hit.slice(0, 20).map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.village||"")}${u.panchayat?" ("+esc(u.panchayat)+")":""}, ${esc(blockLabel(u.block))} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="appoint" data-uid="${esc(u.id)}">${LANG==="en" ? "Make Sahayak" : "सहायक बनाएँ"}</button></div>`).join("")
+    : hit.length ? hit.slice(0, 20).map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.village||"")}${u.panchayat?" ("+esc(u.panchayat)+")":""}, ${esc(blockLabel(u.block, stOf(u), u.district))} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="appoint" data-uid="${esc(u.id)}">${LANG==="en" ? "Make Sahayak" : "सहायक बनाएँ"}</button></div>`).join("")
     : `<div class="empty" style="border:0">${LANG==="en" ? "Nobody found. Ask them to log in to the app once." : "कोई नहीं मिला। उनसे ऐप में एक बार लॉगिन करवाएँ।"}</div>`;
 }
 function openAppoint(uid){
@@ -681,10 +742,10 @@ function openAppoint(uid){
     <div class="grid">${locFields("ap", false)}</div>
     <div class="actions"><button class="btn" type="submit">${LANG==="en" ? "Appoint" : "नियुक्त करें"}</button><button class="btn ghost" type="button" id="ap-x">${t("cancel")}</button></div></form>`, () => {
     $("#ap-x").onclick = closeSheet;
-    bindLoc("ap", {district:u.district, subdivision:u.subdivision, block:u.block});
+    bindLoc("ap", {state:u.state, district:u.district, subdivision:u.subdivision, block:u.block});
     $("#apForm").onsubmit = async ev => { ev.preventDefault();
       const loc = readLoc("ap"); if (!loc.block) { toast(LANG==="en" ? "Choose a block." : "प्रखंड चुनें।"); return; }
-      try { await B.updateUser(uid, {role:"sahayak", block:loc.block, sahayakDistrict:loc.district, applied:false, approvedAt:nowIso(), appointedBy:S.authUser.uid}); closeSheet(); toast(t("approved")); }
+      try { await B.updateUser(uid, {role:"sahayak", block:loc.block, blockKey:loc.blockKey, sahayakState:loc.state, sahayakDistrict:loc.district, applied:false, approvedAt:nowIso(), appointedBy:S.authUser.uid}); closeSheet(); toast(t("approved")); }
       catch(e){ console.error(e); toast(t("failed")); } };
   });
 }
@@ -702,10 +763,10 @@ function familyShell(){
   return `<h2>${t("postT")}</h2><p class="sub">${t("postS")}</p>
   <form id="caseForm" class="panel"><div class="grid">
     ${locFields("f")}
-    <label>${t("cat")}<select id="f-cat">${Object.keys(CATS).map(k=>`<option value="${k}">${esc(catName(k))}</option>`).join("")}</select></label>
+    <label>${t("cat")}<select id="f-cat">${catsFor("bihar").map(k=>`<option value="${k}">${esc(catName(k, "bihar"))}</option>`).join("")}</select></label>
     <label class="full">${t("title")}<input id="f-title" required maxlength="90" placeholder="${esc(t("titlePh"))}"></label>
     <label class="full">${t("desc")} <small>${t("descHelp")}</small><textarea id="f-desc" required maxlength="1500"></textarea></label>
-    <label>${t("land")} <small>${t("landHelp")}</small><input id="f-land" maxlength="40"></label>
+    <label><span id="f-landw">${t("land")}</span> <small>${t("landHelp")}</small><input id="f-land" maxlength="40"></label>
     <label class="full">${t("files")} <small>${t("filesHelp")}</small><input id="f-files" type="file" multiple accept="image/*,application/pdf"></label>
   </div>
   <div class="row-end"><div class="fee">${t("feeL")} <b id="f-fee"></b><br><small>${t("feeHelp")}</small></div><button class="btn" id="f-submit" type="submit">${t("postBtn")}</button></div></form>
@@ -720,11 +781,11 @@ function bindFamily(){
   const pk = PENDING.get();
   if (pk) { $("#f-cat").value = pk; PENDING.clear(); setTimeout(() => { f.scrollIntoView({behavior:"smooth", block:"start"}); $("#f-title").focus({preventScroll:true}); }, 50); }
   $("#f-cat").addEventListener("change", showFee); showFee();
-  bindLoc("f", {district:S.me.district, subdivision:S.me.subdivision, block:S.me.block, panchayat:S.me.panchayat, village:S.me.village});
+  bindLoc("f", {state:S.me.state, district:S.me.district, subdivision:S.me.subdivision, block:S.me.block, panchayat:S.me.panchayat, village:S.me.village}, setCats);
   f.addEventListener("submit", postCase);
 }
 function sahayakShell(){
-  return `<h2>${t("openT")} · ${esc(blockLabel(S.me.block))}</h2><p class="sub">${t("openS")}</p><div id="openList" class="list"></div>
+  return `<h2>${t("openT")} · ${esc(keyLabel(S.me))}</h2><p class="sub">${t("openS")}</p><div id="openList" class="list"></div>
   <h2>${t("activeT")}</h2><p class="sub">${t("activeS")}</p><div id="assignedList" class="list"></div>
   <h2>${t("earnT")}</h2><div id="earnStats" class="stats"></div>`;
 }
@@ -740,6 +801,7 @@ function adminShell(){
 /* ===================== rendering: data ===================== */
 function renderData(){
   if (!S.me) return;
+  ensureStates([S.me, ...Object.values(S.lists).flat()]);
   const mine = S.lists.mine || [];
   const ml = $("#mineList");
   if (ml) ml.innerHTML = mine.length ? mine.map(c => caseCard(c, familyActions(c), {payments:true})).join("") : `<div class="empty">${t("noCases")}</div>`;
@@ -786,7 +848,7 @@ function caseCard(c, actions, opts={}){
   const files = c.files || [];
   return `<article class="case">
     <div class="top"><div><div class="code">${code(c.id)}${c.example?`<span class="ex">${t("example")}</span>`:""}</div><h3>${esc(c.title)}</h3></div><span class="pill s-${esc(c.status)}">${esc(stName(c.status))}</span></div>
-    <div class="meta"><span>${esc(catName(c.category))}</span><span>${esc(c.village)}${c.panchayat?" ("+esc(c.panchayat)+")":""}, ${esc(blockLabel(c.block))}${c.district?", "+esc(locName(findDist(c.district))||c.district):""}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
+    <div class="meta"><span>${esc(catName(c.category, stOf(c)))}</span><span>${esc(c.village)}${c.panchayat?" ("+esc(c.panchayat)+")":""}, ${esc(blockLabel(c.block, stOf(c), c.district))}${c.district?", "+esc(locName(findDist(c.district, stOf(c)))||c.district):""}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
     <p class="desc">${esc(c.description)}</p>
     <div class="tags">${c.land?`<span>${shown("case", c.id, "land", c.land)}</span>`:""}<span>${t("fee")} ${rupee(c.fee)}</span></div>
     ${files.length?`<div class="files">${files.map(f=>f.url ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>` : `<a href="#" data-act="openfile" data-path="${esc(f.path)}">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}
@@ -803,13 +865,13 @@ function renderAdmin(){
   const pending = []; all.forEach(c => (c.payments||[]).forEach((p,i) => { if (!p.verified) pending.push({c,p,i}); }));
   const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
   const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${partLabel(p.part)} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
-  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
-  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${shown("user", u.id, "phone", u.phone)} · ${LANG==="en"?"Cases":"केस"} ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><button class="btn ghost small" data-act="rmsah" data-uid="${esc(u.id)}">${LANG==="en" ? "Remove" : "हटाएँ"}</button></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
+  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.appliedBlockKey ? keyLabel({blockKey:u.appliedBlockKey}) : blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
+  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(keyLabel(u))} · ${shown("user", u.id, "phone", u.phone)} · ${LANG==="en"?"Cases":"केस"} ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><button class="btn ghost small" data-act="rmsah" data-uid="${esc(u.id)}">${LANG==="en" ? "Remove" : "हटाएँ"}</button></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
   renderAppoint();
   const dels = S.lists.dels || [];
   const dl = $("#delList"); if (dl) dl.innerHTML = dels.length ? dels.map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b><small>${shown("user", u.id, "phone", u.phone)} · ${LANG==="en"?"Requested":"अनुरोध"} ${fmt(u.deleteRequestedAt)}</small></div><button class="btn small warm" data-act="erase" data-uid="${esc(u.id)}">${LANG==="en"?"Delete data":"डेटा हटाएँ"}</button></div>`).join("") : `<div class="empty">${LANG==="en"?"No requests":"कोई अनुरोध नहीं"}</div>`;
   const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
-    const opts = sah.filter(u => u.block === c.block);
+    const opts = sah.filter(u => sameBlock(u, c));
     const sel = c.status === "closed" ? "" : `<label style="flex:1 1 220px">${t("assign")}<select data-act="assign" data-id="${esc(c.id)}"><option value="">${opts.length?t("choose"):t("noneInBlock")}</option>${opts.map(u=>`<option value="${esc(u.id)}"${u.id===c.sahayakUid?" selected":""}>${esc(u.name)}</option>`).join("")}</select></label>`;
     return caseCard(c, sel, {payments:true});
   }).join("") : `<div class="empty">${t("noCases")}</div>`;
@@ -838,7 +900,7 @@ async function postCase(e){
     data.land = sv.land;
     const id = await B.createCase(data, {phone:sv.phone, name:me.name});
     if (files.length) { toast(t("uploading")); const up = await uploadAll(id, files); if (up.length) await B.updateCase(id, {}, null, null, up); }
-    $("#caseForm").reset(); bindLoc("f", {district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}); $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+    $("#caseForm").reset(); bindLoc("f", {state:me.state, district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}, setCats); $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
     toast(t("posted"));
     openPay({...data, id}, "full");
   } catch(err){ console.error(err); toast(t("failed")); }
@@ -973,8 +1035,8 @@ function openApply(){
       : "मैं हर परिवार की जानकारी, मोबाइल नंबर और काग़ज़ गोपनीय रखूँगा, उन्हें सिर्फ़ उसी केस के लिए इस्तेमाल करूँगा, किसी और को नहीं दूँगा, और केस बंद होने पर अपने फ़ोन से उनकी कॉपी हटा दूँगा।"}</span></label>
     <div class="actions"><button class="btn" type="submit">${t("submit")}</button><button class="btn ghost" type="button" id="a-x">${t("cancel")}</button></div></form>`, () => {
     $("#a-x").onclick = closeSheet;
-    bindLoc("a", {district:S.me.district, subdivision:S.me.subdivision, block:S.me.block});
-    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:readLoc("a").block, occupation:$("#a-occ").value.trim(), undertaking:{version:CONFIG.privacyVersion, at:nowIso()}, appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
+    bindLoc("a", {state:S.me.state, district:S.me.district, subdivision:S.me.subdivision, block:S.me.block});
+    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:readLoc("a").block, appliedBlockKey:readLoc("a").blockKey, occupation:$("#a-occ").value.trim(), undertaking:{version:CONFIG.privacyVersion, at:nowIso()}, appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
   });
 }
 function openFile(path){
@@ -1000,7 +1062,7 @@ function openErase(uid){
 }
 async function approve(uid){
   const u = (S.lists.apps||[]).find(x => x.id === uid); if (!u) return;
-  try { await B.updateUser(uid, {role:"sahayak", block:u.appliedBlock||u.block, applied:false, approvedAt:nowIso()}); toast(t("approved")); } catch(e){ console.error(e); toast(t("failed")); }
+  try { await B.updateUser(uid, {role:"sahayak", block:u.appliedBlock||u.block, blockKey:u.appliedBlockKey || u.blockKey || makeKey({state:stOf(u), district:u.district, block:u.appliedBlock||u.block}), applied:false, approvedAt:nowIso()}); toast(t("approved")); } catch(e){ console.error(e); toast(t("failed")); }
 }
 async function verifyPay(c, i){
   const pays = (c.payments||[]).map((p,j) => j === i ? {...p, verified:true, verifiedAt:nowIso()} : p);

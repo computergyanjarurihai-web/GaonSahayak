@@ -2,7 +2,7 @@
 
 **गाँव का काम, अब शहर से।** Village work, now from the city.
 
-Gram Sahayak helps Biharis living outside Bihar get village problems solved without travelling home. A family posts the problem (land encroachment, pending mutation, land survey paperwork, certificates, pensions), a verified local helper called a *Sahayak* visits the right office on their behalf, and every step is logged with photos, receipt numbers and next dates.
+Gram Sahayak helps families from Bihar and Punjab living away from home get village problems solved without travelling home. A family posts the problem (land encroachment, pending mutation, land survey paperwork, certificates, pensions), a verified local helper called a *Sahayak* visits the right office on their behalf, and every step is logged with photos, receipt numbers and next dates.
 
 The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block).
 
@@ -13,6 +13,7 @@ The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block)
 | `index.html` | Public website. Hindi by default, with a हिंदी / English switch. Add `#en` to the URL to open it in English. |
 | `app.html` | The app, Hindi first with an English switch. Mobile OTP login; families post cases with photos/PDFs, pay by UPI and see only their own cases; Sahayaks accept cases, log visits with receipts and send WhatsApp updates; Admin approves Sahayaks, assigns cases and confirms payments. |
 | `locations.js` | Location data for the dropdowns: all 38 Bihar districts with subdivisions and all 534 blocks (Hindi + English). Gram panchayat lists for 533 of the 534 blocks, from Census 2011 data, which may differ slightly from the current list. Bettiah block has no list, so people type the panchayat name there or wherever theirs is missing. |
+| `locations-punjab.js` | Punjab: 23 districts → 97 tehsils → 11,528 gram panchayats (Census 2011 village directory). Loaded only when someone picks Punjab. In Punjab the tehsil plays the role of the block. |
 | `privacy.html` | Privacy policy under India's DPDP Act, 2023, in Hindi and English. The app asks for consent at login, offers "Delete my data", and admins erase data on request. |
 | `firestore.rules`, `storage.rules` | Firebase security rules: each family sees only its own cases, files and phone number. |
 | `vault/` | Small Google Cloud function that encrypts mobile numbers and khata/khesra (AES-256-GCM, key in Secret Manager) and decrypts them only for the family, its Sahayak or an admin. Deploy with `vault/deploy.sh` in Cloud Shell. |
