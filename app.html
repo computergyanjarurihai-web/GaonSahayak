@@ -373,6 +373,7 @@ function firebaseBackend(){
       return snapList(q)(cb);
     },
     watchUsers(field, value, cb){ return snapList(fs.collection("users").where(field,"==",value))(cb); },
+    watchAllUsers(cb){ return snapList(fs.collection("users"))(cb); },
     async createCase(data, priv){ const ref = fs.collection("cases").doc(); await ref.set(data); await ref.collection("private").doc("contact").set(priv); return ref.id; },
     getPrivate(id){ return fs.collection("cases").doc(id).collection("private").doc("contact").get().then(d => d.exists ? d.data() : null); },
     updateCase(id, patch, entry, payment, files){
@@ -425,7 +426,7 @@ function demoBackend(){
     },
     priv:{ "demo-c1mut":{phone:"+919800000001",name:"उदाहरण परिवार"}, "demo-c2res":{phone:"+919800000001",name:"उदाहरण परिवार"} }
   };
-  Object.values(db.users).forEach(u => u.consent = {version:CONFIG.privacyVersion});
+  Object.values(db.users).forEach(u => { u.consent = {version:CONFIG.privacyVersion}; if (u.role === "sahayak") u.undertaking = {version:CONFIG.privacyVersion}; });
   const subs = new Set();
   const notify = () => subs.forEach(f => f());
   let authCb = null, pendingPhone = null;
@@ -446,6 +447,7 @@ function demoBackend(){
     async updateUser(uid, data){ Object.assign(db.users[uid], data); notify(); },
     watchCases(scope, cb){ return watch(() => caseList().filter(c => scope.owner ? c.ownerUid===scope.owner : scope.sahayak ? c.sahayakUid===scope.sahayak : scope.openBlock ? (c.status==="posted" && c.block===scope.openBlock) : true), cb); },
     watchUsers(field, value, cb){ return watch(() => userList().filter(u => u[field] === value), cb); },
+    watchAllUsers(cb){ return watch(userList, cb); },
     async createCase(data, priv){ const id = "demo-" + Date.now().toString(36); db.cases[id] = data; db.priv[id] = priv; notify(); return id; },
     async getPrivate(id){ return db.priv[id] || null; },
     async updateCase(id, patch, entry, payment, files){ const c = db.cases[id]; Object.assign(c, patch); if (entry) c.updates = [...(c.updates||[]), entry]; if (payment) c.payments = [...(c.payments||[]), payment]; if (files && files.length) c.files = [...(c.files||[]), ...files]; notify(); },
@@ -498,7 +500,8 @@ async function start(){
     S.authUser = u; S.me = null; S.view = null;
     if (!u) { renderShell(); return; }
     userUnsub = B.watchUser(u.uid, me => {
-      const roleChanged = !S.me || !me || S.me.role !== me.role || S.me.block !== me.block;
+      const gate = x => !!x && !!x.consent && x.consent.version === CONFIG.privacyVersion && (x.role !== "sahayak" || !!x.undertaking);
+      const roleChanged = !S.me || !me || S.me.role !== me.role || S.me.block !== me.block || gate(S.me) !== gate(me);
       S.me = me;
       if (roleChanged) { stopWatches(); startWatches(); renderShell(); } else renderData();
     });
@@ -517,6 +520,7 @@ function startWatches(){
     watchList("apps", B.watchUsers("applied", true, put("apps")));
     watchList("sahayaks", B.watchUsers("role", "sahayak", put("sahayaks")));
     watchList("dels", B.watchUsers("deleteRequested", true, put("dels")));
+    watchList("users", B.watchAllUsers(put("users")));
   }
 }
 
@@ -535,9 +539,10 @@ function renderShell(){
   if (!S.authUser) { main.innerHTML = loginHtml(); bindLogin(); return; }
   if (!S.me) { main.innerHTML = profileHtml(); bindProfile(); return; }
   if (!S.me.consent || S.me.consent.version !== CONFIG.privacyVersion) { main.innerHTML = consentHtml(); bindConsent(); return; }
+  if (S.me.role === "sahayak" && !S.me.undertaking) { main.innerHTML = undertakingHtml(); bindUndertaking(); return; }
   const tabs = [["family", t("tFamily")]];
   if (S.me.role === "sahayak") tabs.push(["sahayak", t("tSahayak")]);
-  if (S.me.role === "admin") tabs.push(["admin", t("tAdmin")]);
+  if (S.me.role === "admin") tabs.push(["admin", t("tAdmin")], ["sahmgr", LANG==="en" ? "Sahayaks" : "सहायक"]);
   if (PENDING.get()) S.view = "family";
   if (!S.view || !tabs.some(x => x[0] === S.view)) S.view = tabs.length > 1 ? tabs[1][0] : "family";
   const demoRoles = B.mode === "demo" ? `<div class="notice">${t("demoRole")} <span class="actions" style="display:inline-flex;margin-left:6px">
@@ -545,7 +550,7 @@ function renderShell(){
   main.innerHTML = demoRoles + (tabs.length > 1 ? `<div class="tabs" role="tablist">${tabs.map(([k,l]) => `<button role="tab" data-tab="${k}" aria-selected="${k===S.view}">${l}</button>`).join("")}</div>` : "") +
     `<section id="v-family"${S.view!=="family"?" hidden":""}>${familyShell()}</section>` +
     (S.me.role === "sahayak" ? `<section id="v-sahayak"${S.view!=="sahayak"?" hidden":""}>${sahayakShell()}</section>` : "") +
-    (S.me.role === "admin" ? `<section id="v-admin"${S.view!=="admin"?" hidden":""}>${adminShell()}</section>` : "");
+    (S.me.role === "admin" ? `<section id="v-admin"${S.view!=="admin"?" hidden":""}>${adminShell()}</section><section id="v-sahmgr"${S.view!=="sahmgr"?" hidden":""}>${sahMgrShell()}</section>` : "");
   main.querySelectorAll("[data-tab]").forEach(b => b.addEventListener("click", () => { S.view = b.dataset.tab; renderShell(); }));
   main.querySelectorAll("[data-demo]").forEach(b => b.addEventListener("click", () => demoSwitch(b.dataset.demo)));
   bindFamily();
@@ -641,6 +646,57 @@ function bindConsent(){
   $("#consentForm").addEventListener("submit", async e => { e.preventDefault();
     try { await B.updateUser(S.authUser.uid, {consent:consentRecord()}); } catch(err){ console.error(err); toast(t("failed")); } });
 }
+const UNDERTAKE = () => LANG==="en"
+  ? "I will keep every family's details, phone number and papers confidential, use them only for their case, never share them with anyone, and delete copies on my phone when the case closes."
+  : "मैं हर परिवार की जानकारी, मोबाइल नंबर और काग़ज़ गोपनीय रखूँगा, उन्हें सिर्फ़ उसी केस के लिए इस्तेमाल करूँगा, किसी और को नहीं दूँगा, और केस बंद होने पर अपने फ़ोन से उनकी कॉपी हटा दूँगा।";
+function undertakingHtml(){
+  return `<h2>${LANG==="en" ? "You are now a Sahayak" : "आप अब सहायक हैं"}</h2>
+  <p class="sub">${LANG==="en" ? "Before you see families' cases, please accept this undertaking." : "परिवारों के केस देखने से पहले यह वचन स्वीकार करें।"}</p>
+  <form id="utForm" class="panel" style="display:flex;flex-direction:column;gap:14px"><label class="check"><input type="checkbox" required><span>${UNDERTAKE()}</span></label>
+  <button class="btn" type="submit">${LANG==="en" ? "I accept" : "मैं स्वीकार करता/करती हूँ"}</button></form>`;
+}
+function bindUndertaking(){
+  $("#utForm").addEventListener("submit", async e => { e.preventDefault();
+    try { await B.updateUser(S.authUser.uid, {undertaking:{version:CONFIG.privacyVersion, at:nowIso()}}); } catch(err){ console.error(err); toast(t("failed")); } });
+}
+function sahMgrShell(){
+  return `<h2>${t("appsT")}</h2><p class="sub">${t("appsS")}</p><div id="appList" class="panel"></div>
+  <h2>${LANG==="en" ? "Appoint a Sahayak" : "सहायक नियुक्त करें"}</h2>
+  <p class="sub">${LANG==="en" ? "The person must first log in to the app once with their mobile and save their profile. Then find them here by name, village or block." : "पहले वह व्यक्ति अपने मोबाइल से ऐप में एक बार लॉगिन करके अपनी जानकारी सेव करे। फिर उसे यहाँ नाम, गाँव या प्रखंड से खोजें।"}</p>
+  <div class="panel"><label>${LANG==="en" ? "Search" : "खोजें"}<input id="ap-q" type="search" placeholder="${LANG==="en" ? "Name, village, panchayat or block" : "नाम, गाँव, पंचायत या प्रखंड"}" value="${esc(S.apQuery||"")}"></label><div id="apList" style="margin-top:10px"></div></div>
+  <h2>${t("sahT")}</h2><div id="sahList" class="panel"></div>`;
+}
+function renderAppoint(){
+  const el = $("#apList"); if (!el) return;
+  const q = (S.apQuery || "").trim().toLowerCase();
+  const fam = (S.lists.users || []).filter(u => u.role === "family" && u.id !== S.authUser.uid);
+  const hit = q ? fam.filter(u => [u.name, u.village, u.panchayat, u.block, u.city, blockLabel(u.block)].some(v => String(v||"").toLowerCase().includes(q))) : [];
+  el.innerHTML = !q ? `<div class="empty" style="border:0">${LANG==="en" ? `Type to search ${fam.length} registered people.` : `${fam.length} पंजीकृत लोगों में खोजने के लिए लिखें।`}</div>`
+    : hit.length ? hit.slice(0, 20).map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(u.village||"")}${u.panchayat?" ("+esc(u.panchayat)+")":""}, ${esc(blockLabel(u.block))} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="appoint" data-uid="${esc(u.id)}">${LANG==="en" ? "Make Sahayak" : "सहायक बनाएँ"}</button></div>`).join("")
+    : `<div class="empty" style="border:0">${LANG==="en" ? "Nobody found. Ask them to log in to the app once." : "कोई नहीं मिला। उनसे ऐप में एक बार लॉगिन करवाएँ।"}</div>`;
+}
+function openAppoint(uid){
+  const u = (S.lists.users||[]).find(x => x.id === uid); if (!u) return;
+  openSheet(LANG==="en" ? `Make ${u.name} a Sahayak` : `${u.name} को सहायक बनाएँ`, `<form id="apForm"><p class="desc" style="color:var(--muted)">${LANG==="en" ? "Choose the block where they will take cases. Appoint only after police verification, two references and an interview." : "वह प्रखंड चुनें जहाँ वे केस लेंगे। पुलिस सत्यापन, दो गारंटर और इंटरव्यू के बाद ही नियुक्त करें।"}</p>
+    <div class="grid">${locFields("ap", false)}</div>
+    <div class="actions"><button class="btn" type="submit">${LANG==="en" ? "Appoint" : "नियुक्त करें"}</button><button class="btn ghost" type="button" id="ap-x">${t("cancel")}</button></div></form>`, () => {
+    $("#ap-x").onclick = closeSheet;
+    bindLoc("ap", {district:u.district, subdivision:u.subdivision, block:u.block});
+    $("#apForm").onsubmit = async ev => { ev.preventDefault();
+      const loc = readLoc("ap"); if (!loc.block) { toast(LANG==="en" ? "Choose a block." : "प्रखंड चुनें।"); return; }
+      try { await B.updateUser(uid, {role:"sahayak", block:loc.block, sahayakDistrict:loc.district, applied:false, approvedAt:nowIso(), appointedBy:S.authUser.uid}); closeSheet(); toast(t("approved")); }
+      catch(e){ console.error(e); toast(t("failed")); } };
+  });
+}
+function openRemoveSahayak(uid){
+  const u = (S.lists.sahayaks||[]).find(x => x.id === uid); if (!u) return;
+  const active = (S.lists.all||[]).filter(c => c.sahayakUid === uid && c.status !== "closed").length;
+  openSheet(LANG==="en" ? `Remove ${u.name} as Sahayak?` : `${u.name} को सहायक से हटाएँ?`, `<p style="color:var(--muted)">${LANG==="en" ? `They will become a normal user. ${active} open case(s) stay with them until you assign someone else from Admin.` : `वे सामान्य उपयोगकर्ता बन जाएँगे। उनके ${active} चालू केस तब तक उनके नाम रहेंगे जब तक आप प्रबंधन में किसी और को न सौंपें।`}</p>
+    <div class="actions"><button class="btn warm" id="rs-yes" type="button">${LANG==="en" ? "Remove" : "हटाएँ"}</button><button class="btn ghost" id="rs-no" type="button">${t("cancel")}</button></div>`, () => {
+    $("#rs-no").onclick = closeSheet;
+    $("#rs-yes").onclick = async () => { try { await B.updateUser(uid, {role:"family", removedAt:nowIso()}); closeSheet(); toast("✓"); } catch(e){ console.error(e); toast(t("failed")); } };
+  });
+}
 function familyShell(){
   const me = S.me;
   return `<h2>${t("postT")}</h2><p class="sub">${t("postS")}</p>
@@ -675,8 +731,7 @@ function sahayakShell(){
 function adminShell(){
   return `<h2>${t("ovT")}</h2><div id="adminStats" class="stats"></div>
   <h2>${t("payT")}</h2><p class="sub">${t("payS")}</p><div id="payList" class="panel"></div>
-  <h2>${t("appsT")}</h2><p class="sub">${t("appsS")}</p><div id="appList" class="panel"></div>
-  <h2>${t("sahT")}</h2><div id="sahList" class="panel"></div>
+
   <h2>${LANG==="en" ? "Data deletion requests" : "डेटा हटाने के अनुरोध"}</h2><p class="sub">${LANG==="en" ? "Do it within 30 days. Profile, cases, files and phone numbers are deleted; only an unnamed payment record is kept for accounts. Then delete the login from Firebase → Authentication." : "30 दिन के अंदर करें। प्रोफ़ाइल, केस, फ़ाइलें और मोबाइल नंबर हट जाते हैं; सिर्फ़ बिना नाम का भुगतान रिकॉर्ड हिसाब के लिए रहता है। उसके बाद Firebase → Authentication से उस नंबर का लॉगिन भी हटाएँ।"}</p><div id="delList" class="panel"></div>
   ${vaultOn() ? `<h2>${LANG==="en" ? "Encryption" : "एन्क्रिप्शन"}</h2><div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><small style="color:var(--muted)">${LANG==="en" ? "Encrypt old mobile numbers and khata/khesra that were saved before encryption was on. Safe to run again." : "एन्क्रिप्शन चालू होने से पहले सेव हुए मोबाइल नंबर और खाता/खेसरा को एन्क्रिप्ट करें। दोबारा चलाने में कोई नुकसान नहीं।"}</small><button class="btn small" data-act="migrate">${LANG==="en" ? "Encrypt old data" : "पुराना डेटा एन्क्रिप्ट करें"}</button></div>` : ""}
   <h2>${t("allT")}</h2><div id="allList" class="list"></div>`;
@@ -749,7 +804,8 @@ function renderAdmin(){
   const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
   const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${partLabel(p.part)} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
   const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
-  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
+  const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${shown("user", u.id, "phone", u.phone)} · ${LANG==="en"?"Cases":"केस"} ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><button class="btn ghost small" data-act="rmsah" data-uid="${esc(u.id)}">${LANG==="en" ? "Remove" : "हटाएँ"}</button></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
+  renderAppoint();
   const dels = S.lists.dels || [];
   const dl = $("#delList"); if (dl) dl.innerHTML = dels.length ? dels.map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b><small>${shown("user", u.id, "phone", u.phone)} · ${LANG==="en"?"Requested":"अनुरोध"} ${fmt(u.deleteRequestedAt)}</small></div><button class="btn small warm" data-act="erase" data-uid="${esc(u.id)}">${LANG==="en"?"Delete data":"डेटा हटाएँ"}</button></div>`).join("") : `<div class="empty">${LANG==="en"?"No requests":"कोई अनुरोध नहीं"}</div>`;
   const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
@@ -964,6 +1020,8 @@ document.addEventListener("click", e => {
     case "apply": openApply(); break;
     case "approve": approve(b.dataset.uid); break;
     case "askdelete": openAskDelete(); break;
+    case "appoint": openAppoint(b.dataset.uid); break;
+    case "rmsah": openRemoveSahayak(b.dataset.uid); break;
     case "reveal": reveal(b.dataset.kind, b.dataset.id).then(renderData).catch(err => { console.error(err); toast(err.status === 403 ? (LANG==="en" ? "Visible after the case is accepted." : "केस लेने के बाद दिखेगा।") : t("failed")); }); break;
     case "migrate": b.disabled = true; vault("migrate", {}).then(r => toast((LANG==="en" ? "Encrypted: " : "एन्क्रिप्ट हुए: ") + r.encrypted)).catch(err => { console.error(err); toast(t("failed")); }).finally(() => { b.disabled = false; }); break;
     case "openfile": e.preventDefault(); openFile(b.dataset.path); break;
@@ -971,6 +1029,7 @@ document.addEventListener("click", e => {
     case "verifypay": if (c) verifyPay(c, Number(b.dataset.i)); break;
   }
 });
+document.addEventListener("input", e => { if (e.target.id === "ap-q") { S.apQuery = e.target.value; renderAppoint(); } });
 document.addEventListener("change", e => {
   const s = e.target.closest("select[data-act='assign']"); if (!s || !s.value) return;
   const c = findCase(s.dataset.id); if (c) assignCase(c, s.value);
