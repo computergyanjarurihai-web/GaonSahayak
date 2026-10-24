@@ -254,10 +254,12 @@ let LANG = "hi";
 try { if (localStorage.getItem("gs-lang") === "en") LANG = "en"; } catch(e){}
 const L = () => LANG === "en" ? 1 : 0;
 const t = k => (TXT[k] || [k,k])[L()];
-const CAT_ST = { punjab: {
+// पंजाब, हरियाणा, हिमाचल में ज़मीन का काम पटवारी/तहसील से होता है: इंतकाल, जमाबंदी, फ़र्द, निशानदेही
+const NORTH_CATS = {
   land_records:{hi:"इंतकाल / जमाबंदी / फ़र्द", en:"Mutation (intkal) / jamabandi / fard"},
   encroachment:{hi:"कब्ज़ा / निशानदेही (नापी)", en:"Encroachment / demarcation (nishandehi)"},
-  survey:null } };
+  survey:null };
+const CAT_ST = { punjab: NORTH_CATS, haryana: NORTH_CATS, himachal: NORTH_CATS };
 const catName = (k, st) => { const o = (CAT_ST[st] || {})[k]; return (o || CATS[k] || {})[LANG] || k; };
 const catsFor = st => Object.keys(CATS).filter(k => !(CAT_ST[st] && CAT_ST[st][k] === null));
 const anonCase = c => ({anonymized:true, ownerUid:"deleted", category:c.category||"", fee:c.fee||0, status:c.status||"", block:c.block||"", district:c.district||"",
@@ -286,7 +288,9 @@ const blockOpts = sel => BLOCKS.map(b=>`<option${b===sel?" selected":""}>${b}</o
 // हर राज्य की लोकेशन फ़ाइल अलग है; बिहार पहले से लोड रहता है, बाक़ी ज़रूरत पड़ने पर
 const STATES = {
   bihar:  {en:"Bihar",  hi:"बिहार",  file:null, sub:["अनुमंडल","Subdivision"], block:["प्रखंड","Block"]},
-  punjab: {en:"Punjab", hi:"पंजाब", file:"locations-punjab.js", sub:null, block:["तहसील","Tehsil"]}
+  punjab: {en:"Punjab", hi:"पंजाब", file:"locations-punjab.js", sub:null, block:["तहसील","Tehsil"]},
+  haryana: {en:"Haryana", hi:"हरियाणा", file:"locations-haryana.js", sub:null, block:["तहसील","Tehsil"]},
+  himachal: {en:"Himachal Pradesh", hi:"हिमाचल प्रदेश", file:"locations-himachal.js", sub:null, block:["तहसील","Tehsil"]}
 };
 const LOCS = { bihar: window.GS_LOCATIONS || {districts:[]} };
 const LOC = LOCS.bihar;   // पुराने कोड के लिए
@@ -378,7 +382,7 @@ function setCats(st){
   sel.innerHTML = ks.map(k => `<option value="${k}">${esc(catName(k, st))}</option>`).join("");
   sel.value = ks.includes(cur) ? cur : ks[0];
   const fee = $("#f-fee"); if (fee) fee.textContent = rupee(CATS[sel.value].fee);
-  const lw = $("#f-landw"); if (lw) lw.textContent = st === "punjab" ? (LANG==="en" ? "Khewat / Khatauni / Khasra no." : "खेवट / खतौनी / खसरा नंबर") : t("land");
+  const lw = $("#f-landw"); if (lw) lw.textContent = (st && st !== "bihar") ? (LANG==="en" ? "Khewat / Khatauni / Khasra no." : "खेवट / खतौनी / खसरा नंबर") : t("land");
 }
 function ensureStates(items){
   const need = new Set();
