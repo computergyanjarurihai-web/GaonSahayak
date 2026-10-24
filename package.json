@@ -1,0 +1,10 @@
+{
+  "name": "gs-vault",
+  "version": "1.0.0",
+  "description": "Gram Sahayak field encryption service (AES-256-GCM, key in Secret Manager)",
+  "main": "index.js",
+  "engines": { "node": "20" },
+  "dependencies": {
+    "firebase-admin": "12.7.0"
+  }
+}

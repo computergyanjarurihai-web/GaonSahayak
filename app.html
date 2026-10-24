@@ -38,6 +38,7 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16p
 .check a,.notice a,.panel small a{color:var(--green)}
 .app-foot{margin:36px 0 12px;font-size:14px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
 .app-foot a{color:var(--muted)}
+.lock{border:1px dashed var(--line);background:transparent;color:var(--green);border-radius:8px;padding:2px 8px;font:600 13px/1.4 var(--body);cursor:pointer}
 .svc-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
 .svc-btn{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:14px 16px;font:500 15.5px/1.35 var(--body);cursor:pointer}
 .svc-btn b{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -145,6 +146,8 @@ const CONFIG = {
   upiId: "kailashchandrathakur-2@okhdfcbank",
   upiName: "Gram Sahayak",
   razorpayKey: "",         // उदाहरण: "rzp_live_xxxx" (खाली छोड़ें तो सिर्फ़ UPI)
+  vaultUrl: "",            // vault/deploy.sh के अंत में मिला पता; खाली हो तो एन्क्रिप्शन बंद
+  appCheckKey: "",         // App Check का reCAPTCHA v3 site key; खाली हो तो App Check बंद
   sahayakShare: 0.7,
   privacyVersion: "2026-10-24"   // गोपनीयता नीति बदलें तो यह तारीख़ बदलें; सबसे दोबारा सहमति ली जाएगी
 };
@@ -339,8 +342,9 @@ function firebaseBackend(){
   return {
     mode:"live",
     async init(){
-      for (const m of ["app","auth","firestore","storage"]) await loadScript(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-${m}-compat.js`);
+      for (const m of ["app","auth","firestore","storage"].concat(CONFIG.appCheckKey ? ["app-check"] : [])) await loadScript(`https://www.gstatic.com/firebasejs/${FB_V}/firebase-${m}-compat.js`);
       firebase.initializeApp(CONFIG.firebase);
+      if (CONFIG.appCheckKey) firebase.appCheck().activate(CONFIG.appCheckKey, true);
       auth = firebase.auth(); fs = firebase.firestore(); st = firebase.storage();
       auth.languageCode = "hi";
     },
@@ -352,6 +356,8 @@ function firebaseBackend(){
     },
     async verifyOtp(code){ await confirmation.confirm(code); },
     signOut(){ return auth.signOut(); },
+    idToken(){ return auth.currentUser.getIdToken(); },
+    async appCheckToken(){ if (!CONFIG.appCheckKey) return null; try { return (await firebase.appCheck().getToken()).token; } catch(e){ return null; } },
     async getUser(uid){ const d = await fs.collection("users").doc(uid).get(); return d.exists ? {id:d.id, ...d.data()} : null; },
     watchUser(uid, cb){ return fs.collection("users").doc(uid).onSnapshot(d => cb(d.exists ? {id:d.id, ...d.data()} : null)); },
     createUser(uid, data){ return fs.collection("users").doc(uid).set(data); },
@@ -450,7 +456,28 @@ function demoBackend(){
 
 /* ===================== app state ===================== */
 const B = CONFIG.firebase ? firebaseBackend() : demoBackend();
-const S = { authUser:null, me:null, view:null, lists:{}, unsubs:[], privCache:{} };
+const S = { authUser:null, me:null, view:null, lists:{}, unsubs:[], privCache:{}, plain:{} };
+
+/* ===================== field encryption (vault) ===================== */
+// मोबाइल नंबर और खाता/खेसरा डेटाबेस में "enc:v1:..." के रूप में रहते हैं; पढ़ने के लिए vault सर्वर अनुमति जाँचकर खोलता है
+const isEnc = v => typeof v === "string" && v.startsWith("enc:v1:");
+const vaultOn = () => B.mode === "live" && !!CONFIG.vaultUrl;
+async function vault(action, body){
+  const h = {"Content-Type":"application/json", Authorization:"Bearer " + await B.idToken()};
+  const ac = await B.appCheckToken(); if (ac) h["X-Firebase-AppCheck"] = ac;
+  const r = await fetch(CONFIG.vaultUrl, {method:"POST", headers:h, body:JSON.stringify({action, ...body})});
+  const j = await r.json().catch(() => ({}));
+  if (!r.ok) { const e = new Error(j.error || ("vault " + r.status)); e.status = r.status; throw e; }
+  return j;
+}
+async function seal(values){ return vaultOn() ? (await vault("seal", {values})).values : values; }
+async function reveal(kind, id){
+  const k = kind + ":" + id; if (S.plain[k]) return S.plain[k];
+  const v = (await vault("reveal", {kind, id})).values; S.plain[k] = v; return v;
+}
+const shown = (kind, id, field, val) => !isEnc(val) ? esc(val || "")
+  : S.plain[kind+":"+id] ? esc(S.plain[kind+":"+id][field] || "")
+  : `<button type="button" class="lock" data-act="reveal" data-kind="${kind}" data-id="${esc(id)}">🔒 ${LANG==="en" ? "Show" : "देखें"}</button>`;
 
 function stopWatches(){ S.unsubs.forEach(u => { try { u(); } catch(e){} }); S.unsubs = []; S.lists = {}; }
 function watchList(key, unsub){ S.unsubs.push(unsub); }
@@ -594,7 +621,8 @@ function bindProfile(){
     e.preventDefault();
     const u = S.authUser, loc = readLoc("p");
     if (!loc.panchayat || !loc.village) { toast(t("needVillage")); return; }
-    try { await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), ...loc, phone:u.phone, role:"family", consent:consentRecord(), createdAt:nowIso()}); }
+    try { const sv = await seal({phone:u.phone || ""});
+      await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), ...loc, phone:sv.phone, role:"family", consent:consentRecord(), createdAt:nowIso()}); }
     catch(err){ console.error(err); toast(t("failed")); }
   });
 }
@@ -646,6 +674,7 @@ function adminShell(){
   <h2>${t("appsT")}</h2><p class="sub">${t("appsS")}</p><div id="appList" class="panel"></div>
   <h2>${t("sahT")}</h2><div id="sahList" class="panel"></div>
   <h2>${LANG==="en" ? "Data deletion requests" : "डेटा हटाने के अनुरोध"}</h2><p class="sub">${LANG==="en" ? "Do it within 30 days. Profile, cases, files and phone numbers are deleted; only an unnamed payment record is kept for accounts. Then delete the login from Firebase → Authentication." : "30 दिन के अंदर करें। प्रोफ़ाइल, केस, फ़ाइलें और मोबाइल नंबर हट जाते हैं; सिर्फ़ बिना नाम का भुगतान रिकॉर्ड हिसाब के लिए रहता है। उसके बाद Firebase → Authentication से उस नंबर का लॉगिन भी हटाएँ।"}</p><div id="delList" class="panel"></div>
+  ${vaultOn() ? `<h2>${LANG==="en" ? "Encryption" : "एन्क्रिप्शन"}</h2><div class="panel" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><small style="color:var(--muted)">${LANG==="en" ? "Encrypt old mobile numbers and khata/khesra that were saved before encryption was on. Safe to run again." : "एन्क्रिप्शन चालू होने से पहले सेव हुए मोबाइल नंबर और खाता/खेसरा को एन्क्रिप्ट करें। दोबारा चलाने में कोई नुकसान नहीं।"}</small><button class="btn small" data-act="migrate">${LANG==="en" ? "Encrypt old data" : "पुराना डेटा एन्क्रिप्ट करें"}</button></div>` : ""}
   <h2>${t("allT")}</h2><div id="allList" class="list"></div>`;
 }
 
@@ -700,7 +729,7 @@ function caseCard(c, actions, opts={}){
     <div class="top"><div><div class="code">${code(c.id)}${c.example?`<span class="ex">${t("example")}</span>`:""}</div><h3>${esc(c.title)}</h3></div><span class="pill s-${esc(c.status)}">${esc(stName(c.status))}</span></div>
     <div class="meta"><span>${esc(catName(c.category))}</span><span>${esc(c.village)}${c.panchayat?" ("+esc(c.panchayat)+")":""}, ${esc(blockLabel(c.block))}${c.district?", "+esc(locName(findDist(c.district))||c.district):""}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
     <p class="desc">${esc(c.description)}</p>
-    <div class="tags">${c.land?`<span>${esc(c.land)}</span>`:""}<span>${t("fee")} ${rupee(c.fee)}</span></div>
+    <div class="tags">${c.land?`<span>${shown("case", c.id, "land", c.land)}</span>`:""}<span>${t("fee")} ${rupee(c.fee)}</span></div>
     ${files.length?`<div class="files">${files.map(f=>f.url ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>` : `<a href="#" data-act="openfile" data-path="${esc(f.path)}">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}
     ${opts.payments ? payBox(c) : ""}
     <details><summary>${t("timeline")} · ${ups.length}</summary>
@@ -715,10 +744,10 @@ function renderAdmin(){
   const pending = []; all.forEach(c => (c.payments||[]).forEach((p,i) => { if (!p.verified) pending.push({c,p,i}); }));
   const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
   const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${partLabel(p.part)} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
-  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${esc(u.phone||"")}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
+  const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${shown("user", u.id, "phone", u.phone)}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
   const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
   const dels = S.lists.dels || [];
-  const dl = $("#delList"); if (dl) dl.innerHTML = dels.length ? dels.map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b><small>${esc(u.phone||"")} · ${LANG==="en"?"Requested":"अनुरोध"} ${fmt(u.deleteRequestedAt)}</small></div><button class="btn small warm" data-act="erase" data-uid="${esc(u.id)}">${LANG==="en"?"Delete data":"डेटा हटाएँ"}</button></div>`).join("") : `<div class="empty">${LANG==="en"?"No requests":"कोई अनुरोध नहीं"}</div>`;
+  const dl = $("#delList"); if (dl) dl.innerHTML = dels.length ? dels.map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b><small>${shown("user", u.id, "phone", u.phone)} · ${LANG==="en"?"Requested":"अनुरोध"} ${fmt(u.deleteRequestedAt)}</small></div><button class="btn small warm" data-act="erase" data-uid="${esc(u.id)}">${LANG==="en"?"Delete data":"डेटा हटाएँ"}</button></div>`).join("") : `<div class="empty">${LANG==="en"?"No requests":"कोई अनुरोध नहीं"}</div>`;
   const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
     const opts = sah.filter(u => u.block === c.block);
     const sel = c.status === "closed" ? "" : `<label style="flex:1 1 220px">${t("assign")}<select data-act="assign" data-id="${esc(c.id)}"><option value="">${opts.length?t("choose"):t("noneInBlock")}</option>${opts.map(u=>`<option value="${esc(u.id)}"${u.id===c.sahayakUid?" selected":""}>${esc(u.name)}</option>`).join("")}</select></label>`;
@@ -745,7 +774,9 @@ async function postCase(e){
     ...loc, land:$("#f-land").value.trim(), fee:CATS[cat].fee, status:"posted", createdAt:nowIso(),
     files:[], payments:[], updates:[{at:nowIso(), by:"system", kind:"posted", text: LANG==="en" ? `Case posted from ${me.city}.` : `${me.city} से केस भेजा गया।`}] };
   try {
-    const id = await B.createCase(data, {phone:S.authUser.phone || me.phone, name:me.name});
+    const sv = await seal({land:data.land, phone:S.authUser.phone || me.phone});
+    data.land = sv.land;
+    const id = await B.createCase(data, {phone:sv.phone, name:me.name});
     if (files.length) { toast(t("uploading")); const up = await uploadAll(id, files); if (up.length) await B.updateCase(id, {}, null, null, up); }
     $("#caseForm").reset(); bindLoc("f", {district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}); $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
     toast(t("posted"));
@@ -765,6 +796,7 @@ function waText(c, extra){
 async function openWhatsApp(c, title){
   let p = S.privCache[c.id];
   if (!p) { try { p = await B.getPrivate(c.id); S.privCache[c.id] = p; } catch(e){ p = null; } }
+  if (p && isEnc(p.phone)) { try { const v = await reveal("case", c.id); p = {...p, phone:v.phone}; S.privCache[c.id] = p; } catch(e){ console.error(e); p = {...p, phone:""}; } }
   const num = p && p.phone ? p.phone.replace(/\D/g,"") : "";
   const url = `https://wa.me/${num}?text=${encodeURIComponent(waText(c))}`;
   openSheet(title || t("waFamily"), `<pre style="white-space:pre-wrap;font:15px/1.5 var(--body);background:var(--sunk);border-radius:10px;padding:12px;margin:0">${esc(waText(c))}</pre>
@@ -894,7 +926,7 @@ function openAskDelete(){
 }
 function openErase(uid){
   const u = (S.lists.dels||[]).find(x => x.id === uid); if (!u) return;
-  openSheet(LANG==="en" ? "Delete this person's data?" : "इस व्यक्ति का डेटा हटाएँ?", `<p><b>${esc(u.name||"")}</b> · ${esc(u.phone||"")}</p><p style="color:var(--muted)">${LANG==="en" ? "This cannot be undone." : "यह वापस नहीं होगा।"}</p>
+  openSheet(LANG==="en" ? "Delete this person's data?" : "इस व्यक्ति का डेटा हटाएँ?", `<p><b>${esc(u.name||"")}</b> · ${isEnc(u.phone) ? esc((S.plain["user:"+u.id]||{}).phone || "🔒") : esc(u.phone||"")}</p><p style="color:var(--muted)">${LANG==="en" ? "This cannot be undone." : "यह वापस नहीं होगा।"}</p>
     <div class="actions"><button class="btn warm" id="e-yes" type="button">${LANG==="en" ? "Delete" : "हटाएँ"}</button><button class="btn ghost" id="e-no" type="button">${t("cancel")}</button></div>`, () => {
     $("#e-no").onclick = closeSheet;
     $("#e-yes").onclick = async () => { $("#e-yes").disabled = true; try { await B.eraseUser(uid); closeSheet(); toast(LANG==="en" ? "Data deleted." : "डेटा हटा दिया गया।"); } catch(e){ console.error(e); toast(t("failed")); $("#e-yes").disabled = false; } };
@@ -922,6 +954,8 @@ document.addEventListener("click", e => {
     case "apply": openApply(); break;
     case "approve": approve(b.dataset.uid); break;
     case "askdelete": openAskDelete(); break;
+    case "reveal": reveal(b.dataset.kind, b.dataset.id).then(renderData).catch(err => { console.error(err); toast(err.status === 403 ? (LANG==="en" ? "Visible after the case is accepted." : "केस लेने के बाद दिखेगा।") : t("failed")); }); break;
+    case "migrate": b.disabled = true; vault("migrate", {}).then(r => toast((LANG==="en" ? "Encrypted: " : "एन्क्रिप्ट हुए: ") + r.encrypted)).catch(err => { console.error(err); toast(t("failed")); }).finally(() => { b.disabled = false; }); break;
     case "openfile": e.preventDefault(); openFile(b.dataset.path); break;
     case "erase": openErase(b.dataset.uid); break;
     case "verifypay": if (c) verifyPay(c, Number(b.dataset.i)); break;

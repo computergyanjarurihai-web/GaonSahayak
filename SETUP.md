@@ -112,6 +112,47 @@
 
 ---
 
+## भाग 5: अतिरिक्त सुरक्षा
+
+### A. 2-Step Verification (सबसे ज़रूरी, 5 मिनट)
+जिस Google खाते से Firebase बनाया है, वह हैक हुआ तो सारा डेटा खुल जाएगा। इसलिए:
+1. [myaccount.google.com/security](https://myaccount.google.com/security) खोलें।
+2. **2-Step Verification** चालू करें। बेहतर है **Passkey** या **Google Authenticator** ऐप, सिर्फ़ SMS नहीं।
+3. **Backup codes** निकालकर कहीं सुरक्षित रखें।
+4. Firebase → ⚙️ **Users and permissions** में देखें कि कोई अनजान व्यक्ति न जुड़ा हो।
+
+### B. App Check (सिर्फ़ आपकी वेबसाइट डेटाबेस से बात कर सके)
+1. [google.com/recaptcha/admin/create](https://www.google.com/recaptcha/admin/create) खोलें, **reCAPTCHA v3** चुनें, Domain में `computergyanjarurihai-web.github.io` डालें, Submit करें। **Site key** कॉपी करें। **Secret key** भी कॉपी करें।
+2. Firebase → **Build → App Check → Apps** → अपना web app → **reCAPTCHA** → Secret key पेस्ट करके Save करें।
+3. `app.html` के `CONFIG` में डालें: `appCheckKey: "आपका-site-key",` और GitHub पर अपलोड करें।
+4. 2–3 दिन App Check → **APIs** में देखें कि ज़्यादातर अनुरोध **Verified** हैं।
+5. फिर **Cloud Firestore**, **Storage** और **Authentication** पर **Enforce** दबाएँ।
+
+### C. मोबाइल नंबर और खाता/खेसरा का एन्क्रिप्शन (vault)
+Firebase सारा डेटा डिस्क पर पहले से एन्क्रिप्ट करता है। vault इसके ऊपर एक और ताला है: मोबाइल नंबर और खाता/खेसरा डेटाबेस में `enc:v1:...` बनकर रहते हैं, और सिर्फ़ परिवार, उस केस का सहायक और admin उन्हें खोल पाते हैं। चाबी Google Secret Manager में रहती है, वेबसाइट में नहीं।
+
+1. GitHub रिपॉज़िटरी में `vault` फ़ोल्डर अपलोड करें (उसमें `index.js`, `package.json`, `deploy.sh`)। **Add file → Upload files** में पूरा फ़ोल्डर खींचकर डालें।
+2. [console.cloud.google.com](https://console.cloud.google.com) खोलें, ऊपर प्रोजेक्ट **gramsahayak-579fa** चुनें, और ऊपर दाईं ओर **Cloud Shell** (`>_`) आइकन दबाएँ।
+3. नीचे खुली काली स्क्रीन में ये तीन लाइनें पेस्ट करके Enter दबाएँ:
+   ```
+   gcloud config set project gramsahayak-579fa
+   git clone https://github.com/computergyanjarurihai-web/GaonSahayak.git
+   cd GaonSahayak/vault && bash deploy.sh
+   ```
+4. 3–5 मिनट बाद आख़िर में एक पता दिखेगा, जैसे `https://gs-vault-xxxx-el.a.run.app`। उसे `app.html` के `CONFIG` में डालें: `vaultUrl: "वह-पता",` और GitHub पर अपलोड करें।
+5. ऐप में admin से लॉगिन करें → **प्रबंधन → एन्क्रिप्शन → पुराना डेटा एन्क्रिप्ट करें** दबाएँ।
+6. जाँचें: Firestore → cases में किसी केस का `land` अब `enc:v1:` से शुरू होना चाहिए, और ऐप में 🔒 **देखें** दबाने पर असली खाता/खेसरा दिखना चाहिए।
+7. App Check enforce करने के बाद vault में भी चालू करें (Cloud Shell में):
+   ```
+   gcloud functions deploy gs-vault --gen2 --region=asia-south1 --update-env-vars=REQUIRE_APPCHECK=true --source=. --quiet
+   ```
+
+> ⚠️ Secret Manager की चाबी `gs-field-key` कभी डिलीट न करें और उसका नया version न बनाएँ। चाबी गई तो एन्क्रिप्टेड नंबर कभी नहीं खुलेंगे।
+> खर्च: इतने कम इस्तेमाल में Cloud Run और Secret Manager लगभग मुफ़्त सीमा में रहते हैं।
+> ध्यान दें: Firebase Authentication में लॉगिन वाला मोबाइल नंबर Google ख़ुद रखता है (वह भी एन्क्रिप्टेड डिस्क पर); उसे vault नहीं बदलता।
+
+---
+
 ## जाँच सूची (सेटअप के बाद)
 
 - [ ] अपने मोबाइल से OTP लॉगिन हुआ

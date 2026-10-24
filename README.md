@@ -15,6 +15,7 @@ The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block)
 | `locations.js` | Location data for the dropdowns: all 38 Bihar districts with subdivisions and all 534 blocks (Hindi + English). Gram panchayat lists for 533 of the 534 blocks, from Census 2011 data, which may differ slightly from the current list. Bettiah block has no list, so people type the panchayat name there or wherever theirs is missing. |
 | `privacy.html` | Privacy policy under India's DPDP Act, 2023, in Hindi and English. The app asks for consent at login, offers "Delete my data", and admins erase data on request. |
 | `firestore.rules`, `storage.rules` | Firebase security rules: each family sees only its own cases, files and phone number. |
+| `vault/` | Small Google Cloud function that encrypts mobile numbers and khata/khesra (AES-256-GCM, key in Secret Manager) and decrypts them only for the family, its Sahayak or an admin. Deploy with `vault/deploy.sh` in Cloud Shell. |
 | `SETUP.md` | Step-by-step setup guide in Hindi: Firebase, UPI, Razorpay, WhatsApp. |
 
 Both pages are single HTML files with no build step.
