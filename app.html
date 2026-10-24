@@ -216,7 +216,8 @@ const CATS = {
   encroachment:{hi:"अतिक्रमण / नापी", en:"Encroachment / measurement", fee:2499},
   certificate:{hi:"प्रमाण पत्र (जाति, आय, निवास)", en:"Certificate (caste, income, residence)", fee:499},
   scheme:{hi:"पेंशन / योजना लाभ", en:"Pension / scheme benefit", fee:499},
-  rti:{hi:"फ़ाइल की स्थिति / RTI", en:"Status check / RTI", fee:299}
+  rti:{hi:"फ़ाइल की स्थिति / RTI", en:"Status check / RTI", fee:299},
+  guardian:{hi:"गाँव निगरानी योजना (मासिक)", en:"Village guardian plan (monthly)", fee:999}
 };
 const STATUS = {
   posted:["भेजा गया","Posted"], assigned:["सहायक तय","Sahayak assigned"], in_progress:["काम चल रहा","In progress"],
@@ -236,6 +237,14 @@ try { if (localStorage.getItem("gs-lang") === "en") LANG = "en"; } catch(e){}
 const L = () => LANG === "en" ? 1 : 0;
 const t = k => (TXT[k] || [k,k])[L()];
 const catName = k => (CATS[k] || {})[LANG] || k;
+/* service chosen on the website (app.html?seva=key), kept across the OTP login */
+const PENDING = (() => {
+  let k = null;
+  try { k = new URLSearchParams(location.search).get("seva"); if (k && CATS[k]) sessionStorage.setItem("gs_seva", k); else k = sessionStorage.getItem("gs_seva"); } catch(e) {}
+  return { get: () => (k && CATS[k]) ? k : null, clear: () => { k = null; try { sessionStorage.removeItem("gs_seva"); } catch(e) {} } };
+})();
+const pendingNote = () => { const k = PENDING.get(); if (!k) return "";
+  return `<div class="notice">${LANG==="en" ? "You chose: " : "आपने चुनी सेवा: "}<b>${esc(catName(k))}</b> · ${rupee(CATS[k].fee)}<br><small>${LANG==="en" ? "Log in and this service will be filled in for you." : "लॉगिन करें, फ़ॉर्म में यह सेवा पहले से भरी मिलेगी।"}</small></div>`; };
 const stName = k => (STATUS[k] || [k,k])[L()];
 const fmt = iso => { try { return new Date(iso).toLocaleDateString(LANG==="en"?"en-IN":"hi-IN",{day:"numeric",month:"short",year:"numeric"}); } catch(e){ return ""; } };
 const nowIso = () => new Date().toISOString();
@@ -460,6 +469,7 @@ function renderShell(){
   const tabs = [["family", t("tFamily")]];
   if (S.me.role === "sahayak") tabs.push(["sahayak", t("tSahayak")]);
   if (S.me.role === "admin") tabs.push(["admin", t("tAdmin")]);
+  if (PENDING.get()) S.view = "family";
   if (!S.view || !tabs.some(x => x[0] === S.view)) S.view = tabs.length > 1 ? tabs[1][0] : "family";
   const demoRoles = B.mode === "demo" ? `<div class="notice">${t("demoRole")} <span class="actions" style="display:inline-flex;margin-left:6px">
       <button class="chip" data-demo="demo-family">${LANG==="en"?"Family":"परिवार"}</button><button class="chip" data-demo="demo-ramesh">${LANG==="en"?"Sahayak":"सहायक"}</button><button class="chip" data-demo="demo-admin">${LANG==="en"?"Admin":"प्रबंधन"}</button></span></div>` : "";
@@ -478,7 +488,7 @@ function demoSwitch(uid){
 }
 
 function loginHtml(){
-  return `<h2>${t("loginT")}</h2><p class="sub">${t("loginS")}</p>
+  return `${pendingNote()}<h2>${t("loginT")}</h2><p class="sub">${t("loginS")}</p>
   <form id="loginForm" class="panel" style="display:flex;flex-direction:column;gap:12px">
     <label>${t("mobile")}<div class="phone"><span>+91</span><input id="l-phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="98XXXXXXXX" required></div></label>
     <button class="btn" id="l-send" type="submit">${t("sendOtp")}</button>
@@ -525,7 +535,7 @@ function bindLogin(){
   });
 }
 function profileHtml(){
-  return `<h2>${t("profT")}</h2><p class="sub">${t("profS")}</p>
+  return `${pendingNote()}<h2>${t("profT")}</h2><p class="sub">${t("profS")}</p>
   <form id="profForm" class="panel"><div class="grid">
     <label>${t("name")}<input id="p-name" required maxlength="60"></label>
     <label>${t("city")}<input id="p-city" required maxlength="40" placeholder="${LANG==="en"?"e.g. Delhi":"जैसे: दिल्ली"}"></label>
@@ -562,6 +572,8 @@ function familyShell(){
 function bindFamily(){
   const f = $("#caseForm"); if (!f) return;
   const showFee = () => $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+  const pk = PENDING.get();
+  if (pk) { $("#f-cat").value = pk; PENDING.clear(); setTimeout(() => { f.scrollIntoView({behavior:"smooth", block:"start"}); $("#f-title").focus({preventScroll:true}); }, 50); }
   $("#f-cat").addEventListener("change", showFee); showFee();
   bindLoc("f", {district:S.me.district, subdivision:S.me.subdivision, block:S.me.block, panchayat:S.me.panchayat, village:S.me.village});
   f.addEventListener("submit", postCase);

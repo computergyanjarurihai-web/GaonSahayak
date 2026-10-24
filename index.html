@@ -114,6 +114,15 @@ section .intro{color:var(--muted);max-width:62ch;margin:0 0 34px}
 .steps b{display:block;font-size:18px;margin-bottom:4px}
 .steps p{margin:0;color:var(--muted);font-size:15.5px}
 
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.card{background:var(--bg,#fff);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{margin:0;font-size:19px;line-height:1.3}
+.card p{margin:0;color:var(--muted);font-size:15.5px}
+.card .where{font-size:14px}
+.card-foot{margin-top:auto;padding-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line)}
+.price{font-size:22px;font-variant-numeric:tabular-nums}
+.price small{font-size:14px;font-weight:400;color:var(--muted)}
+.cta.sm{padding:9px 16px;font-size:15.5px}
 .svc-wrap{overflow-x:auto}
 .svc{width:100%;border-collapse:collapse;font-size:16px}
 .svc th{text-align:left;font-size:13.5px;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:0 12px 10px 0;border-bottom:2px solid var(--ink)}
@@ -159,8 +168,8 @@ footer.site .in{padding-block:28px;display:flex;justify-content:space-between;ga
     <a class="logo" href="#top"><b><span class="l-hi">ग्राम सहायक</span><span class="l-en">Gram Sahayak</span></b><small><span class="l-hi">Gram Sahayak</span><span class="l-en">ग्राम सहायक</span></small></a>
     <div class="navr">
       <ul>
+        <li><a href="#services"><span class="l-hi">सेवाएँ</span><span class="l-en">Services</span></a></li>
         <li><a href="#how"><span class="l-hi">कैसे काम करता है</span><span class="l-en">How it works</span></a></li>
-        <li><a href="#services"><span class="l-hi">सेवाएँ और शुल्क</span><span class="l-en">Services & fees</span></a></li>
         <li><a href="#sahayak"><span class="l-hi">सहायक बनें</span><span class="l-en">Become a Sahayak</span></a></li>
         <li><a href="#faq"><span class="l-hi">सवाल-जवाब</span><span class="l-en">FAQ</span></a></li>
       </ul>
@@ -182,7 +191,7 @@ footer.site .in{padding-block:28px;display:flex;justify-content:space-between;ga
       <p class="lead l-en">Land encroachment, a mutation stuck at the circle office, a certificate or pension that never moves. Post it from Delhi, Mumbai, Punjab or the Gulf. A verified Sahayak from your own block goes to the office for you and shows you every step.</p>
       <div class="btns">
         <a class="cta" href="app.html"><span class="l-hi">समस्या भेजें</span><span class="l-en">Post your problem</span></a>
-        <a class="cta alt" href="#how"><span class="l-hi">देखें कैसे काम करता है</span><span class="l-en">See how it works</span></a>
+        <a class="cta alt" href="#services"><span class="l-hi">सेवाएँ देखें</span><span class="l-en">See services</span></a>
       </div>
       <p class="small-note"><span class="l-hi">पायलट की शुरुआत दरभंगा ज़िले से · घनश्यामपुर, बिरौल और आसपास के प्रखंड</span><span class="l-en">Pilot starting in Darbhanga district · Ghanshyampur, Biraul and nearby blocks</span></p>
     </div>
@@ -207,6 +216,60 @@ footer.site .in{padding-block:28px;display:flex;justify-content:space-between;ga
     </article>
   </div>
 </header>
+
+<section class="band-paper" id="services">
+  <div class="in">
+    <div class="eyebrow"><span class="l-hi">हमारी सेवाएँ</span><span class="l-en">Our services</span></div>
+    <h2><span class="l-hi">कौन-सा काम करवाना है? सेवा चुनिए।</span><span class="l-en">What needs doing? Pick a service.</span></h2>
+    <p class="intro"><span class="l-hi">तय शुल्क, ऐप से भुगतान, न नकद, न रिश्वत। सेवा चुनें, मोबाइल OTP से लॉगिन करें और अपनी समस्या लिखें। काम न होने पर पूरा पैसा वापस।</span><span class="l-en">Fixed fees, paid in the app. No cash, no bribes. Pick a service, log in with a mobile OTP and describe your problem. If the work is not done, you get all your money back.</span></p>
+    <div class="cards">
+      <article class="card">
+        <h3><span class="l-hi">दाखिल-खारिज, जमाबंदी सुधार, एलपीसी</span><span class="l-en">Mutation, jamabandi correction, LPC</span></h3>
+        <p><span class="l-hi">पिता या दादा के नाम की ज़मीन अपने नाम कराना, जमाबंदी की गलती सुधारना, एलपीसी बनवाना।</span><span class="l-en">Getting inherited land into your name, fixing jamabandi errors, getting an LPC.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: अंचल कार्यालय, बिहार भूमि पोर्टल</span><span class="l-en">Where: Circle office, Bihar Bhumi portal</span></p>
+        <div class="card-foot"><b class="price">₹1,499</b><a class="cta sm" href="app.html?seva=land_records"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+      <article class="card">
+        <h3><span class="l-hi">भूमि सर्वे के काग़ज़</span><span class="l-en">Land survey paperwork</span></h3>
+        <p><span class="l-hi">स्वघोषणा, वंशावली और सर्वे शिविर में काग़ज़ जमा करना, ताकि सर्वे में ज़मीन सही नाम पर दर्ज हो।</span><span class="l-en">Self-declaration, vanshavali and filing at the survey camp so the survey records your land correctly.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: सर्वे शिविर, सर्वे पोर्टल</span><span class="l-en">Where: Survey camp, survey portal</span></p>
+        <div class="card-foot"><b class="price">₹999</b><a class="cta sm" href="app.html?seva=survey"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+      <article class="card">
+        <h3><span class="l-hi">अतिक्रमण और नापी</span><span class="l-en">Encroachment and measurement</span></h3>
+        <p><span class="l-hi">ज़मीन पर कब्ज़ा हटवाने के लिए आवेदन, अमीन से नापी, और ज़रूरत हो तो लोक शिकायत में मामला।</span><span class="l-en">Applications against encroachment, measurement by the amin, and a Lok Shikayat case if needed.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: अंचल, एसडीओ, डीसीएलआर, लोक शिकायत</span><span class="l-en">Where: Circle office, SDO, DCLR, Lok Shikayat</span></p>
+        <div class="card-foot"><b class="price">₹2,499</b><a class="cta sm" href="app.html?seva=encroachment"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+      <article class="card">
+        <h3><span class="l-hi">प्रमाण पत्र</span><span class="l-en">Certificates</span></h3>
+        <p><span class="l-hi">जाति, आय और निवास प्रमाण पत्र, दाख़िले या नौकरी के लिए।</span><span class="l-en">Caste, income and residence certificates for admissions or jobs.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: प्रखंड RTPS काउंटर</span><span class="l-en">Where: Block RTPS counter</span></p>
+        <div class="card-foot"><b class="price">₹499</b><a class="cta sm" href="app.html?seva=certificate"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+      <article class="card">
+        <h3><span class="l-hi">पेंशन और योजना लाभ</span><span class="l-en">Pension and scheme benefits</span></h3>
+        <p><span class="l-hi">वृद्धा, विधवा या दिव्यांग पेंशन, राशन कार्ड और सरकारी योजना जो अटकी है।</span><span class="l-en">Old-age, widow or disability pension, ration card and stuck scheme benefits.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: प्रखंड, पंचायत</span><span class="l-en">Where: Block, panchayat</span></p>
+        <div class="card-foot"><b class="price">₹499</b><a class="cta sm" href="app.html?seva=scheme"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+      <article class="card">
+        <h3><span class="l-hi">फ़ाइल की स्थिति या RTI</span><span class="l-en">File status check or RTI</span></h3>
+        <p><span class="l-hi">आपकी फ़ाइल कहाँ अटकी है, यह पता करना और ज़रूरत हो तो सूचना का अधिकार आवेदन।</span><span class="l-en">Finding where your file is stuck, and an RTI application if needed.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: कोई भी सरकारी दफ़्तर</span><span class="l-en">Where: Any public office</span></p>
+        <div class="card-foot"><b class="price">₹299</b><a class="cta sm" href="app.html?seva=rti"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+      <article class="card">
+        <h3><span class="l-hi">गाँव निगरानी योजना</span><span class="l-en">Village guardian plan</span></h3>
+        <p><span class="l-hi">महीने में दो बार आपकी ज़मीन और घर देखना, फ़ोटो भेजना, कब्ज़े की कोशिश पर तुरंत ख़बर।</span><span class="l-en">Two visits a month to your land and house, with photos, and a quick alert at any encroachment attempt.</span></p>
+        <p class="where"><span class="l-hi">कहाँ: आपका गाँव</span><span class="l-en">Where: Your village</span></p>
+        <div class="card-foot"><b class="price">₹999 <small>/ <span class="l-hi">माह</span><span class="l-en">month</span></small></b><a class="cta sm" href="app.html?seva=guardian"><span class="l-hi">यह सेवा लें</span><span class="l-en">Get this service</span></a></div>
+      </article>
+    </div>
+    <p class="fine"><span class="l-hi">सरकारी शुल्क अलग से, असल लागत पर, रसीद के साथ। कोर्ट केस हमारे सहयोगी वकीलों को उनकी फ़ीस पर दिए जाते हैं। विधवा, दिव्यांग और बीपीएल परिवारों के लिए प्रायोजित कोटे से मुफ़्त सेवा। आपकी समस्या इनमें न हो तो भी <a href="app.html">समस्या भेजें</a>।</span><span class="l-en">Government fees are extra, at cost, with receipts. Court cases go to our partner advocates at their own fees. Free service for widows, disabled and BPL families through a sponsored quota. Problem not listed? <a href="app.html">Post it anyway</a>.</span></p>
+  </div>
+</section>
+
 
 <section class="band-green">
   <div class="in">
@@ -235,28 +298,7 @@ footer.site .in{padding-block:28px;display:flex;justify-content:space-between;ga
   </div>
 </section>
 
-<section class="band-paper" id="services">
-  <div class="in">
-    <div class="eyebrow"><span class="l-hi">सेवाएँ और शुल्क</span><span class="l-en">Services and fees</span></div>
-    <h2><span class="l-hi">तय शुल्क, ऐप से भुगतान। न नकद, न रिश्वत।</span><span class="l-en">Fixed fees, paid in the app. No cash, no bribes.</span></h2>
-    <p class="intro"><span class="l-hi">केस भेजते समय पूरा शुल्क दें। काम न होने पर पूरा पैसा वापस। सरकारी शुल्क अलग से, असल लागत पर, रसीद के साथ।</span><span class="l-en">Pay the full fee when you post the case. If the work is not done, you get all of it back. Government fees are extra, at cost, with receipts.</span></p>
-    <div class="svc-wrap">
-      <table class="svc">
-        <thead><tr><th><span class="l-hi">सेवा</span><span class="l-en">Service</span></th><th><span class="l-hi">कहाँ जाते हैं</span><span class="l-en">Where we go</span></th><th><span class="l-hi">शुल्क</span><span class="l-en">Fee</span></th></tr></thead>
-        <tbody>
-          <tr><td><span class="l-hi">दाखिल-खारिज, जमाबंदी सुधार, एलपीसी</span><span class="l-en">Mutation, jamabandi correction, LPC</span><small><span class="l-hi">Mutation, jamabandi correction, LPC</span><span class="l-en">दाखिल-खारिज, जमाबंदी सुधार</span></small></td><td class="office"><span class="l-hi">अंचल कार्यालय, बिहार भूमि पोर्टल</span><span class="l-en">Circle office (Anchal), Bihar Bhumi portal</span></td><td class="fee">₹1,499</td></tr>
-          <tr><td><span class="l-hi">भूमि सर्वे के काग़ज़</span><span class="l-en">Land survey paperwork</span><small><span class="l-hi">स्वघोषणा, वंशावली</span><span class="l-en">Self-declaration, vanshavali</span></small></td><td class="office"><span class="l-hi">सर्वे शिविर, सर्वे पोर्टल</span><span class="l-en">Survey camp, survey portal</span></td><td class="fee">₹999</td></tr>
-          <tr><td><span class="l-hi">अतिक्रमण और नापी</span><span class="l-en">Encroachment and measurement</span><small><span class="l-hi">Encroachment, naapi</span><span class="l-en">अतिक्रमण, नापी</span></small></td><td class="office"><span class="l-hi">अंचल कार्यालय, एसडीओ, डीसीएलआर, लोक शिकायत</span><span class="l-en">Circle office, SDO, DCLR, Lok Shikayat</span></td><td class="fee">₹2,499</td></tr>
-          <tr><td><span class="l-hi">प्रमाण पत्र</span><span class="l-en">Certificates</span><small><span class="l-hi">जाति, आय, निवास</span><span class="l-en">Caste, income, residence</span></small></td><td class="office"><span class="l-hi">प्रखंड RTPS काउंटर</span><span class="l-en">Block RTPS counter</span></td><td class="fee">₹499</td></tr>
-          <tr><td><span class="l-hi">पेंशन और योजना लाभ</span><span class="l-en">Pension and scheme benefits</span><small><span class="l-hi">Pension, scheme benefits</span><span class="l-en">पेंशन, योजना लाभ</span></small></td><td class="office"><span class="l-hi">प्रखंड, पंचायत</span><span class="l-en">Block, panchayat</span></td><td class="fee">₹499</td></tr>
-          <tr><td><span class="l-hi">फ़ाइल की स्थिति या RTI</span><span class="l-en">File status check or RTI</span><small><span class="l-hi">सूचना का अधिकार</span><span class="l-en">Right to Information</span></small></td><td class="office"><span class="l-hi">कोई भी सरकारी दफ़्तर</span><span class="l-en">Any public office</span></td><td class="fee">₹299</td></tr>
-          <tr><td><span class="l-hi">गाँव निगरानी योजना</span><span class="l-en">Village guardian plan</span><small><span class="l-hi">मासिक</span><span class="l-en">Monthly</span></small></td><td class="office"><span class="l-hi">महीने में दो दौरे, ज़मीन की निगरानी</span><span class="l-en">Two visits a month, land watch</span></td><td class="fee">₹999 / <span class="l-hi">माह</span><span class="l-en">month</span></td></tr>
-        </tbody>
-      </table>
-    </div>
-    <p class="fine"><span class="l-hi">कोर्ट केस हमारे सहयोगी वकीलों को उनकी फ़ीस पर दिए जाते हैं। ये पायलट दरें हैं। विधवा, दिव्यांग और बीपीएल परिवारों के लिए प्रायोजित कोटे से मुफ़्त सेवा।</span><span class="l-en">Court cases go to our partner advocates at their own fees. Pilot prices; free service for widows, disabled and BPL families through a sponsored quota.</span></p>
-  </div>
-</section>
+
 
 <section>
   <div class="in">
