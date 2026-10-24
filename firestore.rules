@@ -62,6 +62,7 @@ service cloud.firestore {
         function parent() { return get(/databases/$(database)/documents/cases/$(caseId)).data; }
         allow read: if signedIn() && (parent().ownerUid == uid() || parent().get('sahayakUid', '') == uid() || isAdmin());
         allow create, update: if signedIn() && (parent().ownerUid == uid() || isAdmin());
+        allow delete: if isAdmin();   // डेटा हटाने के अनुरोध पर
       }
     }
 

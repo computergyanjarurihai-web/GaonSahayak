@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="hi">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<style>body{margin:0}[hidden]{display:none!important}img{max-width:100%}</style>
+</head>
+<body>
+<title>Privacy Policy · Gram Sahayak</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Mukta:wght@400;500;600;700&family=Rozha+One&family=Yatra+One&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: bilingual landing page (Hindi default, English toggle) — hero with a "case slip" styled like a circle-office receipt, then full-width bands, each with a centered 1080px inner column */
+:root{
+  --bg:#f2f5f0; --paper:#fbfcf8; --ink:#14221a; --muted:#56655b; --line:#d3dccf;
+  --green:#1e5a3d; --green-deep:#143f2b; --green-soft:#e1ede4; --turmeric:#b97d06; --turmeric-soft:#fbefd2; --stamp:#a8321f;
+  --on-green:#f2f5f0;
+  --display:"Rozha One", "Mukta", Georgia, serif;
+  --body:"Mukta", "Noto Sans Devanagari", system-ui, sans-serif;
+  --mono:"IBM Plex Mono", ui-monospace, monospace;
+  --display-hi:"Yatra One", "Rozha One", serif;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#0e1511; --paper:#16201a; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
+  --green:#79c79a; --green-deep:#0a2417; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10; --stamp:#f08a73;
+  --on-green:#e5ede7; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#0e1511; --paper:#16201a; --ink:#e5ede7; --muted:#9db0a3; --line:#2a3a30;
+  --green:#79c79a; --green-deep:#0a2417; --green-soft:#1c3326; --turmeric:#e6b54e; --turmeric-soft:#382c10; --stamp:#f08a73;
+  --on-green:#e5ede7; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:17px;line-height:1.65}
+
+/* Hindi headings get their own display face */
+h1 .l-hi, h2 .l-hi, .logo b .l-hi, .slip header b .l-hi{font-family:var(--display-hi);font-weight:400;letter-spacing:.01em}
+.hero h1 .l-hi{line-height:1.2}
+:root:not([data-lang="en"]) .steps li::before{font-family:var(--display-hi)}
+
+/* language switching: Hindi shows by default */
+.l-en{display:none}
+:root[data-lang="en"] .l-hi{display:none}
+:root[data-lang="en"] .l-en{display:revert}
+
+.in{max-width:1080px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+a{color:var(--green)}
+a:focus-visible,button:focus-visible,summary:focus-visible{outline:2px solid var(--turmeric);outline-offset:2px}
+nav .in{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-block:18px;flex-wrap:wrap}
+.logo{display:flex;align-items:baseline;gap:10px;text-decoration:none;color:var(--ink)}
+.logo b{font-family:var(--display);font-weight:400;font-size:28px;color:var(--green);line-height:1}
+.logo small{font-size:14px;color:var(--muted)}
+.navr{display:flex;align-items:center;gap:20px;flex-wrap:wrap}
+nav ul{list-style:none;margin:0;padding:0;display:flex;gap:18px;flex-wrap:wrap;font-size:15.5px}
+nav ul a{text-decoration:none;color:var(--muted);font-weight:500}
+nav ul a:hover{color:var(--green)}
+.lang{display:inline-flex;border:1.5px solid var(--green);border-radius:999px;overflow:hidden;background:var(--paper)}
+.lang button{border:0;background:transparent;color:var(--green);font:600 14px/1 var(--body);padding:8px 14px;cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--green);color:var(--on-green)}
+:root[data-theme="dark"] .lang button[aria-pressed="true"]{color:var(--bg)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .lang button[aria-pressed="true"]{color:var(--bg)}}
+.cta{display:inline-flex;align-items:center;gap:8px;background:var(--green);color:var(--on-green);text-decoration:none;font-weight:600;padding:12px 20px;border-radius:10px;font-size:16.5px}
+.cta.alt{background:transparent;color:var(--green);border:1.5px solid var(--green)}
+.cta:hover{filter:brightness(1.08)}
+
+/* hero */
+.hero .in{display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center;padding-block:28px 64px}
+@media (max-width:860px){.hero .in{grid-template-columns:1fr;gap:36px}}
+.eyebrow{font-size:14px;font-weight:700;letter-spacing:.06em;color:var(--turmeric)}
+:root[data-lang="en"] .eyebrow{text-transform:uppercase;letter-spacing:.12em;font-size:13px}
+.hero h1{font-family:var(--display);font-weight:400;font-size:clamp(40px,7vw,68px);line-height:1.1;margin:10px 0 8px;color:var(--green);text-wrap:balance}
+.hero .sub{font-size:clamp(21px,3vw,27px);font-weight:600;margin:0 0 16px;line-height:1.3;text-wrap:balance}
+.hero p.lead{color:var(--muted);max-width:54ch;margin:0 0 26px}
+.btns{display:flex;gap:12px;flex-wrap:wrap}
+.small-note{font-size:14.5px;color:var(--muted);margin-top:14px}
+
+/* case slip */
+.slip{background:var(--paper);border:1px solid var(--line);border-radius:6px;padding:22px 22px 18px;position:relative;font-size:15px;box-shadow:0 1px 0 var(--line),0 18px 40px -24px rgba(20,40,28,.35);transform:rotate(-1.2deg);max-width:440px;justify-self:center;width:100%}
+@media (prefers-reduced-motion:no-preference){.slip{animation:settle .7s cubic-bezier(.2,.8,.2,1) both}@keyframes settle{from{transform:rotate(-4deg) translateY(10px)}}}
+.slip header{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ink);padding-bottom:8px;margin-bottom:10px;gap:8px;flex-wrap:wrap}
+.slip header b{font-family:var(--display);font-weight:400;font-size:20px}
+.slip .no{font-family:var(--mono);font-size:13px;color:var(--muted)}
+.slip dl{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;margin:0 0 12px}
+.slip dt{color:var(--muted);font-size:13.5px}
+.slip dd{margin:0;font-size:14.5px;border-bottom:1px dotted var(--line);min-width:0;overflow-wrap:anywhere}
+.slip dd.num{font-family:var(--mono);font-size:13.5px}
+.slip ol{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.slip ol li{display:grid;grid-template-columns:66px 1fr;gap:10px;font-size:14.5px;line-height:1.45}
+.slip ol time{font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+.slip ol li.next{color:var(--turmeric);font-weight:600}
+.stamp{position:absolute;right:16px;bottom:52px;border:2.5px solid var(--stamp);color:var(--stamp);font-weight:700;font-size:13px;letter-spacing:.06em;padding:6px 10px;border-radius:4px;transform:rotate(-9deg);opacity:.85;text-align:center;line-height:1.3}
+:root[data-lang="en"] .stamp{font-family:var(--mono);font-weight:500;font-size:12px;letter-spacing:.14em;text-transform:uppercase}
+.slip footer{margin-top:14px;padding-top:10px;border-top:1px dashed var(--line);font-size:13px;color:var(--muted)}
+
+/* bands */
+section{padding-block:64px}
+section h2{font-family:var(--display);font-weight:400;font-size:clamp(30px,4.5vw,42px);line-height:1.18;margin:6px 0 10px;text-wrap:balance}
+section .intro{color:var(--muted);max-width:62ch;margin:0 0 34px}
+.band-green{background:var(--green-deep);color:var(--on-green)}
+.band-green .intro,.band-green .muted{color:color-mix(in srgb,var(--on-green) 72%,transparent)}
+.band-paper{background:var(--paper);border-block:1px solid var(--line)}
+
+.pains{display:grid;grid-template-columns:repeat(3,1fr);gap:28px}
+@media (max-width:760px){.pains{grid-template-columns:1fr}}
+.pains div{border-top:2px solid color-mix(in srgb,var(--on-green) 30%,transparent);padding-top:14px}
+.pains b{display:block;font-size:19px;margin-bottom:4px}
+.pains p{margin:0;font-size:16px}
+
+.steps{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(4,1fr);gap:20px;counter-reset:s}
+@media (max-width:900px){.steps{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:520px){.steps{grid-template-columns:1fr}}
+.steps li{counter-increment:s;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px;min-width:0}
+.steps li::before{content:counter(s,devanagari);display:block;font-family:var(--display);font-size:38px;line-height:1;color:var(--turmeric);margin-bottom:10px}
+:root[data-lang="en"] .steps li::before{content:counter(s)}
+.steps b{display:block;font-size:18px;margin-bottom:4px}
+.steps p{margin:0;color:var(--muted);font-size:15.5px}
+
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:18px}
+.card{background:var(--bg,#fff);border:1px solid var(--line);border-radius:14px;padding:20px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.card h3{margin:0;font-size:19px;line-height:1.3}
+.card p{margin:0;color:var(--muted);font-size:15.5px}
+.card .where{font-size:14px}
+.card-foot{margin-top:auto;padding-top:12px;display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;border-top:1px dashed var(--line)}
+.price{font-size:22px;font-variant-numeric:tabular-nums}
+.price small{font-size:14px;font-weight:400;color:var(--muted)}
+.cta.sm{padding:9px 16px;font-size:15.5px}
+.svc-wrap{overflow-x:auto}
+.svc{width:100%;border-collapse:collapse;font-size:16px}
+.svc th{text-align:left;font-size:13.5px;letter-spacing:.04em;color:var(--muted);font-weight:600;padding:0 12px 10px 0;border-bottom:2px solid var(--ink)}
+.svc td{padding:14px 12px 14px 0;border-bottom:1px solid var(--line);vertical-align:top}
+.svc td:first-child{font-weight:600;min-width:190px}
+.svc td small{display:block;font-weight:400;color:var(--muted);font-size:14px}
+.svc td.fee{font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap;text-align:right;padding-right:0}
+.svc th:last-child{text-align:right;padding-right:0}
+.svc .office{color:var(--muted);font-size:15px}
+.fine{font-size:14.5px;color:var(--muted);margin-top:16px;max-width:72ch}
+
+.promise{display:grid;grid-template-columns:repeat(2,1fr);gap:18px 40px}
+@media (max-width:700px){.promise{grid-template-columns:1fr}}
+.promise > div{display:grid;grid-template-columns:28px 1fr;gap:12px;align-items:start}
+.promise svg{width:24px;height:24px;margin-top:4px}
+.promise b{display:block;font-size:18px}
+.promise p{margin:0;color:var(--muted);font-size:15.5px}
+
+.join{display:grid;grid-template-columns:1fr 1fr;gap:40px;align-items:start}
+@media (max-width:800px){.join{grid-template-columns:1fr}}
+.join ul{margin:0 0 22px;padding-left:20px}
+.join li{margin-bottom:6px}
+.earn{background:var(--turmeric-soft);border-radius:12px;padding:20px}
+.earn b{font-size:28px;font-variant-numeric:tabular-nums;color:var(--ink)}
+.earn p{margin:4px 0 0;color:var(--muted);font-size:15px}
+
+.faq{max-width:780px}
+.faq details{border-bottom:1px solid var(--line);padding:16px 0}
+.faq summary{cursor:pointer;font-weight:600;font-size:18px;list-style:none;display:flex;justify-content:space-between;gap:16px}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary::after{content:"+";color:var(--turmeric);font-size:24px;line-height:1}
+.faq details[open] summary::after{content:"–"}
+.faq p{margin:10px 0 0;color:var(--muted)}
+
+.final .in{display:flex;justify-content:space-between;align-items:center;gap:24px;flex-wrap:wrap}
+.final h2{margin:0;color:var(--on-green)}
+.final .cta{background:var(--turmeric);color:#1a1405}
+footer.site .in{padding-block:28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+
+.doc{max-width:780px;padding-block:24px 64px}
+.doc h1{font-family:var(--display);font-weight:400;font-size:clamp(32px,5vw,44px);line-height:1.2;margin:8px 0 6px}
+.doc h1 .l-hi{font-family:var(--display-hi)}
+.doc .meta{color:var(--muted);font-size:15px;margin:0 0 28px}
+.doc h2{font-size:21px;margin:34px 0 8px;line-height:1.35}
+.doc p,.doc li{font-size:16.5px}
+.doc ul{padding-left:22px;margin:8px 0}
+.doc li{margin-bottom:6px}
+.doc table{width:100%;border-collapse:collapse;font-size:15.5px;margin:10px 0}
+.doc th,.doc td{text-align:left;vertical-align:top;padding:10px 10px 10px 0;border-bottom:1px solid var(--line)}
+.doc th{font-size:13.5px;color:var(--muted);font-weight:600;border-bottom:2px solid var(--ink)}
+.tbl{overflow-x:auto}
+.box{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:12px 0}
+.todo{background:var(--turmeric-soft);padding:0 6px;border-radius:4px}
+footer.site .in{padding-block:28px;display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+</style>
+
+<nav>
+  <div class="in">
+    <a class="logo" href="index.html"><b><span class="l-hi">ग्राम सहायक</span><span class="l-en">Gram Sahayak</span></b><small><span class="l-hi">Gram Sahayak</span><span class="l-en">ग्राम सहायक</span></small></a>
+    <div class="navr">
+      <div class="lang" role="group" aria-label="भाषा / Language">
+        <button type="button" data-lang="hi" aria-pressed="true" lang="hi">हिंदी</button>
+        <button type="button" data-lang="en" aria-pressed="false" lang="en">English</button>
+      </div>
+    </div>
+  </div>
+</nav>
+<main class="in doc">
+  <h1><span class="l-hi">गोपनीयता नीति</span><span class="l-en">Privacy policy</span></h1>
+  <p class="meta"><span class="l-hi">लागू: 24 अक्टूबर 2026 · संस्करण 2026-10-24</span><span class="l-en">Effective 24 October 2026 · Version 2026-10-24</span></p>
+  <p><span class="l-hi">ग्राम सहायक बिहार से बाहर रहने वाले परिवारों के गाँव के सरकारी काम करवाता है। इसके लिए हमें आपकी कुछ जानकारी चाहिए। यह नीति बताती है कि हम क्या लेते हैं, क्यों, किसे दिखाते हैं, कब तक रखते हैं और आप उसे कैसे हटवा सकते हैं। यह डिजिटल व्यक्तिगत डेटा संरक्षण अधिनियम, 2023 (DPDP Act) के अनुसार है।</span><span class="l-en">Gram Sahayak gets village government work done for families living outside Bihar. To do that we need some of your details. This policy explains what we collect, why, who sees it, how long we keep it and how you can have it deleted. It follows the Digital Personal Data Protection Act, 2023 (DPDP Act).</span></p>
+
+  <h2><span class="l-hi">1. हम कौन हैं</span><span class="l-en">1. Who we are</span></h2>
+  <p><span class="l-hi">ग्राम सहायक (Gram Sahayak) आपकी जानकारी का “डेटा फ़िड्यूशरी” है, यानी उसकी ज़िम्मेदारी हमारी है। संचालक: कैलाश चंद्र ठाकुर।</span><span class="l-en">Gram Sahayak is the “data fiduciary” for your information, which means we are responsible for it. Operated by Kailash Chandra Thakur.</span></p>
+
+  <h2><span class="l-hi">2. हम कौन-सी जानकारी लेते हैं और क्यों</span><span class="l-en">2. What we collect and why</span></h2>
+  <div class="tbl"><table class="l-hi"><thead><tr><th>जानकारी</th><th>क्यों</th></tr></thead><tbody><tr><td>मोबाइल नंबर</td><td>OTP से लॉगिन, केस के बारे में संपर्क, WhatsApp अपडेट</td></tr><tr><td>नाम और आप किस शहर में रहते हैं</td><td>पहचान और केस पर नाम</td></tr><tr><td>ज़िला, अनुमंडल, प्रखंड, पंचायत, गाँव</td><td>सही प्रखंड का सहायक चुनना</td></tr><tr><td>समस्या का विवरण, खाता/खेसरा</td><td>दफ़्तर में आवेदन और पैरवी</td></tr><tr><td>आपके भेजे काग़ज़ और फ़ोटो</td><td>आवेदन के साथ लगाना</td></tr><tr><td>भुगतान: राशि, UPI का UTR नंबर</td><td>भुगतान की जाँच, रिफ़ंड, हिसाब-किताब</td></tr><tr><td>सहायक के दौरे, रसीदें, अगली तारीख़, आपकी रेटिंग</td><td>काम की प्रगति दिखाना, सेवा की गुणवत्ता</td></tr><tr><td>सहमति का रिकॉर्ड (तारीख़ और नीति संस्करण)</td><td>कानून के अनुसार सबूत रखना</td></tr></tbody></table><table class="l-en"><thead><tr><th>Information</th><th>Why</th></tr></thead><tbody><tr><td>Mobile number</td><td>OTP login, contact about your case, WhatsApp updates</td></tr><tr><td>Name and the city you live in</td><td>Identifying you and naming your case</td></tr><tr><td>District, subdivision, block, panchayat, village</td><td>Matching your case to a Sahayak in the right block</td></tr><tr><td>Problem description, khata/khesra</td><td>Filing and following up at the office</td></tr><tr><td>Papers and photos you upload</td><td>Attaching to applications</td></tr><tr><td>Payment: amount, UPI UTR number</td><td>Checking payment, refunds, accounts</td></tr><tr><td>Sahayak visits, receipts, next dates, your rating</td><td>Showing progress, service quality</td></tr><tr><td>Consent record (date and policy version)</td><td>Proof of consent as the law requires</td></tr></tbody></table></div>
+  <p><span class="l-hi">हम आधार नंबर, बैंक खाता या कार्ड नंबर नहीं माँगते। अगर किसी आवेदन में आधार लगाना ज़रूरी हो, तो पहले 8 अंक ढककर (masked Aadhaar) भेजें। हम आपकी जानकारी बेचते नहीं, विज्ञापन के लिए इस्तेमाल नहीं करते और आपकी सहमति के बिना किसी नए काम में नहीं लगाते।</span><span class="l-en">We do not ask for Aadhaar, bank account or card numbers. If an application needs Aadhaar, upload a masked copy with the first 8 digits covered. We do not sell your information, use it for advertising, or use it for any new purpose without your consent.</span></p>
+
+  <h2><span class="l-hi">3. आपकी जानकारी कौन देख सकता है</span><span class="l-en">3. Who can see your information</span></h2>
+  <ul class="l-hi"><li><b>आप</b>: अपने सारे केस, फ़ाइलें और भुगतान।</li><li><b>आपके प्रखंड के सत्यापित सहायक</b>: केस लेने से पहले सिर्फ़ आपका नाम, शहर, समस्या, गाँव और खाता/खेसरा, ताकि वे तय कर सकें कि केस लें या नहीं। आपका मोबाइल नंबर और फ़ाइलें सिर्फ़ उसी सहायक को दिखती हैं जो केस लेता है।</li><li><b>ग्राम सहायक प्रबंधन (admin)</b>: केस सौंपने, भुगतान जाँचने और शिकायत सुलझाने के लिए।</li><li><b>सरकारी दफ़्तर</b>: आपके नाम से दिए गए आवेदन में वही जानकारी जाती है जो उस काम के लिए ज़रूरी है।</li><li><b>सहयोगी वकील</b>: सिर्फ़ तब, जब आप ख़ुद कोर्ट का काम उन्हें देना चुनें।</li></ul><ul class="l-en"><li><b>You</b>: all your cases, files and payments.</li><li><b>Verified Sahayaks in your block</b>: before accepting, only your name, city, problem, village and khata/khesra, so they can decide whether to take it. Your phone number and files are shown only to the Sahayak who accepts the case.</li><li><b>Gram Sahayak admin</b>: to assign cases, check payments and resolve complaints.</li><li><b>Government offices</b>: applications filed in your name carry only what that work needs.</li><li><b>Partner advocates</b>: only if you choose to hand them court work.</li></ul>
+  <p><span class="l-hi">हम ये सेवाएँ इस्तेमाल करते हैं, जो सिर्फ़ हमारे निर्देश पर आपका डेटा रखती या भेजती हैं: Google Firebase (लॉगिन, डेटाबेस और फ़ाइलें, सर्वर मुंबई, भारत में); आपका UPI ऐप या बैंक, और आगे Razorpay (भुगतान); WhatsApp (जब सहायक आपको अपडेट भेजता है)।</span><span class="l-en">We use these services, which hold or send your data only on our instructions: Google Firebase (login, database and files, on servers in Mumbai, India); your UPI app or bank, and later Razorpay (payments); WhatsApp (when a Sahayak sends you an update).</span></p>
+
+  <h2><span class="l-hi">4. सुरक्षा</span><span class="l-en">4. Security</span></h2>
+  <ul class="l-hi"><li>आपका डेटा भारत (मुंबई) में रखा जाता है और इंटरनेट पर हमेशा सुरक्षित (HTTPS) तरीके से जाता है।</li><li>डेटाबेस के नियम ऐसे हैं कि कोई परिवार किसी दूसरे का केस नहीं देख सकता, और फ़ाइलें सिर्फ़ ऊपर बताए लोग खोल सकते हैं।</li><li>हर सहायक लिखित वचन देता है कि वह आपकी जानकारी गोपनीय रखेगा, सिर्फ़ आपके केस में इस्तेमाल करेगा और केस बंद होने पर अपने फ़ोन से कॉपी हटा देगा। सहायक के सत्यापन के काग़ज़ (आधार, पुलिस सत्यापन) ऐप में नहीं, अलग सुरक्षित रखे जाते हैं।</li></ul><ul class="l-en"><li>Your data is stored in India (Mumbai) and always travels over a secure (HTTPS) connection.</li><li>Database rules stop any family from seeing another family's case, and files open only for the people listed above.</li><li>Every Sahayak signs an undertaking to keep your details confidential, use them only for your case and delete copies from their phone when it closes. Sahayak verification papers (Aadhaar, police verification) are kept separately and securely, not in the app.</li></ul>
+
+  <h2><span class="l-hi">5. हम जानकारी कब तक रखते हैं</span><span class="l-en">5. How long we keep it</span></h2>
+  <ul class="l-hi"><li>जब तक आपका खाता चालू है।</li><li>केस बंद होने के 2 साल बाद उस केस की फ़ाइलें और विवरण हटा दिए जाते हैं, जब तक कोई विवाद या कानूनी ज़रूरत न हो।</li><li>भुगतान का रिकॉर्ड (राशि, तारीख़, UTR) टैक्स और हिसाब-किताब के कानून के अनुसार 8 साल तक, आपके नाम और नंबर के बिना।</li><li>आप हटाने को कहें, तो 30 दिन के अंदर।</li></ul><ul class="l-en"><li>For as long as your account is active.</li><li>Files and details of a case are deleted 2 years after it closes, unless there is a dispute or legal need.</li><li>Payment records (amount, date, UTR) are kept up to 8 years as tax and accounting law requires, without your name or number.</li><li>Within 30 days if you ask us to delete it.</li></ul>
+
+  <h2><span class="l-hi">6. आपके अधिकार</span><span class="l-en">6. Your rights</span></h2>
+  <ul class="l-hi"><li><b>जानकारी पाना</b>: हम आपकी कौन-सी जानकारी रखते हैं और किसे दी, यह पूछना।</li><li><b>सुधार</b>: गलत या अधूरी जानकारी ठीक करवाना।</li><li><b>हटाना</b>: ऐप में <b>“मेरा डेटा हटाएँ”</b> दबाएँ। 30 दिन के अंदर प्रोफ़ाइल, केस, फ़ाइलें और मोबाइल नंबर हटा दिए जाएँगे।</li><li><b>सहमति वापस लेना</b>: कभी भी, उतनी ही आसानी से जितनी आसानी से दी थी। इसके बाद चल रहा काम रुक जाएगा।</li><li><b>नॉमिनी</b>: आपकी मृत्यु या असमर्थता की स्थिति में आपके अधिकार इस्तेमाल करने के लिए किसी को नामित करना।</li><li><b>शिकायत</b>: नीचे दिए शिकायत अधिकारी से।</li></ul><ul class="l-en"><li><b>Access</b>: ask what information we hold about you and who it was shared with.</li><li><b>Correction</b>: have wrong or incomplete details fixed.</li><li><b>Deletion</b>: tap <b>“Delete my data”</b> in the app. Your profile, cases, files and phone number are deleted within 30 days.</li><li><b>Withdraw consent</b>: at any time, as easily as you gave it. Ongoing work then stops.</li><li><b>Nominee</b>: name someone to use these rights if you die or cannot act.</li><li><b>Complaint</b>: to the grievance officer below.</li></ul>
+
+  <h2><span class="l-hi">7. बच्चे</span><span class="l-en">7. Children</span></h2>
+  <p><span class="l-hi">18 वर्ष से कम उम्र के लोग ख़ुद खाता नहीं बना सकते। किसी बच्चे के प्रमाण पत्र जैसे काम के लिए माता-पिता अपने खाते से केस भेजें।</span><span class="l-en">People under 18 cannot create an account. For work such as a child's certificate, a parent posts the case from their own account.</span></p>
+
+  <h2><span class="l-hi">8. डेटा लीक होने पर</span><span class="l-en">8. If there is a data breach</span></h2>
+  <p><span class="l-hi">अगर कभी आपकी जानकारी गलत हाथों में जाने की आशंका हो, तो हम कानून के अनुसार आपको और भारतीय डेटा संरक्षण बोर्ड (Data Protection Board of India) को बिना देरी के बताएँगे, और नुकसान कम करने के कदम उठाएँगे।</span><span class="l-en">If your information may have reached the wrong hands, we will tell you and the Data Protection Board of India without delay, as the law requires, and take steps to limit the harm.</span></p>
+
+  <h2><span class="l-hi">9. शिकायत अधिकारी</span><span class="l-en">9. Grievance officer</span></h2>
+  <div class="box">
+    <p style="margin:0"><b><span class="l-hi">नाम:</span><span class="l-en">Name:</span></b> <span class="l-hi">कैलाश चंद्र ठाकुर</span><span class="l-en">Kailash Chandra Thakur</span><br>
+    <b><span class="l-hi">ईमेल:</span><span class="l-en">Email:</span></b> <span class="todo" id="grievance-email">EMAIL_TO_ADD</span><br>
+    <span class="l-hi">हम 30 दिन के अंदर जवाब देंगे। जवाब से संतुष्ट न हों, तो आप भारतीय डेटा संरक्षण बोर्ड में शिकायत कर सकते हैं।</span><span class="l-en">We reply within 30 days. If you are not satisfied, you can complain to the Data Protection Board of India.</span></p>
+  </div>
+
+  <h2><span class="l-hi">10. इस नीति में बदलाव</span><span class="l-en">10. Changes to this policy</span></h2>
+  <p><span class="l-hi">नीति बदलने पर हम ऊपर की तारीख़ बदलेंगे और ऐप में आपसे दोबारा सहमति माँगेंगे।</span><span class="l-en">If we change this policy we will update the date above and ask for your consent again in the app.</span></p>
+</main>
+<footer class="site">
+  <div class="in">
+    <span><span class="l-hi">ग्राम सहायक</span><span class="l-en">Gram Sahayak</span></span>
+    <span><a href="index.html"><span class="l-hi">होम</span><span class="l-en">Home</span></a> · <a href="app.html"><span class="l-hi">ऐप</span><span class="l-en">App</span></a></span>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var root = document.documentElement;
+  function setLang(l){
+    root.setAttribute("data-lang", l);
+    root.setAttribute("lang", l === "en" ? "en" : "hi");
+    document.querySelectorAll(".lang button").forEach(function(b){ b.setAttribute("aria-pressed", String(b.dataset.lang === l)); });
+    try { localStorage.setItem("gs-lang", l); } catch(e){}
+  }
+  var saved = null;
+  try { saved = localStorage.getItem("gs-lang"); } catch(e){}
+  if (location.hash === "#en") saved = "en";
+  setLang(saved === "en" ? "en" : "hi");
+  document.querySelectorAll(".lang button").forEach(function(b){ b.addEventListener("click", function(){ setLang(b.dataset.lang); }); });
+})();
+</script>
+
+</body>
+</html>

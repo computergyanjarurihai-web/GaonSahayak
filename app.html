@@ -33,6 +33,11 @@ body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:16p
 .brand b{font-family:var(--display);font-weight:400;font-size:28px;color:var(--green);line-height:1.1}
 .brand span{color:var(--muted);font-size:14px}
 .barr{display:flex;gap:8px;align-items:center}
+.check{display:flex;flex-direction:row;gap:10px;align-items:flex-start;font-size:14.5px;line-height:1.5;color:var(--ink);font-weight:400}
+.check input{width:20px;height:20px;margin-top:2px;flex:none;accent-color:var(--green)}
+.check a,.notice a,.panel small a{color:var(--green)}
+.app-foot{margin:36px 0 12px;font-size:14px;color:var(--muted);display:flex;gap:16px;flex-wrap:wrap}
+.app-foot a{color:var(--muted)}
 .svc-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px}
 .svc-btn{display:flex;justify-content:space-between;align-items:center;gap:12px;text-align:left;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:12px;padding:14px 16px;font:500 15.5px/1.35 var(--body);cursor:pointer}
 .svc-btn b{white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -140,7 +145,8 @@ const CONFIG = {
   upiId: "kailashchandrathakur-2@okhdfcbank",
   upiName: "Gram Sahayak",
   razorpayKey: "",         // उदाहरण: "rzp_live_xxxx" (खाली छोड़ें तो सिर्फ़ UPI)
-  sahayakShare: 0.7
+  sahayakShare: 0.7,
+  privacyVersion: "2026-10-24"   // गोपनीयता नीति बदलें तो यह तारीख़ बदलें; सबसे दोबारा सहमति ली जाएगी
 };
 </script>
 
@@ -155,6 +161,7 @@ const CONFIG = {
   </div>
   <div id="modeNote" class="notice" hidden></div>
   <main id="main"></main>
+  <footer class="app-foot"><a id="privLink" href="privacy.html">गोपनीयता नीति</a></footer>
 </div>
 
 <div id="sheet" class="sheet-bg" hidden>
@@ -181,7 +188,7 @@ const TXT = {
   cat:["समस्या का प्रकार","Problem type"], title:["छोटा शीर्षक","Short title"], titlePh:["जैसे: 8 महीने से दाखिल-खारिज लंबित","e.g. Mutation pending for 8 months"],
   desc:["क्या हुआ?","What happened?"], descHelp:["हिंदी या अंग्रेज़ी में। दफ़्तर का नाम, तारीख, कौन शामिल है।","Hindi or English. Office name, dates, who is involved."],
   land:["खाता / खेसरा नंबर","Khata / Khesra no."], landHelp:["ज़मीन के केस के लिए","for land cases"],
-  files:["काग़ज़ और फ़ोटो","Papers and photos"], filesHelp:["खतियान, रसीद, आवेदन, फ़ोटो। PDF या फ़ोटो, हर फ़ाइल 10 MB तक।","Khatiyan, receipts, applications, photos. PDF or image, up to 10 MB each."],
+  files:["काग़ज़ और फ़ोटो","Papers and photos"], filesHelp:["खतियान, रसीद, आवेदन, फ़ोटो। PDF या फ़ोटो, हर फ़ाइल 10 MB तक। आधार लगाना ज़रूरी हो तो पहले 8 अंक ढक दें।","Khatiyan, receipts, applications, photos. PDF or image, up to 10 MB each. If you must add Aadhaar, cover the first 8 digits."],
   feeL:["सेवा शुल्क","Service fee"], feeHelp:["पूरा शुल्क केस भेजते समय। काम न होने पर पैसा वापस।","Full fee when you post the case. Refunded if the work is not done."],
   postBtn:["समस्या भेजें","Post problem"], posting:["भेजा जा रहा है…","Posting…"], posted:["समस्या भेज दी गई। सहायक जल्द केस लेगा।","Problem posted. A Sahayak will take it up soon."],
   mineT:["आपके केस","Your cases"], mineS:["हर दौरा, रसीद और अगली तारीख यहाँ दिखेगी।","Every visit, receipt and next date shows here."],
@@ -242,6 +249,12 @@ try { if (localStorage.getItem("gs-lang") === "en") LANG = "en"; } catch(e){}
 const L = () => LANG === "en" ? 1 : 0;
 const t = k => (TXT[k] || [k,k])[L()];
 const catName = k => (CATS[k] || {})[LANG] || k;
+const anonCase = c => ({anonymized:true, ownerUid:"deleted", category:c.category||"", fee:c.fee||0, status:c.status||"", block:c.block||"", district:c.district||"",
+  payments:(c.payments||[]).map(p => ({part:p.part||"", amount:p.amount||0, method:p.method||"", ref:p.ref||"", at:p.at||"", verified:!!p.verified})), createdAt:c.createdAt||"", deletedAt:nowIso()});
+const consentRecord = () => ({version:CONFIG.privacyVersion, at:nowIso(), adult:true});
+const consentBox = id => `<label class="check"><input type="checkbox" id="${id}" required><span>${LANG==="en"
+  ? `I am 18 or older. I have read the <a href="privacy.html" target="_blank" rel="noopener">privacy policy</a> and agree to share my details for this service.`
+  : `मेरी उम्र 18 वर्ष या उससे अधिक है। मैंने <a href="privacy.html" target="_blank" rel="noopener">गोपनीयता नीति</a> पढ़ ली है और इस सेवा के लिए अपनी जानकारी देने को सहमत हूँ।`}</span></label>`;
 /* service chosen on the website (app.html?seva=key), kept across the OTP login */
 const PENDING = (() => {
   let k = null;
@@ -365,9 +378,23 @@ function firebaseBackend(){
       const path = `cases/${caseId}/${Date.now()}-${file.name.replace(/[^\w.\-]+/g,"_")}`;
       const ref = st.ref(path);
       await ref.put(file, {contentType:file.type});
-      return {name:file.name, path, url: await ref.getDownloadURL(), type:file.type, size:file.size, at:nowIso(), by};
+      // download URL जानबूझकर केस में सेव नहीं होता; खोलते समय बनता है ताकि Storage नियम लागू रहें
+      return {name:file.name, path, type:file.type, size:file.size, at:nowIso(), by};
     },
-    queueNotification(n){ return fs.collection("notifications").add({...n, status:"queued", at:nowIso()}); }
+    fileUrl(path){ return st.ref(path).getDownloadURL(); },
+    queueNotification(n){ return fs.collection("notifications").add({...n, status:"queued", at:nowIso()}); },
+    // DPDP: व्यक्ति के अनुरोध पर उसका डेटा हटाना। सिर्फ़ भुगतान का बिना-नाम वाला रिकॉर्ड हिसाब-किताब के लिए रहता है।
+    async eraseUser(uid){
+      const qs = await fs.collection("cases").where("ownerUid","==",uid).get();
+      for (const d of qs.docs) {
+        const c = d.data();
+        for (const f of (c.files||[])) { if (f.path) { try { await st.ref(f.path).delete(); } catch(e){ console.warn(e); } } }
+        try { await d.ref.collection("private").doc("contact").delete(); } catch(e){ console.warn(e); }
+        try { const ns = await fs.collection("notifications").where("caseId","==",d.id).get(); for (const n of ns.docs) await n.ref.delete(); } catch(e){ console.warn(e); }
+        await d.ref.set(anonCase(c));
+      }
+      await fs.collection("users").doc(uid).delete();
+    }
   };
 }
 
@@ -389,6 +416,7 @@ function demoBackend(){
     },
     priv:{ "demo-c1mut":{phone:"+919800000001",name:"उदाहरण परिवार"}, "demo-c2res":{phone:"+919800000001",name:"उदाहरण परिवार"} }
   };
+  Object.values(db.users).forEach(u => u.consent = {version:CONFIG.privacyVersion});
   const subs = new Set();
   const notify = () => subs.forEach(f => f());
   let authCb = null, pendingPhone = null;
@@ -414,7 +442,9 @@ function demoBackend(){
     async updateCase(id, patch, entry, payment, files){ const c = db.cases[id]; Object.assign(c, patch); if (entry) c.updates = [...(c.updates||[]), entry]; if (payment) c.payments = [...(c.payments||[]), payment]; if (files && files.length) c.files = [...(c.files||[]), ...files]; notify(); },
     async setPayments(id, payments){ db.cases[id].payments = payments; notify(); },
     async uploadFile(caseId, file, by){ return {name:file.name, path:"demo/"+file.name, url:URL.createObjectURL(file), type:file.type, size:file.size, at:nowIso(), by}; },
-    async queueNotification(){}
+    async fileUrl(path){ return path; },
+    async queueNotification(){},
+    async eraseUser(uid){ for (const [id,c] of Object.entries(db.cases)) if (c.ownerUid === uid) { db.cases[id] = anonCase(c); delete db.priv[id]; } delete db.users[uid]; notify(); }
   };
 }
 
@@ -455,6 +485,7 @@ function startWatches(){
     watchList("all", B.watchCases({}, put("all")));
     watchList("apps", B.watchUsers("applied", true, put("apps")));
     watchList("sahayaks", B.watchUsers("role", "sahayak", put("sahayaks")));
+    watchList("dels", B.watchUsers("deleteRequested", true, put("dels")));
   }
 }
 
@@ -466,11 +497,13 @@ function renderShell(){
   $("#brandSub").textContent = LANG === "en" ? "ग्राम सहायक" : "Gram Sahayak";
   $("#logoutBtn").textContent = t("logout");
   $("#logoutBtn").hidden = !S.authUser;
+  $("#privLink").textContent = LANG === "en" ? "Privacy policy" : "गोपनीयता नीति";
   const note = $("#modeNote");
   note.hidden = B.mode !== "demo"; note.className = "notice warn"; note.textContent = t("demo");
   const main = $("#main");
   if (!S.authUser) { main.innerHTML = loginHtml(); bindLogin(); return; }
   if (!S.me) { main.innerHTML = profileHtml(); bindProfile(); return; }
+  if (!S.me.consent || S.me.consent.version !== CONFIG.privacyVersion) { main.innerHTML = consentHtml(); bindConsent(); return; }
   const tabs = [["family", t("tFamily")]];
   if (S.me.role === "sahayak") tabs.push(["sahayak", t("tSahayak")]);
   if (S.me.role === "admin") tabs.push(["admin", t("tAdmin")]);
@@ -488,7 +521,7 @@ function renderShell(){
   renderData();
 }
 function demoSwitch(uid){
-  if (uid === "demo-admin") { B.getUser("demo-admin").then(u => { if (!u) B.createUser("demo-admin",{name:"प्रबंधक",city:"",village:"",block:"Ghanshyampur",phone:"+919800000009",role:"admin",example:true}).then(()=>B.switchUser("demo-admin")); else B.switchUser("demo-admin"); }); return; }
+  if (uid === "demo-admin") { B.getUser("demo-admin").then(u => { if (!u) B.createUser("demo-admin",{name:"प्रबंधक",city:"",village:"",block:"Ghanshyampur",phone:"+919800000009",role:"admin",example:true,consent:{version:CONFIG.privacyVersion}}).then(()=>B.switchUser("demo-admin")); else B.switchUser("demo-admin"); }); return; }
   B.switchUser(uid);
 }
 
@@ -496,6 +529,7 @@ function loginHtml(){
   return `${pendingNote()}<h2>${t("loginT")}</h2><p class="sub">${t("loginS")}</p>
   <form id="loginForm" class="panel" style="display:flex;flex-direction:column;gap:12px">
     <label>${t("mobile")}<div class="phone"><span>+91</span><input id="l-phone" inputmode="numeric" autocomplete="tel-national" maxlength="10" placeholder="98XXXXXXXX" required></div></label>
+    ${consentBox("l-consent")}
     <button class="btn" id="l-send" type="submit">${t("sendOtp")}</button>
     <div id="l-err" class="notice warn" hidden></div>
     <div id="l-otpBox" hidden style="display:flex;flex-direction:column;gap:12px">
@@ -560,11 +594,21 @@ function bindProfile(){
     e.preventDefault();
     const u = S.authUser, loc = readLoc("p");
     if (!loc.panchayat || !loc.village) { toast(t("needVillage")); return; }
-    try { await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), ...loc, phone:u.phone, role:"family", createdAt:nowIso()}); }
+    try { await B.createUser(u.uid, {name:$("#p-name").value.trim(), city:$("#p-city").value.trim(), ...loc, phone:u.phone, role:"family", consent:consentRecord(), createdAt:nowIso()}); }
     catch(err){ console.error(err); toast(t("failed")); }
   });
 }
 
+function consentHtml(){
+  return `<h2>${LANG==="en" ? "Your consent" : "आपकी सहमति"}</h2>
+  <p class="sub">${LANG==="en" ? "We have published a privacy policy. It says what we collect, why, who can see it, and how you can get it deleted. Please read it and agree to continue." : "हमने गोपनीयता नीति जारी की है। इसमें लिखा है कि हम कौन-सी जानकारी लेते हैं, क्यों, उसे कौन देख सकता है और आप उसे कैसे हटवा सकते हैं। आगे बढ़ने के लिए इसे पढ़कर सहमति दें।"}</p>
+  <form id="consentForm" class="panel" style="display:flex;flex-direction:column;gap:14px">${consentBox("c-consent")}
+  <button class="btn" type="submit">${LANG==="en" ? "Agree and continue" : "सहमत हूँ, आगे बढ़ें"}</button></form>`;
+}
+function bindConsent(){
+  $("#consentForm").addEventListener("submit", async e => { e.preventDefault();
+    try { await B.updateUser(S.authUser.uid, {consent:consentRecord()}); } catch(err){ console.error(err); toast(t("failed")); } });
+}
 function familyShell(){
   const me = S.me;
   return `<h2>${t("postT")}</h2><p class="sub">${t("postS")}</p>
@@ -579,7 +623,8 @@ function familyShell(){
   <div class="row-end"><div class="fee">${t("feeL")} <b id="f-fee"></b><br><small>${t("feeHelp")}</small></div><button class="btn" id="f-submit" type="submit">${t("postBtn")}</button></div></form>
   <h2>${t("mineT")}</h2><p class="sub">${t("mineS")}</p>
   <div id="mineList" class="list"></div>
-  <div id="applyBox"></div>`;
+  <div id="applyBox"></div>
+  <div id="privacyBox"></div>`;
 }
 function bindFamily(){
   const f = $("#caseForm"); if (!f) return;
@@ -600,6 +645,7 @@ function adminShell(){
   <h2>${t("payT")}</h2><p class="sub">${t("payS")}</p><div id="payList" class="panel"></div>
   <h2>${t("appsT")}</h2><p class="sub">${t("appsS")}</p><div id="appList" class="panel"></div>
   <h2>${t("sahT")}</h2><div id="sahList" class="panel"></div>
+  <h2>${LANG==="en" ? "Data deletion requests" : "डेटा हटाने के अनुरोध"}</h2><p class="sub">${LANG==="en" ? "Do it within 30 days. Profile, cases, files and phone numbers are deleted; only an unnamed payment record is kept for accounts. Then delete the login from Firebase → Authentication." : "30 दिन के अंदर करें। प्रोफ़ाइल, केस, फ़ाइलें और मोबाइल नंबर हट जाते हैं; सिर्फ़ बिना नाम का भुगतान रिकॉर्ड हिसाब के लिए रहता है। उसके बाद Firebase → Authentication से उस नंबर का लॉगिन भी हटाएँ।"}</p><div id="delList" class="panel"></div>
   <h2>${t("allT")}</h2><div id="allList" class="list"></div>`;
 }
 
@@ -612,6 +658,10 @@ function renderData(){
   const ab = $("#applyBox");
   if (ab) ab.innerHTML = S.me.role !== "family" ? "" : S.me.applied ? `<div class="notice" style="margin-top:20px">${t("applied")}</div>`
     : `<div class="panel" style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><b>${t("applyT")}</b><button class="btn ghost small" data-act="apply">${t("applyBtn")}</button></div>`;
+  const pb = $("#privacyBox");
+  if (pb) pb.innerHTML = S.me.deleteRequested
+    ? `<div class="notice warn" style="margin-top:20px">${LANG==="en" ? "Your request to delete your data has been received. It will be done within 30 days and you will get a message." : "आपका डेटा हटाने का अनुरोध मिल गया है। 30 दिन के अंदर हटा दिया जाएगा और आपको सूचना मिलेगी।"}</div>`
+    : `<div class="panel" style="margin-top:22px;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap"><div><b>${LANG==="en" ? "Your data" : "आपका डेटा"}</b><br><small style="color:var(--muted)">${LANG==="en" ? "Ask us to delete your profile, cases and files." : "अपनी प्रोफ़ाइल, केस और फ़ाइलें हटाने का अनुरोध करें।"} <a href="privacy.html" target="_blank" rel="noopener">${LANG==="en" ? "Privacy policy" : "गोपनीयता नीति"}</a></small></div><button class="btn ghost small" data-act="askdelete">${LANG==="en" ? "Delete my data" : "मेरा डेटा हटाएँ"}</button></div>`;
   if (S.me.role === "sahayak") {
     const open = S.lists.open || [], asg = S.lists.assigned || [];
     const active = asg.filter(c => c.status !== "closed"), done = asg.filter(c => c.status === "closed");
@@ -651,7 +701,7 @@ function caseCard(c, actions, opts={}){
     <div class="meta"><span>${esc(catName(c.category))}</span><span>${esc(c.village)}${c.panchayat?" ("+esc(c.panchayat)+")":""}, ${esc(blockLabel(c.block))}${c.district?", "+esc(locName(findDist(c.district))||c.district):""}</span><span>${LANG==="en"?"From "+esc(c.city):esc(c.city)+" "+t("from")}</span><span>${t("postedOn")} ${fmt(c.createdAt)}</span>${c.sahayakName?`<span>${t("sahayakL")}: <b>${esc(c.sahayakName)}</b></span>`:""}${nextUp?`<span>${t("nextDate")}: <b>${fmt(nextUp.next)}</b></span>`:""}</div>
     <p class="desc">${esc(c.description)}</p>
     <div class="tags">${c.land?`<span>${esc(c.land)}</span>`:""}<span>${t("fee")} ${rupee(c.fee)}</span></div>
-    ${files.length?`<div class="files">${files.map(f=>`<a href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}
+    ${files.length?`<div class="files">${files.map(f=>f.url ? `<a href="${esc(f.url)}" target="_blank" rel="noopener">📎 ${esc(f.name)}</a>` : `<a href="#" data-act="openfile" data-path="${esc(f.path)}">📎 ${esc(f.name)}</a>`).join("")}</div>`:""}
     ${opts.payments ? payBox(c) : ""}
     <details><summary>${t("timeline")} · ${ups.length}</summary>
       <ul class="tl">${ups.map(u=>`<li><div class="when">${fmt(u.at)} · ${esc(u.by==="system"?t("system"):u.by)}</div>${esc(u.text)}${u.ref?`<div class="ref">${t("ref")}: ${esc(u.ref)}</div>`:""}${u.next?`<div class="ref">${t("nextDate")}: ${fmt(u.next)}</div>`:""}</li>`).join("")}</ul>
@@ -660,13 +710,15 @@ function caseCard(c, actions, opts={}){
   </article>`;
 }
 function renderAdmin(){
-  const all = S.lists.all || [], apps = (S.lists.apps || []).filter(u => u.role === "family"), sah = S.lists.sahayaks || [];
+  const all = (S.lists.all || []).filter(c => !c.anonymized), apps = (S.lists.apps || []).filter(u => u.role === "family"), sah = S.lists.sahayaks || [];
   const closed = all.filter(c => c.status === "closed");
   const pending = []; all.forEach(c => (c.payments||[]).forEach((p,i) => { if (!p.verified) pending.push({c,p,i}); }));
   const st = $("#adminStats"); if (st) st.innerHTML = stat(all.filter(c=>c.status==="posted").length, t("waiting")) + stat(all.filter(c=>!["posted","closed"].includes(c.status)).length, t("inProg")) + stat(closed.length, t("closed")) + stat(pending.length, t("payPend"));
   const pl = $("#payList"); if (pl) pl.innerHTML = pending.length ? pending.map(({c,p,i}) => `<div class="prow"><div><b>${code(c.id)} · ${rupee(p.amount)}</b><small>${partLabel(p.part)} · ${esc(p.method.toUpperCase())} · ${t("ref")}: ${esc(p.ref||"–")} · ${fmt(p.at)}</small></div><button class="btn small" data-act="verifypay" data-id="${esc(c.id)}" data-i="${i}">${t("verifyPay")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noPay")}</div>`;
   const apl = $("#appList"); if (apl) apl.innerHTML = apps.length ? apps.map(u => `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.appliedBlock||u.block))} · ${esc(u.occupation||"")} · ${esc(u.phone||"")}</small></div><button class="btn small" data-act="approve" data-uid="${esc(u.id)}">${t("approve")}</button></div>`).join("") : `<div class="empty" style="border:0">${t("noApps")}</div>`;
   const sl = $("#sahList"); if (sl) sl.innerHTML = sah.length ? sah.map(u => { const n = all.filter(c=>c.sahayakUid===u.id); return `<div class="prow"><div><b>${esc(u.name)}</b>${u.example?`<span class="ex">${t("example")}</span>`:""}<small>${esc(blockLabel(u.block))} · ${n.length} · ${avgRating(n.filter(c=>c.status==="closed"))}</small></div><span class="pill s-closed">✓</span></div>`; }).join("") : `<div class="empty" style="border:0">${t("noSah")}</div>`;
+  const dels = S.lists.dels || [];
+  const dl = $("#delList"); if (dl) dl.innerHTML = dels.length ? dels.map(u => `<div class="prow"><div><b>${esc(u.name||"–")}</b><small>${esc(u.phone||"")} · ${LANG==="en"?"Requested":"अनुरोध"} ${fmt(u.deleteRequestedAt)}</small></div><button class="btn small warm" data-act="erase" data-uid="${esc(u.id)}">${LANG==="en"?"Delete data":"डेटा हटाएँ"}</button></div>`).join("") : `<div class="empty">${LANG==="en"?"No requests":"कोई अनुरोध नहीं"}</div>`;
   const al = $("#allList"); if (al) al.innerHTML = all.length ? all.map(c => {
     const opts = sah.filter(u => u.block === c.block);
     const sel = c.status === "closed" ? "" : `<label style="flex:1 1 220px">${t("assign")}<select data-act="assign" data-id="${esc(c.id)}"><option value="">${opts.length?t("choose"):t("noneInBlock")}</option>${opts.map(u=>`<option value="${esc(u.id)}"${u.id===c.sahayakUid?" selected":""}>${esc(u.name)}</option>`).join("")}</select></label>`;
@@ -818,10 +870,34 @@ function openApply(){
   openSheet(t("applyBtn"), `<form id="aForm"><p class="desc" style="color:var(--muted)">${t("appsS")}</p>
     ${locFields("a", false)}
     <label>${t("occ")}<input id="a-occ" required maxlength="60" placeholder="${esc(t("occPh"))}"></label>
+    <label class="check"><input type="checkbox" id="a-undertake" required><span>${LANG==="en"
+      ? "I will keep every family's details, phone number and papers confidential, use them only for their case, never share them with anyone, and delete copies on my phone when the case closes."
+      : "मैं हर परिवार की जानकारी, मोबाइल नंबर और काग़ज़ गोपनीय रखूँगा, उन्हें सिर्फ़ उसी केस के लिए इस्तेमाल करूँगा, किसी और को नहीं दूँगा, और केस बंद होने पर अपने फ़ोन से उनकी कॉपी हटा दूँगा।"}</span></label>
     <div class="actions"><button class="btn" type="submit">${t("submit")}</button><button class="btn ghost" type="button" id="a-x">${t("cancel")}</button></div></form>`, () => {
     $("#a-x").onclick = closeSheet;
     bindLoc("a", {district:S.me.district, subdivision:S.me.subdivision, block:S.me.block});
-    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:readLoc("a").block, occupation:$("#a-occ").value.trim(), appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
+    $("#aForm").onsubmit = async ev => { ev.preventDefault(); try { await B.updateUser(S.authUser.uid, {applied:true, appliedBlock:readLoc("a").block, occupation:$("#a-occ").value.trim(), undertaking:{version:CONFIG.privacyVersion, at:nowIso()}, appliedAt:nowIso()}); closeSheet(); toast(t("applied")); } catch(e){ console.error(e); toast(t("failed")); } };
+  });
+}
+function openFile(path){
+  const w = window.open("", "_blank");
+  B.fileUrl(path).then(u => { if (w) w.location = u; else location.href = u; }).catch(e => { console.error(e); if (w) w.close(); toast(t("failed")); });
+}
+function openAskDelete(){
+  openSheet(LANG==="en" ? "Delete my data" : "मेरा डेटा हटाएँ", `<p style="color:var(--muted)">${LANG==="en"
+    ? "Your profile, cases, uploaded files and phone number will be deleted within 30 days. Open cases will stop. A payment record without your name is kept for accounts. Fees already paid for work done are not refunded."
+    : "30 दिन के अंदर आपकी प्रोफ़ाइल, केस, अपलोड की गई फ़ाइलें और मोबाइल नंबर हटा दिए जाएँगे। चल रहे केस बंद हो जाएँगे। हिसाब-किताब के लिए आपके नाम के बिना सिर्फ़ भुगतान का रिकॉर्ड रहेगा। हो चुके काम का शुल्क वापस नहीं होता।"}</p>
+    <div class="actions"><button class="btn warm" id="d-yes" type="button">${LANG==="en" ? "Yes, delete" : "हाँ, हटाएँ"}</button><button class="btn ghost" id="d-no" type="button">${t("cancel")}</button></div>`, () => {
+    $("#d-no").onclick = closeSheet;
+    $("#d-yes").onclick = async () => { try { await B.updateUser(S.authUser.uid, {deleteRequested:true, deleteRequestedAt:nowIso()}); closeSheet(); } catch(e){ console.error(e); toast(t("failed")); } };
+  });
+}
+function openErase(uid){
+  const u = (S.lists.dels||[]).find(x => x.id === uid); if (!u) return;
+  openSheet(LANG==="en" ? "Delete this person's data?" : "इस व्यक्ति का डेटा हटाएँ?", `<p><b>${esc(u.name||"")}</b> · ${esc(u.phone||"")}</p><p style="color:var(--muted)">${LANG==="en" ? "This cannot be undone." : "यह वापस नहीं होगा।"}</p>
+    <div class="actions"><button class="btn warm" id="e-yes" type="button">${LANG==="en" ? "Delete" : "हटाएँ"}</button><button class="btn ghost" id="e-no" type="button">${t("cancel")}</button></div>`, () => {
+    $("#e-no").onclick = closeSheet;
+    $("#e-yes").onclick = async () => { $("#e-yes").disabled = true; try { await B.eraseUser(uid); closeSheet(); toast(LANG==="en" ? "Data deleted." : "डेटा हटा दिया गया।"); } catch(e){ console.error(e); toast(t("failed")); $("#e-yes").disabled = false; } };
   });
 }
 async function approve(uid){
@@ -845,6 +921,9 @@ document.addEventListener("click", e => {
     case "rate": if (c) openRate(c); break;
     case "apply": openApply(); break;
     case "approve": approve(b.dataset.uid); break;
+    case "askdelete": openAskDelete(); break;
+    case "openfile": e.preventDefault(); openFile(b.dataset.path); break;
+    case "erase": openErase(b.dataset.uid); break;
     case "verifypay": if (c) verifyPay(c, Number(b.dataset.i)); break;
   }
 });
