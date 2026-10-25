@@ -274,6 +274,8 @@ const consentRecord = () => ({version:CONFIG.privacyVersion, at:nowIso(), adult:
 const consentBox = id => `<label class="check"><input type="checkbox" id="${id}" required><span>${LANG==="en"
   ? `I am 18 or older. I have read the <a href="privacy.html" target="_blank" rel="noopener">privacy policy</a> and agree to share my details for this service.`
   : `मेरी उम्र 18 वर्ष या उससे अधिक है। मैंने <a href="privacy.html" target="_blank" rel="noopener">गोपनीयता नीति</a> पढ़ ली है और इस सेवा के लिए अपनी जानकारी देने को सहमत हूँ।`}</span></label>`;
+/* OTP: accept a pasted SMS line or spaced/dashed digits ("123 456", "123-456", "123456 is your code…") */
+const otpCode = v => { v = String(v || ""); const m = v.match(/(?:^|\D)(\d{6})(?!\d)/); if (m) return m[1]; const d = v.replace(/\D/g, ""); return d.length >= 6 ? d.slice(0, 6) : d; };
 /* service chosen on the website (app.html?seva=key), kept across the OTP login */
 const PENDING = (() => {
   let k = null;
@@ -640,7 +642,7 @@ function loginHtml(){
     <button class="btn" id="l-send" type="submit">${t("sendOtp")}</button>
     <div id="l-err" class="notice warn" hidden></div>
     <div id="l-otpBox" hidden style="display:flex;flex-direction:column;gap:12px">
-      <label>${t("otp")}<input id="l-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="123456"></label>
+      <label>${t("otp")}<input id="l-otp" inputmode="numeric" autocomplete="one-time-code" maxlength="40" placeholder="123456"></label>
       <button class="btn" id="l-verify" type="button">${t("verify")}</button>
     </div>
   </form>
@@ -683,7 +685,7 @@ function bindLogin(){
   });
   $("#l-verify").addEventListener("click", async () => {
     $("#l-verify").disabled = true;
-    try { await B.verifyOtp($("#l-otp").value.trim()); } catch(err){ console.error(err); if (err && err.code && err.code !== "auth/invalid-verification-code") showLoginError(err); else toast(t("badOtp")); }
+    try { await B.verifyOtp(otpCode($("#l-otp").value)); } catch(err){ console.error(err); if (err && err.code && err.code !== "auth/invalid-verification-code") showLoginError(err); else toast(t("badOtp")); }
     finally { const b = $("#l-verify"); if (b) b.disabled = false; }
   });
 }
