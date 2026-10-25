@@ -235,8 +235,14 @@ const CATS = {
   certificate:{hi:"प्रमाण पत्र (जाति, आय, निवास)", en:"Certificate (caste, income, residence)", fee:499},
   scheme:{hi:"पेंशन / योजना लाभ", en:"Pension / scheme benefit", fee:499},
   rti:{hi:"फ़ाइल की स्थिति / RTI", en:"Status check / RTI", fee:299},
-  guardian:{hi:"गाँव निगरानी योजना (मासिक)", en:"Village guardian plan (monthly)", fee:999}
+  elder_care:{hi:"माता-पिता की देखभाल (मासिक)", en:"Parents' care (monthly)", fee:999, monthly:true,
+    tip:["हर हफ़्ते मिलकर वीडियो कॉल, डॉक्टर/दवाई, पेंशन व बैंक का काम, इमरजेंसी में तुरंत पहुँचना। विवरण में माता-पिता का नाम, उम्र, पता और ज़रूरी दवाइयाँ/डॉक्टर लिखें। उनका मोबाइल नंबर सहायक को केस लेने के बाद ही दिखेगा।","Weekly visit with a video call, doctor visits and medicines, pension and bank work, and quick help in an emergency. In the description write your parents' names, age, address and regular medicines/doctor."]},
+  home_report:{hi:"घर / खेत की मासिक फ़ोटो रिपोर्ट", en:"Monthly house / farm photo report", fee:399, monthly:true,
+    tip:["महीने में एक बार घर और खेत जाकर फ़ोटो/वीडियो: ताला, छत, दीवार, मीटर, खेत की मेड़ और फ़सल। कोई गड़बड़ दिखे तो तुरंत ख़बर। विवरण में घर/खेत की जगह और पहचान (खाता-खेसरा, आस-पास का निशान) लिखें।","One visit a month to your house and farm with photos/video: lock, roof, walls, meter, field boundaries and crop, with an alert if anything looks wrong. In the description say where the house/farm is and how to identify it."]},
+  guardian:{hi:"गाँव निगरानी योजना (मासिक)", en:"Village guardian plan (monthly)", fee:999, monthly:true}
 };
+const perMo = k => CATS[k] && CATS[k].monthly ? (LANG==="en" ? "/mo" : "/माह") : "";
+const feeTxt = k => rupee(CATS[k].fee) + perMo(k);
 const STATUS = {
   posted:["भेजा गया","Posted"], assigned:["सहायक तय","Sahayak assigned"], in_progress:["काम चल रहा","In progress"],
   escalated:["शिकायत दर्ज","Escalated"], resolved:["हल हुआ · पुष्टि करें","Solved · confirm"], closed:["पूरा ✓","Closed ✓"]
@@ -275,7 +281,7 @@ const PENDING = (() => {
   return { get: () => (k && CATS[k]) ? k : null, set: v => { k = v; try { sessionStorage.setItem("gs_seva", v); } catch(e) {} }, clear: () => { k = null; try { sessionStorage.removeItem("gs_seva"); } catch(e) {} } };
 })();
 const pendingNote = () => { const k = PENDING.get(); if (!k) return "";
-  return `<div class="notice">${LANG==="en" ? "You chose: " : "आपने चुनी सेवा: "}<b>${esc(catName(k))}</b> · ${rupee(CATS[k].fee)}<br><small>${LANG==="en" ? "Log in and this service will be filled in for you." : "लॉगिन करें, फ़ॉर्म में यह सेवा पहले से भरी मिलेगी।"}</small></div>`; };
+  return `<div class="notice">${LANG==="en" ? "You chose: " : "आपने चुनी सेवा: "}<b>${esc(catName(k))}</b> · ${feeTxt(k)}<br><small>${LANG==="en" ? "Log in and this service will be filled in for you." : "लॉगिन करें, फ़ॉर्म में यह सेवा पहले से भरी मिलेगी।"}</small></div>`; };
 const stName = k => (STATUS[k] || [k,k])[L()];
 const fmt = iso => { try { return new Date(iso).toLocaleDateString(LANG==="en"?"en-IN":"hi-IN",{day:"numeric",month:"short",year:"numeric"}); } catch(e){ return ""; } };
 const nowIso = () => new Date().toISOString();
@@ -381,7 +387,7 @@ function setCats(st){
   const cur = sel.value, ks = catsFor(st);
   sel.innerHTML = ks.map(k => `<option value="${k}">${esc(catName(k, st))}</option>`).join("");
   sel.value = ks.includes(cur) ? cur : ks[0];
-  const fee = $("#f-fee"); if (fee) fee.textContent = rupee(CATS[sel.value].fee);
+  sel.dispatchEvent(new Event("change"));
   const lw = $("#f-landw"); if (lw) lw.textContent = (st && st !== "bihar") ? (LANG==="en" ? "Khewat / Khatauni / Khasra no." : "खेवट / खतौनी / खसरा नंबर") : t("land");
 }
 function ensureStates(items){
@@ -565,7 +571,7 @@ async function start(){
     S.authUser = u; S.me = null; S.view = null;
     if (!u) { renderShell(); return; }
     userUnsub = B.watchUser(u.uid, me => {
-      const gate = x => !!x && !!x.consent && x.consent.version === CONFIG.privacyVersion && (x.role !== "sahayak" || !!x.undertaking);
+      const gate = x => !!x && !!x.consent && x.consent.version === CONFIG.privacyVersion && (x.role !== "sahayak" || utOk(x));
       const roleChanged = !S.me || !me || S.me.role !== me.role || S.me.block !== me.block || S.me.blockKey !== me.blockKey || gate(S.me) !== gate(me);
       S.me = me;
       if (roleChanged) { stopWatches(); startWatches(); renderShell(); } else renderData();
@@ -604,7 +610,7 @@ function renderShell(){
   if (!S.authUser) { main.innerHTML = loginHtml(); bindLogin(); return; }
   if (!S.me) { main.innerHTML = profileHtml(); bindProfile(); return; }
   if (!S.me.consent || S.me.consent.version !== CONFIG.privacyVersion) { main.innerHTML = consentHtml(); bindConsent(); return; }
-  if (S.me.role === "sahayak" && !S.me.undertaking) { main.innerHTML = undertakingHtml(); bindUndertaking(); return; }
+  if (S.me.role === "sahayak" && !utOk(S.me)) { main.innerHTML = undertakingHtml(); bindUndertaking(); return; }
   const tabs = [["family", t("tFamily")]];
   if (S.me.role === "sahayak") tabs.push(["sahayak", t("tSahayak")]);
   if (S.me.role === "admin") tabs.push(["admin", t("tAdmin")], ["sahmgr", LANG==="en" ? "Sahayaks" : "सहायक"]);
@@ -640,7 +646,7 @@ function loginHtml(){
   </form>
   <h2 style="margin-top:28px">${LANG==="en" ? "Our services" : "हमारी सेवाएँ"}</h2>
   <p class="sub">${LANG==="en" ? "Pick the work you need, then log in. Full refund if the work is not done." : "जो काम करवाना है वह चुनें, फिर लॉगिन करें। काम न होने पर पूरा पैसा वापस।"}</p>
-  <div class="svc-pick">${Object.keys(CATS).map(k => `<button type="button" class="svc-btn" data-seva="${k}" aria-pressed="${PENDING.get()===k}"><span>${esc(catName(k))}</span><b>${rupee(CATS[k].fee)}${k==="guardian" ? (LANG==="en"?"/mo":"/माह") : ""}</b></button>`).join("")}</div>`;
+  <div class="svc-pick">${Object.keys(CATS).map(k => `<button type="button" class="svc-btn" data-seva="${k}" aria-pressed="${PENDING.get()===k}"><span>${esc(catName(k))}</span><b>${feeTxt(k)}</b></button>`).join("")}</div>`;
 }
 const AUTH_ERR = {
   "auth/invalid-phone-number":["मोबाइल नंबर सही नहीं है।","The mobile number is not valid."],
@@ -711,18 +717,30 @@ function bindConsent(){
   $("#consentForm").addEventListener("submit", async e => { e.preventDefault();
     try { await B.updateUser(S.authUser.uid, {consent:consentRecord()}); } catch(err){ console.error(err); toast(t("failed")); } });
 }
-const UNDERTAKE = () => LANG==="en"
-  ? "I will keep every family's details, phone number and papers confidential, use them only for their case, never share them with anyone, and delete copies on my phone when the case closes."
-  : "मैं हर परिवार की जानकारी, मोबाइल नंबर और काग़ज़ गोपनीय रखूँगा, उन्हें सिर्फ़ उसी केस के लिए इस्तेमाल करूँगा, किसी और को नहीं दूँगा, और केस बंद होने पर अपने फ़ोन से उनकी कॉपी हटा दूँगा।";
+const UT_VERSION = "2026-10-25";
+const utOk = x => !!(x && x.undertaking && x.undertaking.version === UT_VERSION);
+const UT_POINTS = [
+  ["मैं हर परिवार की जानकारी, मोबाइल नंबर और काग़ज़ गोपनीय रखूँगा, उन्हें सिर्फ़ उसी केस के लिए इस्तेमाल करूँगा, किसी और को नहीं दूँगा, और केस बंद होने पर अपने फ़ोन से उनकी कॉपी हटा दूँगा।",
+   "I will keep every family's details, phone number and papers confidential, use them only for their case, never share them with anyone, and delete copies on my phone when the case closes."],
+  ["मैं किसी भी परिवार से पावर ऑफ़ अटॉर्नी (मुख़्तारनामा) नहीं लूँगा, और न उनकी जगह किसी काग़ज़, बिक्री, रजिस्ट्री या समझौते पर हस्ताक्षर करूँगा।",
+   "I will never take a power of attorney from any family, and never sign any paper, sale, registry or settlement on their behalf."],
+  ["हर आवेदन परिवार के अपने नाम और अपने मोबाइल OTP से होगा। मैं ज़मीन ख़रीदने-बेचने या उसके सौदे में कोई भूमिका नहीं निभाऊँगा।",
+   "Every application will be in the family's own name, with their own mobile OTP. I will play no part in buying, selling or dealing in their land."],
+  ["मैं केस की फ़ीस के अलावा परिवार से कोई पैसा नहीं लूँगा। सरकारी शुल्क सिर्फ़ रसीद के साथ लूँगा। न रिश्वत दूँगा, न लूँगा।",
+   "I will take no money from the family beyond the case fee. Government fees only against a receipt. I will neither pay nor take a bribe."],
+  ["इनमें से कोई भी नियम तोड़ने पर मुझे हमेशा के लिए हटाया जा सकता है और मामला पुलिस को दिया जा सकता है।",
+   "Breaking any of these rules means permanent removal, and the matter may be reported to the police."]
+];
+const UNDERTAKE = () => `<ol style="margin:0;padding-left:20px;display:grid;gap:8px">${UT_POINTS.map(p => `<li>${p[LANG==="en"?1:0]}</li>`).join("")}</ol>`;
 function undertakingHtml(){
   return `<h2>${LANG==="en" ? "You are now a Sahayak" : "आप अब सहायक हैं"}</h2>
   <p class="sub">${LANG==="en" ? "Before you see families' cases, please accept this undertaking." : "परिवारों के केस देखने से पहले यह वचन स्वीकार करें।"}</p>
-  <form id="utForm" class="panel" style="display:flex;flex-direction:column;gap:14px"><label class="check"><input type="checkbox" required><span>${UNDERTAKE()}</span></label>
+  <form id="utForm" class="panel" style="display:flex;flex-direction:column;gap:14px">${UNDERTAKE()}<label class="check"><input type="checkbox" required><span>${LANG==="en" ? "I have read all the points above and accept them." : "मैंने ऊपर की सभी बातें पढ़ ली हैं और इन्हें मानता/मानती हूँ।"}</span></label>
   <button class="btn" type="submit">${LANG==="en" ? "I accept" : "मैं स्वीकार करता/करती हूँ"}</button></form>`;
 }
 function bindUndertaking(){
   $("#utForm").addEventListener("submit", async e => { e.preventDefault();
-    try { await B.updateUser(S.authUser.uid, {undertaking:{version:CONFIG.privacyVersion, at:nowIso()}}); } catch(err){ console.error(err); toast(t("failed")); } });
+    try { await B.updateUser(S.authUser.uid, {undertaking:{version:UT_VERSION, at:nowIso()}}); } catch(err){ console.error(err); toast(t("failed")); } });
 }
 function sahMgrShell(){
   return `<h2>${t("appsT")}</h2><p class="sub">${t("appsS")}</p><div id="appList" class="panel"></div>
@@ -768,6 +786,7 @@ function familyShell(){
   <form id="caseForm" class="panel"><div class="grid">
     ${locFields("f")}
     <label>${t("cat")}<select id="f-cat">${catsFor("bihar").map(k=>`<option value="${k}">${esc(catName(k, "bihar"))}</option>`).join("")}</select></label>
+    <p id="f-tip" class="full notice" hidden></p>
     <label class="full">${t("title")}<input id="f-title" required maxlength="90" placeholder="${esc(t("titlePh"))}"></label>
     <label class="full">${t("desc")} <small>${t("descHelp")}</small><textarea id="f-desc" required maxlength="1500"></textarea></label>
     <label><span id="f-landw">${t("land")}</span> <small>${t("landHelp")}</small><input id="f-land" maxlength="40"></label>
@@ -781,7 +800,8 @@ function familyShell(){
 }
 function bindFamily(){
   const f = $("#caseForm"); if (!f) return;
-  const showFee = () => $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+  const showFee = () => { const k = $("#f-cat").value, tp = $("#f-tip"); $("#f-fee").textContent = feeTxt(k);
+    if (tp) { const tip = CATS[k] && CATS[k].tip; tp.hidden = !tip; tp.textContent = tip ? tip[LANG==="en"?1:0] : ""; } };
   const pk = PENDING.get();
   if (pk) { $("#f-cat").value = pk; PENDING.clear(); setTimeout(() => { f.scrollIntoView({behavior:"smooth", block:"start"}); $("#f-title").focus({preventScroll:true}); }, 50); }
   $("#f-cat").addEventListener("change", showFee); showFee();
@@ -904,7 +924,7 @@ async function postCase(e){
     data.land = sv.land;
     const id = await B.createCase(data, {phone:sv.phone, name:me.name});
     if (files.length) { toast(t("uploading")); const up = await uploadAll(id, files); if (up.length) await B.updateCase(id, {}, null, null, up); }
-    $("#caseForm").reset(); bindLoc("f", {state:me.state, district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}, setCats); $("#f-fee").textContent = rupee(CATS[$("#f-cat").value].fee);
+    $("#caseForm").reset(); bindLoc("f", {state:me.state, district:me.district, subdivision:me.subdivision, block:me.block, panchayat:me.panchayat, village:me.village}, setCats); $("#f-cat").dispatchEvent(new Event("change"));
     toast(t("posted"));
     openPay({...data, id}, "full");
   } catch(err){ console.error(err); toast(t("failed")); }
