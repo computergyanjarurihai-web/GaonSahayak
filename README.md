@@ -2,7 +2,7 @@
 
 **गाँव का काम, अब शहर से।** Village work, now from the city.
 
-Gram Sahayak helps families from Bihar and Punjab living away from home get village problems solved without travelling home. A family posts the problem (land encroachment, pending mutation, land survey paperwork, certificates, pensions), a verified local helper called a *Sahayak* visits the right office on their behalf, and every step is logged with photos, receipt numbers and next dates.
+Gram Sahayak helps families from Bihar, Punjab, Haryana and Himachal living away from home get village problems solved without travelling home. A family posts the problem (land encroachment, pending mutation, land survey paperwork, certificates, pensions) or asks for a check on their parents or locked house; a verified local helper called a *Sahayak* visits the right office or home on their behalf, and every step is logged with photos, receipt numbers and next dates.
 
 The pilot starts in Darbhanga district (Ghanshyampur, Biraul and one more block).
 
@@ -48,6 +48,8 @@ Until a Firebase config is pasted into `CONFIG` at the top of `app.html`, the ap
 | Certificates (caste, income, residence) | ₹499 |
 | Pension and scheme benefits | ₹499 |
 | File status check or RTI | ₹299 |
+| Parents' care (weekly visit, doctor, pension, emergency) | ₹999 / month |
+| Monthly house / farm photo report | ₹399 / month |
 | Village guardian plan | ₹999 / month |
 
 The Sahayak keeps 70% of each fee. Government fees are charged at cost, with receipts.
